@@ -1,0 +1,17 @@
+
+#macro( fielderror $name )
+    #if($errors.opt($name))
+    <div class="alert alert-danger fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        $errors.opt($name)
+    </div> 
+    #end
+#end
+
+#macro( editabletextnode $identifier  )
+    #set($textNode = $pageService.getTextNode($thisPage, $identifier))
+    #set($code = $pageService.renderText($textNode.getSource()))
+    <div id="$!{thisPage.getUrlName()}/$!{textNode.getNode().getIdentifier()}/$!{textNode.getId()}"
+        class="edit_area">$code</div>
+#end
+

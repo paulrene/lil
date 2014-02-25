@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->  
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->  
+<head>
+    <title>#if($thisPage)$thisPage.getTitle()#{else}404: Ukjent Side#end</title>
+
+    <base href="http://localhost:8080/">
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Leinstrand IL sine hjemmesider.">
+    <meta name="author" content="Leinstrand idrettslag">
+
+    <!-- CSS Global Compulsory-->
+    <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/headers/header2.css">
+    <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="shortcut icon" href="favicon.ico">
+    <!-- CSS Implementing Plugins -->
+    <link rel="stylesheet" href="assets/plugins/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="assets/plugins/flexslider/flexslider.css">
+    <!-- CSS Page Style -->
+#if($thisPage.getTemplate() == "magazine")
+    <link rel="stylesheet" href="assets/css/pages/page_magazine.css">
+    <link rel="stylesheet" href="assets/css/pages/page_search.css">
+#elseif($thisPage.getTemplate() == "contact")
+    <link rel="stylesheet" href="assets/css/pages/page_contact.css">
+#elseif($thisPage.getTemplate() == "page")
+    <link rel="stylesheet" href="assets/css/pages/blog.css">
+    <link rel="stylesheet" href="assets/css/pages/page_magazine.css"> 
+#elseif($thisPage.getTemplate() == "404")
+    <link rel="stylesheet" href="assets/css/pages/page_404_error.css">
+#end
+    <!-- CSS Theme -->
+    <link rel="stylesheet" href="assets/css/themes/red.css" id="style_color">
+    <link rel="stylesheet" href="assets/css/themes/headers/header2-red.css" id="style_color-header-2">
+</head>
+
+<body>

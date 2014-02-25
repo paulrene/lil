@@ -1,0 +1,62 @@
+<!--=== Header ===-->    
+<div class="header margin-bottom-10">
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/" style="padding-top:12px">
+                    <img id="logo-header" height="39" src="images/lil-logo_391.png" alt="Leinstrand Idrettslag">
+                    <span style="color:red;font-size:34px;vertical-align:middle;letter-spacing:-3px;font-weight:bold">Leinstrand IL</span>
+                </a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav navbar-right">
+#set($rootEntries = $menuService.getRootEntries())
+#foreach($rootMenu in $rootEntries)
+#if(!$rootMenu.isDisabled())
+                    <li class="dropdown#if($menuService.isPageInThisTopMenu($rootMenu, $thisPage)) active#end">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="0" data-close-others="false">
+                            $rootMenu.getDescription()
+                            <i class="icon-angle-down"></i>
+                        </a>
+#set($subMenuEntries = $menuService.sortEntries($rootMenu.getSubMenuEntries()))
+#if(!$subMenuEntries.isEmpty())
+                        <ul class="dropdown-menu">
+#foreach($subMenu in $subMenuEntries)
+#if(!$subMenu.isHidden())
+#if($subMenu.getPage())
+#set($urlName = $subMenu.getPage().getUrlName())
+                            <li#if($urlName.equals($thisPage.getUrlName())) class="active"#end><a href="/page/$urlName">$subMenu.getDescription()</a></li>
+#else
+                            <li><a href="#">$subMenu.getDescription()</a></li>
+#end
+#end
+#end
+                        </ul>
+#end
+                    </li>
+#end
+#end
+                    <li class="hidden-sm"><a class="search"><i class="icon-search search-btn"></i></a></li>
+                </ul>
+                <div class="search-open">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Hva leter du etter?">
+                        <span class="input-group-btn">
+                            <button class="btn-u" type="button">Søk</button>
+                        </span>
+                    </div><!-- /input-group -->
+                </div>                
+            </div><!-- /navbar-collapse -->
+        </div>    
+    </div>    
+</div><!--/header-->
+<!--=== End Header ===-->

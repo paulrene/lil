@@ -1,0 +1,33 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+<!--=== Breadcrumbs ===-->
+<div class="breadcrumbs margin-bottom-40">
+    <div class="container">
+        <h1 class="pull-left">404 Error</h1>
+        <ul class="pull-right breadcrumb">
+            <li><a href="/">Forsiden</a></li>
+            <li class="active">404 Error</li>
+        </ul>
+    </div> 
+</div><!--/breadcrumbs-->
+<!--=== End Breadcrumbs ===-->
+
+<!--=== Content Part ===-->
+<div class="container">     
+    <!--Error Block-->
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="error-v1">
+                <span class="error-v1-title">404</span>
+                <span>Her har det visst skjedd en feil!</span>
+                <p>Siden du leter etter er enten flyttet eller eksisterer ikke lenger.</p>
+            </div>
+        </div>
+    </div>
+    <!--End Error Block-->
+</div>  
+<!--=== End Content Part ===-->
+
+#parse("fragments/footer.vm")

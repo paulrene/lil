@@ -1,0 +1,7 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+Hello, World!
+
+#parse("fragments/footer.vm")

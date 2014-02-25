@@ -1,0 +1,125 @@
+<!--=== Footer ===-->
+<div class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 md-margin-bottom-40">
+                <!-- About -->
+                <div class="headline"><h2>Om Leinstrand IL</h2></div>  
+                <p class="margin-bottom-25 md-margin-bottom-40">
+                    Leinstrand IL ble stiftet 17. januar 1886 og er et fleridrettslag for fotball, langrenn, hurtigløp
+                    på skøyter og allidrett. Leinstrand IL er medlem av Norges Idrettsforbund gjennom
+                    Sør-Trøndelag Idrettskrets. Klubben er også medlem av særforbundene Norges Fotballforbund,
+                    Norges Skiforbund og Norges Skøyteforbund, gjennom henholdsvis Trøndelag Fotballkrets,
+                    Sør-Trøndelag skikrets og Sør-Trøndelag skøytekrets.
+                </p>
+            </div><!--/col-md-4-->
+
+            <div class="col-md-4 md-margin-bottom-40">
+                <div class="posts">
+                    <div class="headline"><h2>Siste nytt fra laget</h2></div>
+                    <dl class="dl-horizontal">
+                        <dt><a href="#"><img src="assets/img/sliders/elastislide/6.jpg" alt="" /></a></dt>
+                        <dd>
+                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
+                        </dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                    <dt><a href="#"><img src="assets/img/sliders/elastislide/10.jpg" alt="" /></a></dt>
+                        <dd>
+                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
+                        </dd>
+                    </dl>
+                    <dl class="dl-horizontal">
+                    <dt><a href="#"><img src="assets/img/sliders/elastislide/11.jpg" alt="" /></a></dt>
+                        <dd>
+                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
+                        </dd>
+                    </dl>
+                </div>
+            </div><!--/col-md-4-->
+
+            <div class="col-md-4">
+                <div class="headline"><h2>Kontakt laget</h2></div> 
+                <address class="md-margin-bottom-40">
+                    Leinstrand Idrettslag <br />
+                    7083 Leinstrand<br />
+                    Telefon: <a href="tel:+47 977 57 365">977 57 365</a> (Styreleder)<br />
+                    E-post: <a href="mailto:kontakt@leinstrand-il.no">kontakt@leinstrand-il.no</a>
+                </address>
+
+                <!-- Stay Connected -->
+                <div class="headline"><h2>Følg oss i Sosiale Media</h2></div> 
+                <ul class="social-icons">
+                    <li><a href="/rss" data-original-title="Feed" class="social_rss"></a></li>
+                    <li><a href="https://www.facebook.com/LeinstrandIL" data-original-title="Facebook" class="social_facebook"></a></li>
+                </ul>
+            </div><!--/col-md-4-->
+        </div><!--/row-->
+    </div><!--/container-->
+</div><!--/footer-->
+<!--=== End Footer ===-->
+
+<!--=== Copyright ===-->
+<div class="copyright">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="copyright-space">
+                    2014 &copy; Leinstrand Idrettslag.
+                    <a href="#">Personvern</a> | <a href="#">Tjenestebetingelser</a>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <a href="/">
+                    <img id="logo-footer" src="images/lil-logo_391.png" height="39" class="pull-right" alt="Leinstrand Idrettslag" />
+                </a>
+            </div>
+        </div><!--/row-->
+    </div><!--/container-->
+</div><!--/copyright-->
+<!--=== End Copyright ===-->
+
+<!-- JS Global Compulsory -->
+<script type="text/javascript" src="assets/plugins/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="assets/plugins/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="assets/plugins/hover-dropdown.min.js"></script>
+<script type="text/javascript" src="assets/plugins/back-to-top.js"></script>
+<script type="text/javascript" src="js/jquery.jeditable.mini.js"></script>
+<!-- JS Implementing Plugins -->
+#if($thisPage.getTemplate() == "contact")
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="assets/plugins/gmap/gmap.js"></script>
+#end
+<script type="text/javascript" src="assets/plugins/flexslider/jquery.flexslider-min.js"></script>
+<!-- JS Page Level -->
+<script type="text/javascript" src="assets/js/app.js"></script>
+#if($thisPage.getTemplate() == "contact")
+<script type="text/javascript" src="assets/js/pages/contact.js"></script>
+#end
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        App.init();
+        App.initSliders();
+#if($thisPage.getTemplate() == "contact")
+        Contact.initMap();
+#end
+        $('.edit_area').editable('/api/save/textnode', {
+            loadurl  : '/api/load/textnode',
+            type     : 'textarea',
+            cancel   : 'Avbryt',
+            submit   : 'Lagre',
+            rows     : 4,
+            tooltip  : 'Klikk for å endre..',
+            callback : function(value, settings) {
+                location.reload(true);
+            }
+        });
+    });
+</script>
+<!--[if lt IE 9]>
+    <script src="assets/plugins/respond.js"></script>
+<![endif]-->
+
+</body>
+</html>

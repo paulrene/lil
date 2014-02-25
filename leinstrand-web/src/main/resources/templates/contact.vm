@@ -1,0 +1,73 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+<!-- Google Map -->
+<div id="map" class="map margin-bottom-40">
+</div><!---/map-->
+<!-- End Google Map -->
+
+<!--=== Content Part ===-->
+<div class="container">
+    <div class="row margin-bottom-30">
+        <div class="col-md-9 mb-margin-bottom-30">
+            <div class="headline"><h2>Kontaktskjema</h2></div>
+            #if($info)
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                #set($len = $info.length() - 1)
+                #foreach($index in [0..$len])
+                    $info.opt($index)
+                #end
+            </div> 
+            #end
+            #fielderror( "action" )
+
+            #editabletextnode( "contactformdescription" )
+            <br />
+
+            <form method="POST">
+                <input type="hidden" name="action" value="sendmessage" />
+                <label>Ditt navn</label>
+                <div class="row margin-bottom-20">
+                    <div class="col-md-7 col-md-offset-0">
+                        <input name="name" type="text" value="$!data.opt("name")" class="form-control">
+                    </div>
+                </div>
+                #fielderror( "name" )
+
+                <label>Din e-postadresse <span class="color-red">*</span></label>
+                <div class="row margin-bottom-20">
+                    <div class="col-md-7 col-md-offset-0">
+                        <input name="email" type="email" value="$!data.opt("email")" required="required" type="text" class="form-control">
+                    </div>
+                </div>
+                #fielderror( $errors "email" )
+
+                <label>Melding</label>
+                <div class="row margin-bottom-20">
+                    <div class="col-md-11 col-md-offset-0">
+                        <textarea name="message" rows="8" class="form-control">$!data.opt("message")</textarea>
+                    </div>
+                </div>
+                #fielderror( "message" )
+
+                <p><button type="submit" class="btn-u">Send meldingen</button></p>
+            </form>
+        </div><!--/col-md-9-->
+
+        <div class="col-md-3">
+            <!-- Contacts -->
+            <div class="headline"><h2>Kontaktopplysninger</h2></div>
+            <ul class="list-unstyled who margin-bottom-30">
+                <li><a href="/"><i class="icon-home"></i>Leinstrand Idrettslag, 7083 Leinstrand</a></li>
+                <li><a href="mailto:kontakt@leinstrand-il.no"><i class="icon-envelope-alt"></i>kontakt@leinstrand-il.no</a></li>
+                <li><a href="tel:97757365"><i class="icon-phone-sign"></i>977 57 365</a> (Styreleder)</li>
+                <li><a href="/"><i class="icon-globe"></i>http://www.leinstrandil.no</a></li>
+            </ul>
+        </div><!--/col-md-3-->
+    </div><!--/row-->
+</div><!--/container-->     
+<!--=== End Content Part ===-->
+
+#parse("fragments/footer.vm")
