@@ -17,12 +17,12 @@
     <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/headers/header2.css">
-    <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
     <link rel="shortcut icon" href="favicon.ico">
     <!-- CSS Implementing Plugins -->
     <link rel="stylesheet" href="assets/plugins/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" href="assets/plugins/flexslider/flexslider.css">
+    <link rel="stylesheet" href="redactor/redactor.css" />
     <!-- CSS Page Style -->
 #if($thisPage.getTemplate() == "magazine")
     <link rel="stylesheet" href="assets/css/pages/page_magazine.css">

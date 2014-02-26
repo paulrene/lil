@@ -1,4 +1,4 @@
-<!--=== Top ===-->    
+<!--=== Top ===-->
 <div class="top-v1">
     <div class="container">
         <div class="row">
@@ -17,9 +17,11 @@
                 <ul class="list-unstyled top-v1-data">
                     <li><a href="/"><i class="icon-home"></i></a></li>
                     <li><a href="/fblogin">Logg inn med Facebook</a></li>
+                    <li><a href="/page/${thisPage.getUrlName()}#" id="redactor_edit"><i class="icon-edit"></i></a></li>
+                    <li><a href="/page/${thisPage.getUrlName()}#" id="redactor_save"><i class="icon-save"></i></a></li>
                 </ul>
             </div><!--/top-v1-data-->
-        </div>        
+        </div>
     </div>
 </div><!--/top-v1-->
 <!--=== End Top ===-->

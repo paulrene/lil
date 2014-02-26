@@ -1,4 +1,4 @@
-<!--=== Header ===-->    
+<!--=== Header ===-->
 <div class="header margin-bottom-10">
     <div class="navbar navbar-default" role="navigation">
         <div class="container">
@@ -54,9 +54,9 @@
                             <button class="btn-u" type="button">Søk</button>
                         </span>
                     </div><!-- /input-group -->
-                </div>                
+                </div>
             </div><!-- /navbar-collapse -->
-        </div>    
-    </div>    
+        </div>
+    </div>
 </div><!--/header-->
 <!--=== End Header ===-->

@@ -22,14 +22,14 @@
         <div class="col-md-9 md-margin-bottom-60">
             <!--Blog Post-->
             <div class="blog margin-bottom-40">
-                <h2>#editable_field( "generictitle" )</h2>
+                <h2>#redactor( "generictitle" true)</h2>
                 <div class="blog-post-tags">
                     <ul class="list-unstyled list-inline blog-info">
                         <li><i class="icon-calendar"></i> $pageService.formatDate($thisPage.getUpdated())</li>
                         <li><i class="icon-pencil"></i> $pageService.getLastAuthorName($thisPage)</li>
                     </ul>
                 </div>
-                #editable_area( "genericbody" )
+                #redactor( "genericbody" false)
             </div>
             <!--End Blog Post-->
         </div>

@@ -31,10 +31,6 @@ public class PageService {
         }
     }
 
-    public String renderText(String source) {
-        return source;
-    }
-
     public Node getNode(Page page, String identifier) {
         Set<Node> nodes = page.getNodes();
         for (Node node : nodes) {

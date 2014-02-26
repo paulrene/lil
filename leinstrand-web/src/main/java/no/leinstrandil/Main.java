@@ -122,6 +122,8 @@ public class Main {
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
+                context.put("redactorIdList", new ArrayList<String>());
+                context.put("redactorAirIdList", new ArrayList<String>());
                 context.put("thisPage", page);
                 String errorsJson = request.queryParams("errors");
                 if (errorsJson !=null) {
@@ -181,7 +183,7 @@ public class Main {
             public Object handle(Request request, Response response) {
                 response.type("text/plain");
                 String idStr = request.queryParams("id");
-                String[] idArray = idStr.split("/");
+                String[] idArray = idStr.split("-");
                 String urlName = idArray[0];
                 String identifier = idArray[1];
                 String textNodeId = idArray[2];
@@ -203,7 +205,7 @@ public class Main {
             public Object handle(Request request, Response response) {
                 response.type("text/html");
                 String idStr = request.queryParams("id");
-                String[] idArray = idStr.split("/");
+                String[] idArray = idStr.split("-");
                 String urlName = idArray[0];
                 String identifier = idArray[1];
                 String textNodeIdEditOn = idArray[2];
@@ -215,7 +217,7 @@ public class Main {
                     halt(409, "You are attempting save an edit to an old version.");
                 }
 
-                return pageService.renderText(sourceCode);
+                return sourceCode;
             }
         });
     }

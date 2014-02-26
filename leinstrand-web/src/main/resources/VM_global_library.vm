@@ -19,3 +19,14 @@
     <div id="$!{thisPage.getUrlName()}/${identifier}/${textNode.getId()}"
         class="edit_field">$pageService.renderText($textNode.getSource())</div>
 #end
+
+#macro( redactor $identifier $air)
+    #set($textNode = $pageService.getTextNode($thisPage, $identifier))
+    #set($id = "$!{thisPage.getUrlName()}-${identifier}-${textNode.getId()}")
+    #if($air)
+        #set($result = $redactorAirIdList.add($id))
+    #else
+        #set($result = $redactorIdList.add($id))
+    #end
+    <div id="${id}">${textNode.getSource()}</div>
+#end
