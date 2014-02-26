@@ -112,6 +112,7 @@
 #foreach($id in $redactorIdList)
             $('#${id}').redactor({
                 paragraphy: false,
+                convertDivs: false,
                 convertLinks: true
             });
 #end
@@ -119,6 +120,7 @@
             $('#${id}').redactor({
                 air: true,
                 paragraphy: false,
+                convertDivs: false,
                 convertLinks: false
             });
 #end
