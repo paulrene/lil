@@ -1,5 +1,6 @@
 package no.leinstrandil.database.model;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -20,9 +21,13 @@ public class Page {
     private String title;
     private String urlName;
     private String template;
+    private Date created;
+    private Date updated;
     private String redirectToUrl;
     @ManyToOne @JoinColumn(name = "requiredRoleId")
     private Role requireRole;
+    @ManyToOne @JoinColumn(name = "lastAuthorId")
+    private User lastAuthor;
     @OneToMany(mappedBy = "page")
     private Set<Node> nodes;
     @OneToMany(mappedBy = "page")
@@ -90,6 +95,30 @@ public class Page {
 
     public void setRequireRole(Role requireRole) {
         this.requireRole = requireRole;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public User getLastAuthor() {
+        return lastAuthor;
+    }
+
+    public void setLastAuthor(User lastAuthor) {
+        this.lastAuthor = lastAuthor;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 
 }

@@ -1,6 +1,5 @@
 package no.leinstrandil.service;
 
-import no.leinstrandil.database.model.User;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -10,7 +9,7 @@ import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.Node;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.database.model.TextNode;
-import no.leinstrandil.textile.Textile;
+import no.leinstrandil.database.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +17,9 @@ public class PageService {
     private static final Logger log = LoggerFactory.getLogger(PageService.class);
 
     private Storage storage;
-    private Textile textile;
 
     public PageService(Storage storage) {
         this.storage = storage;
-        this.textile = new Textile();
     }
 
     public Page getPageByUrlName(String urlName) {
@@ -35,7 +32,7 @@ public class PageService {
     }
 
     public String renderText(String source) {
-        return textile.process(source);
+        return source;
     }
 
     public Node getNode(Page page, String identifier) {
@@ -51,24 +48,40 @@ public class PageService {
     public TextNode getTextNode(Page page, String identifier) {
         Node node = getNode(page, identifier);
         if (node == null) {
-            return null;
-        }
-        List<TextNode> textNodes = node.getTextNodeVersions();
-        if (textNodes.size() > 0) {
-            return textNodes.get(0);
+            storage.begin();
+            node = new Node();
+            node.setIdentifier(identifier);
+            node.setPage(page);
+            storage.persist(node);
+
+            TextNode textNode = new TextNode();
+            textNode.setAuthor(null);
+            textNode.setCreated(new Date());
+            textNode.setNode(node);
+            textNode.setSource("{ Dette er en ny tekstnode som heter *" + identifier + "*. Klikk her for å endre. }");
+            node.getTextNodeVersions().add(textNode);
+            storage.persist(textNode);
+            storage.commit();
         }
 
-        Node noNode = new Node();
-        noNode.setIdentifier(identifier);
-        TextNode textNode = new TextNode();
-        textNode.setSource("{Innholdsfeltet *" + identifier + "* er tomt. Klikk her for å skrive en tekst.}");
-        textNode.setNode(noNode);
-        return textNode;
+        List<TextNode> textNodes = node.getTextNodeVersions();
+        if (textNodes.isEmpty()) {
+            throw new RuntimeException("Database inconsistency! No text node for node identifier " + identifier);
+        }
+
+        return textNodes.get(0);
     }
 
     public String formatDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        return sdf.format(date);
+        return new SimpleDateFormat("dd. MMMM, yyyy").format(date);
+    }
+
+    public String getLastAuthorName(Page page) {
+        if (page.getLastAuthor() == null) {
+            return "Redaksjonen";
+        } else {
+            return "User ID: " + page.getLastAuthor().getId(); // TODO: Return real name of user.
+        }
     }
 
     private static String sqlEscape(String str) {
@@ -76,18 +89,6 @@ public class PageService {
     }
 
     public boolean editTextNode(Page page, String identifier, String textNodeIdEditOn, User author, String sourceCode) {
-        storage.begin();
-
-        Node node = getNode(page, identifier);
-        if (node == null) {
-            node = new Node();
-            node.setIdentifier(identifier);
-            node.setPage(page);
-            storage.begin();
-            storage.persist(node);
-            storage.commit();
-        }
-
         TextNode newestTextNode = getTextNode(page, identifier);
 
         if (textNodeIdEditOn != null) {
@@ -97,12 +98,16 @@ public class PageService {
             }
         }
 
+        storage.begin();
         TextNode textNode = new TextNode();
         textNode.setCreated(new Date());
         textNode.setAuthor(author != null ? author : newestTextNode.getAuthor());
-        textNode.setNode(newestTextNode != null ? newestTextNode.getNode() : node);
+        textNode.setNode(newestTextNode.getNode());
         textNode.setSource(sourceCode);
         storage.persist(textNode);
+        page.setLastAuthor(author != null ? author : newestTextNode.getAuthor());
+        page.setUpdated(new Date());
+        storage.persist(page);
         storage.commit();
         return true;
     }

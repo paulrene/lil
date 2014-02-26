@@ -23,7 +23,7 @@
             #end
             #fielderror( "action" )
 
-            #editabletextnode( "contactformdescription" )
+            #editable_area( "contactformdescription" )
             <br />
 
             <form method="POST">

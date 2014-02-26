@@ -1,5 +1,7 @@
 package no.leinstrandil;
 
+import java.util.Locale;
+
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -182,18 +184,10 @@ public class Main {
                 String[] idArray = idStr.split("/");
                 String urlName = idArray[0];
                 String identifier = idArray[1];
+                String textNodeId = idArray[2];
 
                 Page page = pageService.getPageByUrlName(urlName);
                 TextNode textNode = pageService.getTextNode(page, identifier);
-
-                if (textNode.getId() == null) {
-                    return "";
-                }
-
-                String textNodeId = null;
-                if (idArray.length > 2) {
-                    textNodeId = idArray[2];
-                }
 
                 if (textNode.getId() != Long.parseLong(textNodeId)) {
                     halt(409, "You are attempting to edit an old version.");
@@ -212,12 +206,9 @@ public class Main {
                 String[] idArray = idStr.split("/");
                 String urlName = idArray[0];
                 String identifier = idArray[1];
-                String textNodeIdEditOn = null;
-                if (idArray.length > 2) {
-                    textNodeIdEditOn = idArray[2];
-                }
-                String sourceCode = request.queryParams("value");
+                String textNodeIdEditOn = idArray[2];
 
+                String sourceCode = request.queryParams("value");
                 Page page = pageService.getPageByUrlName(urlName);
 
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {
@@ -314,6 +305,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        Locale.setDefault(new Locale("nb", "no"));
         new Main().start();
     }
 

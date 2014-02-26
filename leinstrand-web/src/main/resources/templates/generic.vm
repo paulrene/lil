@@ -1,0 +1,80 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+<!--=== Breadcrumbs ===-->
+<div class="breadcrumbs margin-bottom-40">
+    <div class="container">
+        <h1 class="pull-left">$thisPage.getTitle()</h1>
+        <ul class="pull-right breadcrumb">
+            <li><a href="/">Forsiden</a></li>
+            <li class="active">$thisPage.getTitle()</li>
+        </ul>
+    </div><!--/container-->
+</div><!--/breadcrumbs-->
+<!--=== End Breadcrumbs ===-->
+
+
+<!--=== Content Part ===-->
+<div class="container">
+    <div class="row blog-page blog-item">
+        <!-- Left Sidebar -->
+        <div class="col-md-9 md-margin-bottom-60">
+            <!--Blog Post-->
+            <div class="blog margin-bottom-40">
+                <h2>#editable_field( "generictitle" )</h2>
+                <div class="blog-post-tags">
+                    <ul class="list-unstyled list-inline blog-info">
+                        <li><i class="icon-calendar"></i> $pageService.formatDate($thisPage.getUpdated())</li>
+                        <li><i class="icon-pencil"></i> $pageService.getLastAuthorName($thisPage)</li>
+                    </ul>
+                </div>
+                #editable_area( "genericbody" )
+            </div>
+            <!--End Blog Post-->
+        </div>
+        <!-- End Left Sidebar -->
+
+        <!-- Right Sidebar -->
+        <div class="col-md-3 magazine-page">
+            <!-- Search Bar -->
+            <div class="headline headline-md"><h2>Søk</h2></div>
+            <div class="input-group margin-bottom-40">
+                <input type="text" class="form-control" name="q" placeholder="Hva leter du etter?">
+                <span class="input-group-btn">
+                    <button class="btn-u" type="button">Søk</button>
+                </span>
+            </div>
+            <!-- End Search Bar -->
+
+            <!-- Posts -->
+            <div class="posts margin-bottom-40">
+                <div class="headline headline-md"><h2>Siste nytt fra laget</h2></div>
+                <dl class="dl-horizontal">
+                    <dt><a href="#"><img src="assets/img/sliders/elastislide/6.jpg" alt="" /></a></dt>
+                    <dd>
+                        <p><a href="#">Responsive Bootstrap 3 Template placerat idelo alac eratamet.</a></p> 
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt><a href="#"><img src="assets/img/sliders/elastislide/10.jpg" alt="" /></a></dt>
+                    <dd>
+                        <p><a href="#">100+ Amazing Features Layer Slider, Layer Slider, Icons, 60+ Pages etc.</a></p> 
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt><a href="#"><img src="assets/img/sliders/elastislide/11.jpg" alt="" /></a></dt>
+                    <dd>
+                        <p><a href="#">Developer Friendly Code imperdiet condime ntumi mperdiet condim.</a></p> 
+                    </dd>
+                </dl>
+            </div><!--/posts-->
+            <!-- End Posts -->
+        </div>
+        <!-- End Right Sidebar -->
+    </div><!--/row-->
+</div><!--/container-->
+<!--=== End Content Part ===-->
+
+
+#parse("fragments/footer.vm")

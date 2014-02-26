@@ -49,7 +49,7 @@
                 </ul>
                 <div class="search-open">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Hva leter du etter?">
+                        <input type="text" class="form-control" name="q" placeholder="Hva leter du etter?">
                         <span class="input-group-btn">
                             <button class="btn-u" type="button">Søk</button>
                         </span>

@@ -34,6 +34,9 @@
     <link rel="stylesheet" href="assets/css/pages/page_magazine.css"> 
 #elseif($thisPage.getTemplate() == "404")
     <link rel="stylesheet" href="assets/css/pages/page_404_error.css">
+#elseif($thisPage.getTemplate() == "generic")
+    <link rel="stylesheet" href="assets/css/pages/blog.css">
+    <link rel="stylesheet" href="assets/css/pages/page_magazine.css"> 
 #end
     <!-- CSS Theme -->
     <link rel="stylesheet" href="assets/css/themes/red.css" id="style_color">

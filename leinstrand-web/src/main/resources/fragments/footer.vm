@@ -115,6 +115,16 @@
                 location.reload(true);
             }
         });
+        $('.edit_field').editable('/api/save/textnode', {
+            loadurl  : '/api/load/textnode',
+            type     : 'text',
+            cancel   : 'Avbryt',
+            submit   : 'Lagre',
+            tooltip  : 'Klikk for å endre..',
+            callback : function(value, settings) {
+                location.reload(true);
+            }
+        });
     });
 </script>
 <!--[if lt IE 9]>

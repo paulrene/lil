@@ -8,10 +8,14 @@
     #end
 #end
 
-#macro( editabletextnode $identifier  )
+#macro( editable_area $identifier  )
     #set($textNode = $pageService.getTextNode($thisPage, $identifier))
-    #set($code = $pageService.renderText($textNode.getSource()))
-    <div id="$!{thisPage.getUrlName()}/$!{textNode.getNode().getIdentifier()}/$!{textNode.getId()}"
-        class="edit_area">$code</div>
+    <div id="$!{thisPage.getUrlName()}/${identifier}/${textNode.getId()}"
+        class="edit_area">$pageService.renderText($textNode.getSource())</div>
 #end
 
+#macro( editable_field $identifier )
+    #set($textNode = $pageService.getTextNode($thisPage, $identifier))
+    <div id="$!{thisPage.getUrlName()}/${identifier}/${textNode.getId()}"
+        class="edit_field">$pageService.renderText($textNode.getSource())</div>
+#end
