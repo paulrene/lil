@@ -210,7 +210,7 @@ public class Main {
                 String identifier = idArray[1];
                 String textNodeIdEditOn = idArray[2];
 
-                String sourceCode = request.queryParams("value");
+                String sourceCode = request.queryParams("content");
                 Page page = pageService.getPageByUrlName(urlName);
 
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {

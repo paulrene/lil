@@ -106,7 +106,9 @@
         Contact.initMap();
 #end
 
-        $('#redactor_edit').click(function() {
+        $('#redactor_save').hide();
+        $('#redactor_edit').click(function(e) {
+            e.preventDefault();
 #foreach($id in $redactorIdList)
             $('#${id}').redactor({
                 paragraphy: false,
@@ -120,19 +122,30 @@
                 convertLinks: false
             });
 #end
+            $(this).hide();
+            $('#redactor_save').show();
         });
 
-        $('#redactor_save').click(function() {
+        $('#redactor_save').click(function(e) {
+            e.preventDefault();
 #foreach($id in $redactorIdList)
-            var $data = $('#${id}').redactor('get');
-            console.log($data);
-            var $data = $('#${id}').redactor('destroy');
+            $.ajax({
+                url: '/api/save/textnode',
+                type: 'post',
+                data: 'id=${id}&content=' + $('#${id}').redactor('get')
+            });
+            $('#${id}').redactor('destroy');
 #end
 #foreach($id in $redactorAirIdList)
             var $data = $('#${id}').redactor('get');
-            console.log($data);
-            var $data = $('#${id}').redactor('destroy');
+            $.ajax({
+                url: '/api/save/textnode',
+                type: 'post',
+                data: 'id=${id}&content=' + $('#${id}').redactor('get')
+            });
+            $('#${id}').redactor('destroy');
 #end
+            location.reload(true);
         });
 
     });
