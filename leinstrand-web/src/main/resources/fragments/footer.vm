@@ -113,7 +113,17 @@
             $('#${id}').redactor({
                 paragraphy: false,
                 convertDivs: false,
-                convertLinks: true
+                convertLinks: true,
+                convertImageLinks: true,
+                convertVideoLinks: true,
+                removeEmptyTags: false,
+                formattingPre: true,
+                linkAnchor: true,
+                linkEmail: true,
+                tidyHtml: false,
+                minHeight: 320,
+                tabSpaces: 4,
+                wym: true
             });
 #end
 #foreach($id in $redactorAirIdList)
@@ -121,7 +131,8 @@
                 air: true,
                 paragraphy: false,
                 convertDivs: false,
-                convertLinks: false
+                convertLinks: false,
+                pastePlainText: true
             });
 #end
             $(this).hide();

@@ -1,7 +1,6 @@
 package no.leinstrandil;
 
 import java.util.Locale;
-
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -52,8 +51,12 @@ public class Main {
 
     private Map<String, Controller> controllers;
 
+    private String baseHref;
 
-    public Main() {
+
+    public Main(String baseHref) {
+        this.baseHref = baseHref;
+
         storage = new Storage();
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
@@ -119,6 +122,7 @@ public class Main {
                 }
 
                 VelocityContext context = new VelocityContext();
+                context.put("baseHref", baseHref);
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
@@ -307,8 +311,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        String baseHref = "http://localhost:8080/";
+        if (args.length>0) {
+            baseHref = args[0];
+        }
         Locale.setDefault(new Locale("nb", "no"));
-        new Main().start();
+        new Main(baseHref).start();
     }
 
 }

@@ -23,7 +23,7 @@
             #end
             #fielderror( "action" )
 
-            #editable_area( "contactformdescription" )
+            #redactor( "contactformdescription" false)
             <br />
 
             <form method="POST">
