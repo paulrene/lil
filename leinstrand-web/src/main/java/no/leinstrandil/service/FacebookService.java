@@ -1,7 +1,5 @@
 package no.leinstrandil.service;
 
-import java.text.SimpleDateFormat;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -11,6 +9,7 @@ import facebook4j.Reading;
 import facebook4j.ResponseList;
 import facebook4j.auth.AccessToken;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.TypedQuery;
@@ -27,7 +26,22 @@ public class FacebookService {
         this.storage = storage;
     }
 
+    public String getSmallPictureUrl(FacebookPost post) {
+        return post.getPictureUrl();
+    }
+
     public String getMediumPictureUrl(FacebookPost post) {
+        String url = post.getPictureUrl();
+        if (url == null) {
+            return null;
+        }
+        if (!url.endsWith("_s.jpg")) {
+            return url;
+        }
+        return url.replace("_s.jpg", "_o.jpg");
+    }
+
+    public String getOrginalPictureUrl(FacebookPost post) {
         String url = post.getPictureUrl();
         if (url == null) {
             return null;
@@ -40,16 +54,37 @@ public class FacebookService {
 
     public String getTitle(FacebookPost post) {
         String message = post.getMessage();
+        if (message == null && post.getStory() != null) {
+            return post.getStory();
+        }
+        if (message == null) {
+            return new String();
+        }
         String[] word = message.split(" ");
         if (word.length > 5) {
-            return word[0]+" "+word[1]+" "+word[2]+" "+word[3]+" "+word[4]+"..";
+            return word[0] + " " + word[1] + " " + word[2] + " " + word[3] + " " + word[4] + "..";
         } else {
             return message;
         }
     }
 
+    public String getShortBody(FacebookPost post) {
+        String body = getBody(post);
+        if (body.length() > 100) {
+            return body.substring(0, 100) + "..";
+        }
+        return body;
+    }
+
     public String getBody(FacebookPost post) {
-        return post.getMessage();
+        String body = post.getMessage();
+        if (body == null && post.getStory() != null) {
+            return post.getStory();
+        }
+        if (body == null) {
+            body = new String();
+        }
+        return body;
     }
 
     public String getPublished(FacebookPost post) {
@@ -57,7 +92,11 @@ public class FacebookService {
     }
 
     public String getAuthor(FacebookPost post) {
-        return post.getFacebookPage().getFacebookPageName() + " på Facebook";
+        return post.getFacebookPage().getFacebookPageName();
+    }
+
+    public String getLinkUrl(FacebookPost post) {
+        return post.getLinkUrl() != null ? post.getLinkUrl() : "#";
     }
 
     public boolean hasPicture(FacebookPost post) {
@@ -65,20 +104,45 @@ public class FacebookService {
     }
 
     public FacebookPage getFacebookPageByPageId(String pageIdentifier) {
-        return storage.createSingleQuery("from FacebookPage p where p.facebookPageIdentifier = '" + pageIdentifier + "'",
-                FacebookPage.class);
+        return storage.createSingleQuery("from FacebookPage p where p.facebookPageIdentifier = '"
+                + pageIdentifier + "'", FacebookPage.class);
     }
 
-    public List<FacebookPost> getFacebookPosts(FacebookPage facebookPage) {
+    public List<FacebookPost> getFBPhotos(FacebookPage facebookPage) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
-                + facebookPage.getId() + " and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
-        query.setMaxResults(10);
+                + facebookPage.getId() + " and p.facebookType = 'photo' order by p.facebookCreated desc",
+                FacebookPost.class);
+        query.setMaxResults(20);
+        return query.getResultList();
+    }
+
+    public List<FacebookPost> getFBStatus(FacebookPage facebookPage) {
+        TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
+                + facebookPage.getId() + " and p.facebookType = 'status' order by p.facebookCreated desc",
+                FacebookPost.class);
+        query.setMaxResults(20);
+        return query.getResultList();
+    }
+
+    public List<FacebookPost> getFBLinks(FacebookPage facebookPage) {
+        TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
+                + facebookPage.getId() + " and p.facebookType = 'link' order by p.facebookCreated desc",
+                FacebookPost.class);
+        query.setMaxResults(20);
+        return query.getResultList();
+    }
+
+    public List<FacebookPost> getFacebookNews(FacebookPage facebookPage) {
+        TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
+                + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo') "
+                +"and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
+        query.setMaxResults(20);
         return query.getResultList();
     }
 
     private void syncFacebookPage(FacebookPage facebookPage) throws FacebookException {
         Facebook facebook = getFacebook(facebookPage.getAccessToken());
-        Reading reading = new Reading().limit(25);
+        Reading reading = new Reading().limit(300);
         if (facebookPage.getLastSync() != null) {
             reading.since(facebookPage.getLastSync());
         }

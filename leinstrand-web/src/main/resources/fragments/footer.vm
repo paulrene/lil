@@ -17,24 +17,19 @@
             <div class="col-md-4 md-margin-bottom-40">
                 <div class="posts">
                     <div class="headline"><h2>Siste nytt fra laget</h2></div>
+#foreach($index in [0..2])
+    #set($news = $lilNewsList.get($index))
                     <dl class="dl-horizontal">
-                        <dt><a href="#"><img src="assets/img/sliders/elastislide/6.jpg" alt="" /></a></dt>
+                        <dt>
+    #if($facebookService.hasPicture($news))
+                            <a href="$news.getLinkUrl()"><img src="$facebookService.getSmallPictureUrl($news)" alt="" /></a>
+    #end
+                        </dt>
                         <dd>
-                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
+                            <p><a href="$facebookService.getLinkUrl($news)">$facebookService.getShortBody($news)</a></p> 
                         </dd>
                     </dl>
-                    <dl class="dl-horizontal">
-                    <dt><a href="#"><img src="assets/img/sliders/elastislide/10.jpg" alt="" /></a></dt>
-                        <dd>
-                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
-                        </dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                    <dt><a href="#"><img src="assets/img/sliders/elastislide/11.jpg" alt="" /></a></dt>
-                        <dd>
-                            <p><a href="#">Anim moon officia Unify is an incredibly beautiful responsive Bootstrap Template</a></p> 
-                        </dd>
-                    </dl>
+#end
                 </div>
             </div><!--/col-md-4-->
 
@@ -175,6 +170,7 @@
         });
 
     });
+
 </script>
 <!--[if lt IE 9]>
     <script src="assets/plugins/respond.js"></script>

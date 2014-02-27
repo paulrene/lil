@@ -1,7 +1,8 @@
 package no.leinstrandil;
 
-import no.leinstrandil.web.FacebookController;
+import no.leinstrandil.database.model.FacebookPage;
 
+import no.leinstrandil.web.FacebookController;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -129,6 +130,7 @@ public class Main {
                     controller.handleGet(request, context);
                 }
 
+                FacebookPage lilPage = facebookService.getFacebookPageByPageId("LeinstrandIL");
                 context.put("baseHref", baseHref);
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
@@ -136,6 +138,7 @@ public class Main {
                 context.put("facebookService", facebookService);
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());
+                context.put("lilNewsList", facebookService.getFacebookNews(lilPage));
                 context.put("thisPage", page);
                 String errorsJson = request.queryParams("errors");
                 if (errorsJson !=null) {
