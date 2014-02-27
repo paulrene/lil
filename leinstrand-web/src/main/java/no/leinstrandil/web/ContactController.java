@@ -1,5 +1,7 @@
 package no.leinstrandil.web;
 
+import org.apache.velocity.VelocityContext;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -8,7 +10,7 @@ import spark.Request;
 public class ContactController implements Controller {
 
     @Override
-    public void handleGet(Request request) {
+    public void handleGet(Request request, VelocityContext context) {
     }
 
     @Override

@@ -54,7 +54,7 @@ public class PageService {
             textNode.setAuthor(null);
             textNode.setCreated(new Date());
             textNode.setNode(node);
-            textNode.setSource("{ Dette er en ny tekstnode som heter *" + identifier + "*. Klikk her for å endre. }");
+            textNode.setSource("{ Dette er en ny tekstnode som heter *" + identifier + "*. }");
             node.getTextNodeVersions().add(textNode);
             storage.persist(textNode);
             storage.commit();
@@ -69,7 +69,7 @@ public class PageService {
     }
 
     public String formatDate(Date date) {
-        return new SimpleDateFormat("dd. MMMM, yyyy").format(date);
+        return new SimpleDateFormat("d. MMMM, yyyy").format(date);
     }
 
     public String getLastAuthorName(Page page) {
@@ -89,7 +89,6 @@ public class PageService {
 
         if (textNodeIdEditOn != null) {
             if (!newestTextNode.getId().equals(Long.parseLong(textNodeIdEditOn))) {
-                storage.rollback();
                 return false;
             }
         }
@@ -105,6 +104,7 @@ public class PageService {
         page.setUpdated(new Date());
         storage.persist(page);
         storage.commit();
+        log.info("TextNode saved: urlName="+page.getUrlName()+", identifier="+identifier+", author="+author);
         return true;
     }
 

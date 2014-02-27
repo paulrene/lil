@@ -11,6 +11,8 @@
     <class>no.leinstrandil.database.model.TextNode</class>
     <class>no.leinstrandil.database.model.Role</class>
     <class>no.leinstrandil.database.model.User</class>
+    <class>no.leinstrandil.database.model.FacebookPage</class>
+    <class>no.leinstrandil.database.model.FacebookPost</class>
 
 <!-- <shared-cache-mode>NONE</shared-cache-mode> -->
 

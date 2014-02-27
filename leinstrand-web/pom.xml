@@ -64,6 +64,11 @@
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.25</version>
     </dependency>
+    <dependency>
+      <groupId>org.facebook4j</groupId>
+      <artifactId>facebook4j-core</artifactId>
+      <version>[2.0,)</version>
+    </dependency>
   </dependencies>
 
   <repositories>

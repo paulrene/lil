@@ -55,4 +55,9 @@ public class User {
         this.textNodeSet = textNodeSet;
     }
 
+    @Override
+    public String toString() {
+        return "{User id:"+getId()+"}";
+    }
+
 }

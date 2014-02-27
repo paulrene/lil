@@ -27,6 +27,9 @@
 #if($thisPage.getTemplate() == "magazine")
     <link rel="stylesheet" href="assets/css/pages/page_magazine.css">
     <link rel="stylesheet" href="assets/css/pages/page_search.css">
+#elseif($thisPage.getTemplate() == "facebook")
+    <link rel="stylesheet" href="assets/css/pages/page_magazine.css">
+    <link rel="stylesheet" href="assets/css/pages/page_search.css">
 #elseif($thisPage.getTemplate() == "contact")
     <link rel="stylesheet" href="assets/css/pages/page_contact.css">
 #elseif($thisPage.getTemplate() == "page")

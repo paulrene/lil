@@ -1,16 +1,19 @@
 package no.leinstrandil;
 
-import java.util.Locale;
+import no.leinstrandil.web.FacebookController;
+
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.database.model.TextNode;
+import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
 import no.leinstrandil.service.UserService;
@@ -47,6 +50,7 @@ public class Main {
     private final MenuService menuService;
     private final PageService pageService;
     private final UserService userService;
+    private final FacebookService facebookService;
     private final VelocityEngine velocity;
 
     private Map<String, Controller> controllers;
@@ -61,6 +65,7 @@ public class Main {
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
         userService = new UserService(storage);
+        facebookService = new FacebookService(storage);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -75,6 +80,7 @@ public class Main {
 
         controllers = new HashMap<>();
         controllers.put(ControllerTemplate.CONTACT.getId(), new ContactController());
+        controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService));
 
         Spark.setPort(8080);
         Spark.staticFileLocation("/static");
@@ -116,16 +122,18 @@ public class Main {
                     return new String();
                 }
 
+                VelocityContext context = new VelocityContext();
+
                 Controller controller = controllers.get(page.getTemplate());
                 if (controller != null) {
-                    controller.handleGet(request);
+                    controller.handleGet(request, context);
                 }
 
-                VelocityContext context = new VelocityContext();
                 context.put("baseHref", baseHref);
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
+                context.put("facebookService", facebookService);
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());
                 context.put("thisPage", page);
@@ -207,7 +215,6 @@ public class Main {
         Spark.post(new Route("/api/save/textnode") {
             @Override
             public Object handle(Request request, Response response) {
-                response.type("text/html");
                 String idStr = request.queryParams("id");
                 String[] idArray = idStr.split("-");
                 String urlName = idArray[0];
@@ -218,10 +225,19 @@ public class Main {
                 Page page = pageService.getPageByUrlName(urlName);
 
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {
-                    halt(409, "You are attempting save an edit to an old version.");
+                    halt(409, "You are attempting save a change to an old version.");
                 }
 
-                return sourceCode;
+                return new String();
+            }
+        });
+
+
+        Spark.get(new Route("/api/fb/sync") {
+            @Override
+            public Object handle(Request request, Response response) {
+                facebookService.syncFacebookPagePosts();
+                return new String();
             }
         });
     }

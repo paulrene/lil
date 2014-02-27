@@ -140,25 +140,38 @@
         });
 
         $('#redactor_save').click(function(e) {
+            var count = 0;
             e.preventDefault();
 #foreach($id in $redactorIdList)
+            count++;
             $.ajax({
                 url: '/api/save/textnode',
                 type: 'post',
-                data: 'id=${id}&content=' + $('#${id}').redactor('get')
+                data: 'id=${id}&content=' + $('#${id}').redactor('get'),
+                success: function() {
+                    count--;
+                    if (count == 0) {
+                        location.reload(true);
+                    }
+                }
             });
             $('#${id}').redactor('destroy');
 #end
 #foreach($id in $redactorAirIdList)
-            var $data = $('#${id}').redactor('get');
+            count++;
             $.ajax({
                 url: '/api/save/textnode',
                 type: 'post',
-                data: 'id=${id}&content=' + $('#${id}').redactor('get')
+                data: 'id=${id}&content=' + $('#${id}').redactor('get'),
+                success: function() {
+                    count--;
+                    if (count == 0) {
+                        location.reload(true);
+                    }
+                }
             });
             $('#${id}').redactor('destroy');
 #end
-            location.reload(true);
         });
 
     });

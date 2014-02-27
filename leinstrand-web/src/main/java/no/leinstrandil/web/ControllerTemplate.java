@@ -2,7 +2,7 @@ package no.leinstrandil.web;
 
 public enum ControllerTemplate {
 
-    CONTACT("contact"), MAGAZINE("magazine");
+    CONTACT("contact"), MAGAZINE("magazine"), FACEBOOK("facebook");
 
     private String id;
 
