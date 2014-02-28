@@ -140,25 +140,31 @@
 
 #foreach($id in $redactorIdList)
             arrJqx.push($.ajax({
-                url: '/api/save/textnode',
-                data: 'id=${id}&content=' + $('#${id}').redactor('get'),
+                url: '/api/save/textnode/${id}',
+                data: encodeURIComponent($('#${id}').redactor('get')),
                 type: 'post'
             }));
 #end
 #foreach($id in $redactorAirIdList)
             arrJqx.push($.ajax({
-                url: '/api/save/textnode',
-                data: 'id=${id}&content=' + $('#${id}').redactor('get'),
+                url: '/api/save/textnode/${id}',
+                data: encodeURIComponent($('#${id}').redactor('get')),
                 type: 'post'
             }));
 #end
 
             $.when.apply($, arrJqx).done(function(){
                 var allOk = true;
+                var conflict = false;
                 $.each(arguments, function(index, arg) {
                     if (arg[2].status != 200) {
                         allOk = false;
                     }
+                    console.log(arg[2].status);
+                    if (arg[2].status == 409) {
+                        conflict = true;
+                    }
+                    console.log(allOk + " : " + conflict);
                 });
 #foreach($id in $redactorIdList)
                 $('#${id}').redactor('destroy');
@@ -166,8 +172,16 @@
 #foreach($id in $redactorAirIdList)
                 $('#${id}').redactor('destroy');
 #end
-                alert("Endringene ble lagret! Siden vil nå lastes på nytt.");
-                location.reload(true);
+                if (allOk) {
+                    alert("Endringene ble lagret! Siden vil nå lastes på nytt.");
+                    location.reload(true);
+                } else {
+                    if (conflict) {
+                        alert("Endringskonflikt! Dine endringer ble ikke lagret da noen andre har endret siden i mens du skrev. Kopier dine data for sikkerthetsskyld!");
+                    } else {
+                        alert("Dine endringer ble IKKE lagret. Forsøk igjen eller meld fra til driftsansvarlig om problemet ikke går over av seg selv. Kopier dine data for sikkerthetsskyld!");
+                    }
+                }
             });
 
         });

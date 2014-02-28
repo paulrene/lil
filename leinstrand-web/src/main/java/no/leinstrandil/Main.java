@@ -1,10 +1,8 @@
 package no.leinstrandil;
 
-import no.leinstrandil.database.model.FacebookPage;
-
-import no.leinstrandil.web.FacebookController;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.FacebookPage;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.database.model.TextNode;
 import no.leinstrandil.service.FacebookService;
@@ -21,6 +20,7 @@ import no.leinstrandil.service.UserService;
 import no.leinstrandil.web.ContactController;
 import no.leinstrandil.web.Controller;
 import no.leinstrandil.web.ControllerTemplate;
+import no.leinstrandil.web.FacebookController;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -215,16 +215,16 @@ public class Main {
         });
 
 
-        Spark.post(new Route("/api/save/textnode") {
+        Spark.post(new Route("/api/save/textnode/:id") {
             @Override
             public Object handle(Request request, Response response) {
-                String idStr = request.queryParams("id");
+                String idStr = request.params("id");
                 String[] idArray = idStr.split("-");
                 String urlName = idArray[0];
                 String identifier = idArray[1];
                 String textNodeIdEditOn = idArray[2];
 
-                String sourceCode = request.queryParams("content");
+                String sourceCode = urlDecode(request.body());
                 Page page = pageService.getPageByUrlName(urlName);
 
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {
@@ -233,6 +233,7 @@ public class Main {
 
                 return new String();
             }
+
         });
 
 
@@ -266,6 +267,14 @@ public class Main {
     private static String urlEncode(final String text) {
         try {
             return URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String urlDecode(String text) {
+        try {
+            return URLDecoder.decode(text, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
