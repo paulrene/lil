@@ -112,6 +112,7 @@
                 convertImageLinks: true,
                 convertVideoLinks: true,
                 removeEmptyTags: false,
+                pastePlainText: true,
                 formattingPre: true,
                 linkAnchor: true,
                 linkEmail: true,
@@ -135,38 +136,40 @@
         });
 
         $('#redactor_save').click(function(e) {
-            var count = 0;
-            e.preventDefault();
+            var arrJqx = [];
+
 #foreach($id in $redactorIdList)
-            count++;
-            $.ajax({
+            arrJqx.push($.ajax({
                 url: '/api/save/textnode',
-                type: 'post',
                 data: 'id=${id}&content=' + $('#${id}').redactor('get'),
-                success: function() {
-                    count--;
-                    if (count == 0) {
-                        location.reload(true);
-                    }
-                }
-            });
-            $('#${id}').redactor('destroy');
+                type: 'post'
+            }));
 #end
 #foreach($id in $redactorAirIdList)
-            count++;
-            $.ajax({
+            arrJqx.push($.ajax({
                 url: '/api/save/textnode',
-                type: 'post',
                 data: 'id=${id}&content=' + $('#${id}').redactor('get'),
-                success: function() {
-                    count--;
-                    if (count == 0) {
-                        location.reload(true);
-                    }
-                }
-            });
-            $('#${id}').redactor('destroy');
+                type: 'post'
+            }));
 #end
+
+            $.when.apply($, arrJqx).done(function(){
+                var allOk = true;
+                $.each(arguments, function(index, arg) {
+                    if (arg[2].status != 200) {
+                        allOk = false;
+                    }
+                });
+#foreach($id in $redactorIdList)
+                $('#${id}').redactor('destroy');
+#end
+#foreach($id in $redactorAirIdList)
+                $('#${id}').redactor('destroy');
+#end
+                alert("Endringene ble lagret! Siden vil nå lastes på nytt.");
+                location.reload(true);
+            });
+
         });
 
     });

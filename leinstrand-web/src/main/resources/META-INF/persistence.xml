@@ -14,17 +14,25 @@
     <class>no.leinstrandil.database.model.FacebookPage</class>
     <class>no.leinstrandil.database.model.FacebookPost</class>
 
-<!-- <shared-cache-mode>NONE</shared-cache-mode> -->
+    <!-- <shared-cache-mode>NONE</shared-cache-mode> -->
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/leinstrandil" />
       <property name="javax.persistence.jdbc.user" value="lilweb" />
       <property name="javax.persistence.jdbc.password" value="dff180" />
-<!-- <property name="javax.persistence.sharedCache.mode" value="NONE"/> -->
+      <!-- <property name="javax.persistence.sharedCache.mode" value="NONE"/> -->
       <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.show_sql" value="false" />
       <property name="hibernate.format_sql" value="false" />
+
+      <property name="hibernate.connection.provider_class" value="org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider" />
+      <property name="hibernate.c3p0.max_size" value="100" />
+      <property name="hibernate.c3p0.min_size" value="0" />
+      <property name="hibernate.c3p0.acquire_increment" value="1" />
+      <property name="hibernate.c3p0.idle_test_period" value="300" />
+      <property name="hibernate.c3p0.max_statements" value="0" />
+      <property name="hibernate.c3p0.timeout" value="100" />
     </properties>
   </persistence-unit>
 
