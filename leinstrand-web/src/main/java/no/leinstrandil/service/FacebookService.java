@@ -21,9 +21,11 @@ import org.joda.time.DateTimeUtils;
 public class FacebookService {
 
     private Storage storage;
+    private StockPhotoService stockPhotoService;
 
-    public FacebookService(Storage storage) {
+    public FacebookService(Storage storage, StockPhotoService stockPhotoService) {
         this.storage = storage;
+        this.stockPhotoService = stockPhotoService;
     }
 
     public String getSmallPictureUrl(FacebookPost post) {
@@ -33,7 +35,7 @@ public class FacebookService {
     public String getMediumPictureUrl(FacebookPost post) {
         String url = post.getPictureUrl();
         if (url == null) {
-            return null;
+            return stockPhotoService.getStockPhoto(getBody(post));
         }
         if (!url.endsWith("_s.jpg")) {
             return url;
@@ -53,19 +55,31 @@ public class FacebookService {
     }
 
     public String getTitle(FacebookPost post) {
-        String message = post.getMessage();
-        if (message == null && post.getStory() != null) {
-            return post.getStory();
-        }
-        if (message == null) {
-            return new String();
-        }
-        String[] word = message.split(" ");
-        if (word.length > 5) {
-            return word[0] + " " + word[1] + " " + word[2] + " " + word[3] + " " + word[4] + "..";
-        } else {
+        String[] stopWords = new String[] { "på", "av", "i", "å", "se", "for", "som", "under"};
+        String message = getBody(post);
+        if (message.length()<6) {
             return message;
         }
+        String[] word = message.split("\\s");
+        StringBuilder title = new StringBuilder();
+        if (word.length > 5) {
+            title.append(word[0] + " " + word[1] + " " + word[2] + " " + word[3]);
+            if (!isWordInArray(word[4], stopWords)) {
+                title.append(" ").append(word[4]);
+            }
+        } else {
+            title.append(message);
+        }
+        return title.toString();
+    }
+
+    private static boolean isWordInArray(String word, String[] wordArray) {
+        for (String stopWord : wordArray) {
+            if (word.equalsIgnoreCase(stopWord)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getShortBody(FacebookPost post) {

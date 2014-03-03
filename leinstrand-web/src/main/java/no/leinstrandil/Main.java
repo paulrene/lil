@@ -16,6 +16,7 @@ import no.leinstrandil.database.model.TextNode;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
+import no.leinstrandil.service.StockPhotoService;
 import no.leinstrandil.service.UserService;
 import no.leinstrandil.web.ContactController;
 import no.leinstrandil.web.Controller;
@@ -51,6 +52,7 @@ public class Main {
     private final MenuService menuService;
     private final PageService pageService;
     private final UserService userService;
+    private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
     private final VelocityEngine velocity;
 
@@ -66,7 +68,8 @@ public class Main {
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
         userService = new UserService(storage);
-        facebookService = new FacebookService(storage);
+        stockPhotoService = new StockPhotoService();
+        facebookService = new FacebookService(storage, stockPhotoService);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
