@@ -70,20 +70,18 @@
                 <div class="headline headline-md"><h2>Hurtiglenker</h2></div>
                 <div class="row">
                     <ul class="list-unstyled col-xs-6">
-                        <li><a href="#">Revolution Slider</a></li>
-                        <li><a href="#">Parralax Page</a></li>
-                        <li><a href="#">Backgrounds</a></li>
-                        <li><a href="#">Parralax Slider</a></li>
-                        <li><a href="#">Responsive</a></li>
-                        <li><a href="#">Bootstrap 3x</a></li>
+                        <li><a href="/page/fotball">Fotball</a></li>
+                        <li><a href="/page/skoyter">Skøyter</a></li>
+                        <li><a href="/page/skoyter">Kontakt Oss</a></li>
+                        <li><a href="/page/tillitsvalgte">Tillitsvalgte</a></li>
+                        <li><a href="/page/blimedlem">Bli Medlem</a></li>
                     </ul>
                     <ul class="list-unstyled col-xs-6">
-                        <li><a href="#">50+ Valid Pages</a></li>
-                        <li><a href="#">Layer Slider</a></li>
-                        <li><a href="#">Bootstrap 2x</a></li>
-                        <li><a href="#">Fixed Header</a></li>
-                        <li><a href="#">Best Template</a></li>
-                        <li><a href="#">And Many More</a></li>
+                        <li><a href="/page/ski">Ski</a></li>
+                        <li><a href="/page/trimogaktivitet">Trim og aktivitet</a></li>
+                        <li><a href="/treningsavgift">Treningsavgift</a></li>
+                        <li><a href="/page/grasrotandelen">Grasrotandelen</a></li>
+                        <li><a href="/page/pamelding">Påmelding til aktiviteter</a></li>
                     </ul>
                 </div>
             </div>
@@ -93,7 +91,7 @@
             <div class="headline"><h3>Bilder</h3></div>
             <ul class="list-unstyled blog-photos margin-bottom-30">
 #foreach($post in $photoList)
-                <li><a href="$facebookService.getLinkUrl($post.getLinkUrl())" target="_blank"><img class="hover-effect" alt="" src="$facebookService.getSmallPictureUrl($post)"></a></li>
+                <li><a href="$facebookService.getLinkUrl($post)" target="_blank"><img class="hover-effect" alt="" src="$facebookService.getSmallPictureUrl($post)"></a></li>
 #end
             </ul>
             <!-- End Photo Stream -->

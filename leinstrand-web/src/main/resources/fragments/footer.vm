@@ -21,9 +21,7 @@
     #set($news = $lilNewsList.get($index))
                     <dl class="dl-horizontal">
                         <dt>
-    #if($facebookService.hasPicture($news))
-                            <a href="$news.getLinkUrl()"><img src="$facebookService.getSmallPictureUrl($news)" alt="" /></a>
-    #end
+                            <a href="$facebookService.getLinkUrl($news)"><img src="$facebookService.getSmallPictureUrl($news)" alt="" /></a>
                         </dt>
                         <dd>
                             <p><a href="$facebookService.getLinkUrl($news)">$facebookService.getShortBody($news)</a></p> 

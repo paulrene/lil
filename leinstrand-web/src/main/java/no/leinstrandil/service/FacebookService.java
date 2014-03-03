@@ -29,7 +29,11 @@ public class FacebookService {
     }
 
     public String getSmallPictureUrl(FacebookPost post) {
-        return post.getPictureUrl();
+        String url = post.getPictureUrl();
+        if (url == null) {
+            return stockPhotoService.getStockPhoto(getBody(post));
+        }
+        return url;
     }
 
     public String getMediumPictureUrl(FacebookPost post) {
@@ -46,7 +50,7 @@ public class FacebookService {
     public String getOrginalPictureUrl(FacebookPost post) {
         String url = post.getPictureUrl();
         if (url == null) {
-            return null;
+            return stockPhotoService.getStockPhoto(getBody(post));
         }
         if (!url.endsWith("_s.jpg")) {
             return url;
