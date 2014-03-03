@@ -21,9 +21,11 @@ import org.joda.time.DateTimeUtils;
 public class FacebookService {
 
     private Storage storage;
+    private StockPhotoService stockPhotoService;
 
-    public FacebookService(Storage storage) {
+    public FacebookService(Storage storage, StockPhotoService stockPhotoService) {
         this.storage = storage;
+        this.stockPhotoService = stockPhotoService;
     }
 
     public String getSmallPictureUrl(FacebookPost post) {
@@ -33,7 +35,7 @@ public class FacebookService {
     public String getMediumPictureUrl(FacebookPost post) {
         String url = post.getPictureUrl();
         if (url == null) {
-            return null;
+            return stockPhotoService.getStockPhoto(getBody(post));
         }
         if (!url.endsWith("_s.jpg")) {
             return url;
@@ -53,19 +55,34 @@ public class FacebookService {
     }
 
     public String getTitle(FacebookPost post) {
-        String message = post.getMessage();
-        if (message == null && post.getStory() != null) {
-            return post.getStory();
-        }
-        if (message == null) {
-            return new String();
-        }
-        String[] word = message.split(" ");
-        if (word.length > 5) {
-            return word[0] + " " + word[1] + " " + word[2] + " " + word[3] + " " + word[4] + "..";
-        } else {
+        String[] stopWords = new String[] {
+                "i", "på", "mellom", "over", "under", "av", "bak", "før", "etter", "hos",
+                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som"
+        };
+        String message = getBody(post);
+        if (message.length() < 6) {
             return message;
         }
+        String[] word = message.split("\\s");
+        StringBuilder title = new StringBuilder();
+        if (word.length > 5) {
+            title.append(word[0] + " " + word[1] + " " + word[2] + " " + word[3]);
+            if (!isWordInArray(word[4], stopWords)) {
+                title.append(" ").append(word[4]);
+            }
+        } else {
+            title.append(message);
+        }
+        return title.toString();
+    }
+
+    private static boolean isWordInArray(String word, String[] wordArray) {
+        for (String stopWord : wordArray) {
+            if (word.equalsIgnoreCase(stopWord)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getShortBody(FacebookPost post) {
@@ -104,8 +121,8 @@ public class FacebookService {
     }
 
     public FacebookPage getFacebookPageByPageId(String pageIdentifier) {
-        return storage.createSingleQuery("from FacebookPage p where p.facebookPageIdentifier = '"
-                + pageIdentifier + "'", FacebookPage.class);
+        return storage.createSingleQuery("from FacebookPage p where p.facebookPageIdentifier = '" + pageIdentifier
+                + "'", FacebookPage.class);
     }
 
     public List<FacebookPost> getFBPhotos(FacebookPage facebookPage) {
@@ -135,7 +152,7 @@ public class FacebookService {
     public List<FacebookPost> getFacebookNews(FacebookPage facebookPage) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
                 + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo') "
-                +"and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
+                + "and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
         query.setMaxResults(20);
         return query.getResultList();
     }

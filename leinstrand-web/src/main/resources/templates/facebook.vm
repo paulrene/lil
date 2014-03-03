@@ -15,11 +15,11 @@
 #foreach($index in [0..1])
     #set($post = $newsList.get($index))
                     <div class="col-md-6">
-    #if($facebookService.hasPicture($post))
-                        <div class="magazine-news-img" style="min-height:200px;">
-                            <a href="$post.getLinkUrl()"><img style="width:100%" class="img-responsive" src="$facebookService.getMediumPictureUrl($post)" alt=""></a>
+                        <div class="magazine-news-img" style="min-height:234px;">
+                            <a href="$facebookService.getLinkUrl($post)">
+                                <img class="img-responsive" src="$facebookService.getMediumPictureUrl($post)" alt="">
+                            </a>
                         </div>
-    #end
                         <h3><a href="$facebookService.getLinkUrl($post)">$facebookService.getTitle($post)</a></h3>
                         <div class="by-author">
                             <strong>av $facebookService.getAuthor($post)</strong>
@@ -43,11 +43,9 @@
 #set($index = $offset + $column + 2)
     #set($post = $newsList.get($index))
                     <div class="col-md-4">
-    #if($facebookService.hasPicture($post))
-                        <div class="magazine-news-img" style="min-height:160px;">
-                            <a href="$post.getLinkUrl()"><img style="width:100%" class="img-responsive" src="$facebookService.getMediumPictureUrl($post)" alt=""></a>
+                        <div class="magazine-news-img">
+                            <a href="$facebookService.getLinkUrl($post)"><img class="img-responsive" src="$facebookService.getMediumPictureUrl($post)" alt=""></a>
                         </div>
-    #end
                         <h3><a href="$facebookService.getLinkUrl($post)">$facebookService.getTitle($post)</a></h3>
                         <div class="by-author">
                             <strong>av $facebookService.getAuthor($post)</strong>
@@ -95,7 +93,7 @@
             <div class="headline"><h3>Bilder</h3></div>
             <ul class="list-unstyled blog-photos margin-bottom-30">
 #foreach($post in $photoList)
-                <li><a href="$post.getLinkUrl()" target="_blank"><img class="hover-effect" alt="" src="$facebookService.getSmallPictureUrl($post)"></a></li>
+                <li><a href="$facebookService.getLinkUrl($post.getLinkUrl())" target="_blank"><img class="hover-effect" alt="" src="$facebookService.getSmallPictureUrl($post)"></a></li>
 #end
             </ul>
             <!-- End Photo Stream -->
