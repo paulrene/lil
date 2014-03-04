@@ -13,7 +13,8 @@ public class FacebookPage {
     @Id
     @GeneratedValue
     private Long id;
-    private String accessToken;
+    private String appId;
+    private String appSecret;
     private String facebookPageName;
     private String facebookPageIdentifier;
     private Integer syncInterval;
@@ -26,20 +27,28 @@ public class FacebookPage {
         return id;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getAppSecret() {
+        return appSecret;
+    }
+
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
+    }
+
     public String getFacebookPageName() {
         return facebookPageName;
     }
 
     public void setFacebookPageName(String facebookPageName) {
         this.facebookPageName = facebookPageName;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     public String getFacebookPageIdentifier() {

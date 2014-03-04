@@ -4,10 +4,8 @@ import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
 import facebook4j.Post;
-import facebook4j.PrivacyType;
 import facebook4j.Reading;
 import facebook4j.ResponseList;
-import facebook4j.auth.AccessToken;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,8 +22,8 @@ public class FacebookService {
     private StockPhotoService stockPhotoService;
 
     public FacebookService(Storage storage, StockPhotoService stockPhotoService) {
-        this.storage = storage;
         this.stockPhotoService = stockPhotoService;
+        this.storage = storage;
     }
 
     public String getSmallPictureUrl(FacebookPost post) {
@@ -59,10 +57,8 @@ public class FacebookService {
     }
 
     public String getTitle(FacebookPost post) {
-        String[] stopWords = new String[] {
-                "i", "på", "mellom", "over", "under", "av", "bak", "før", "etter", "hos",
-                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som"
-        };
+        String[] stopWords = new String[] { "i", "på", "mellom", "over", "under", "av", "bak", "før", "etter", "hos",
+                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som", "fra", "da", "når" };
         String message = getBody(post);
         if (message.length() < 6) {
             return message;
@@ -77,7 +73,19 @@ public class FacebookService {
         } else {
             title.append(message);
         }
-        return title.toString();
+
+        String titleStr = title.toString();
+        char lastChar = titleStr.charAt(titleStr.length() - 1);
+        if (lastChar == '-' || lastChar == ',' || lastChar == '.') {
+            titleStr = titleStr.substring(0, titleStr.length() - 1);
+        }
+
+        int index = titleStr.indexOf('!');
+        if (index > 0) {
+            titleStr = titleStr.substring(0, index + 1);
+        }
+
+        return titleStr;
     }
 
     private static boolean isWordInArray(String word, String[] wordArray) {
@@ -129,40 +137,40 @@ public class FacebookService {
                 + "'", FacebookPage.class);
     }
 
-    public List<FacebookPost> getFBPhotos(FacebookPage facebookPage) {
+    public List<FacebookPost> getFBPhotos(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
                 + facebookPage.getId() + " and p.facebookType = 'photo' order by p.facebookCreated desc",
                 FacebookPost.class);
-        query.setMaxResults(20);
+        query.setMaxResults(maxResults);
         return query.getResultList();
     }
 
-    public List<FacebookPost> getFBStatus(FacebookPage facebookPage) {
+    public List<FacebookPost> getFBStatus(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
                 + facebookPage.getId() + " and p.facebookType = 'status' order by p.facebookCreated desc",
                 FacebookPost.class);
-        query.setMaxResults(20);
+        query.setMaxResults(maxResults);
         return query.getResultList();
     }
 
-    public List<FacebookPost> getFBLinks(FacebookPage facebookPage) {
+    public List<FacebookPost> getFBLinks(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
                 + facebookPage.getId() + " and p.facebookType = 'link' order by p.facebookCreated desc",
                 FacebookPost.class);
-        query.setMaxResults(20);
+        query.setMaxResults(maxResults);
         return query.getResultList();
     }
 
-    public List<FacebookPost> getFacebookNews(FacebookPage facebookPage) {
+    public List<FacebookPost> getFacebookNews(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
                 + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo') "
                 + "and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
-        query.setMaxResults(20);
+        query.setMaxResults(maxResults);
         return query.getResultList();
     }
 
     private void syncFacebookPage(FacebookPage facebookPage) throws FacebookException {
-        Facebook facebook = getFacebook(facebookPage.getAccessToken());
+        Facebook facebook = getFacebook(facebookPage.getAppId(), facebookPage.getAppSecret());
         Reading reading = new Reading().limit(300);
         if (facebookPage.getLastSync() != null) {
             reading.since(facebookPage.getLastSync());
@@ -172,10 +180,6 @@ public class FacebookService {
         ResponseList<Post> posts = facebook.getPosts(facebookPage.getFacebookPageIdentifier(), reading);
 
         for (Post post : posts) {
-            if (post.getPrivacy().getValue() != PrivacyType.EVERYONE) {
-                continue;
-            }
-
             FacebookPost fp = null;
             if ("photo".equals(post.getType()) && "added_photos".equals(post.getStatusType())) {
                 fp = new FacebookPost();
@@ -224,11 +228,10 @@ public class FacebookService {
         }
     }
 
-    private Facebook getFacebook(String accessTokenString) {
+    private Facebook getFacebook(String appId, String appSecret) throws FacebookException {
         Facebook facebook = new FacebookFactory().getInstance();
-        facebook.setOAuthAppId("", "");
-        AccessToken at = new AccessToken(accessTokenString);
-        facebook.setOAuthAccessToken(at);
+        facebook.setOAuthAppId(appId, appSecret);
+        facebook.setOAuthAccessToken(facebook.getOAuthAppAccessToken());
         return facebook;
     }
 
@@ -237,6 +240,11 @@ public class FacebookService {
             return null;
         }
         return url.toString();
+    }
+
+    public static void main(String[] args) {
+        FacebookService fs = new FacebookService(new Storage(), null);
+        fs.syncFacebookPagePosts();
     }
 
 }

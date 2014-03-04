@@ -72,14 +72,14 @@
                     <ul class="list-unstyled col-xs-6">
                         <li><a href="/page/fotball">Fotball</a></li>
                         <li><a href="/page/skoyter">Skøyter</a></li>
-                        <li><a href="/page/skoyter">Kontakt Oss</a></li>
+                        <li><a href="/page/kontaktoss">Kontakt Oss</a></li>
                         <li><a href="/page/tillitsvalgte">Tillitsvalgte</a></li>
                         <li><a href="/page/blimedlem">Bli Medlem</a></li>
                     </ul>
                     <ul class="list-unstyled col-xs-6">
                         <li><a href="/page/ski">Ski</a></li>
                         <li><a href="/page/trimogaktivitet">Trim og aktivitet</a></li>
-                        <li><a href="/treningsavgift">Treningsavgift</a></li>
+                        <li><a href="/page/treningsavgift">Treningsavgift</a></li>
                         <li><a href="/page/grasrotandelen">Grasrotandelen</a></li>
                         <li><a href="/page/pamelding">Påmelding til aktiviteter</a></li>
                     </ul>

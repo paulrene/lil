@@ -21,6 +21,7 @@ public class Page {
     private String title;
     private String urlName;
     private String template;
+    private String templateConfig;
     private Date created;
     private Date updated;
     private String redirectToUrl;
@@ -47,6 +48,14 @@ public class Page {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public String getTemplateConfig() {
+        return templateConfig;
+    }
+
+    public void setTemplateConfig(String templateConfig) {
+        this.templateConfig = templateConfig;
     }
 
     public String getUrlName() {

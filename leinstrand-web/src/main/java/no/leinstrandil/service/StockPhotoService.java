@@ -14,7 +14,7 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_01.jpg", "køllebøller", "innebandy", "bygdarom", "bygdarommet"));
         photoList.add(new StockPhoto("lil_stock_02.jpg", "rønningen", "marka", "påske", "ski", "langrenn"));
         photoList.add(new StockPhoto("lil_stock_03.jpg", "målsetning"));
-        photoList.add(new StockPhoto("lil_stock_04.jpg", "langrenn", "ski", "turrenn", "poengrenn", "marka", "løyper"));
+        photoList.add(new StockPhoto("lil_stock_04.jpg", "langrenn", "ski", "turrenn", "poengrenn", "marka", "løyper", "skiføret", "skiføre", "granåsen"));
         photoList.add(new StockPhoto("lil_stock_05.jpg", "sol"));
         photoList.add(new StockPhoto("lil_stock_06.jpg", "aking", "skileik"));
         photoList.add(new StockPhoto("lil_stock_07.jpg", "allidrett"));
@@ -23,13 +23,13 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_10.jpg", "barnefotball"));
         photoList.add(new StockPhoto("lil_stock_11.jpg", "gressmatte", "fotballbanen", "kunstgressbanen", "fotball"));
         photoList.add(new StockPhoto("lil_stock_12.jpg", "fairplay"));
-        photoList.add(new StockPhoto("lil_stock_13.jpg", "tilskuer", "supporter", "a-lag"));
+        photoList.add(new StockPhoto("lil_stock_13.jpg", "tilskuer", "supporter", "a-lag", "kunstgressbanen"));
         photoList.add(new StockPhoto("lil_stock_14.jpg", "friidrett", "idrettsuka"));
         photoList.add(new StockPhoto("lil_stock_15.jpg", "parkour", "idrettsuka"));
         photoList.add(new StockPhoto("lil_stock_16.jpg", "parkour", "idrettsuka"));
         photoList.add(new StockPhoto("lil_stock_17.jpg", "frukt", "idrettsuka"));
         photoList.add(new StockPhoto("lil_stock_18.jpg", "sykkel", "sykling", "idrettsuka"));
-        photoList.add(new StockPhoto("lil_stock_20.jpg", "ringvål", "skistadion", "ballbinge"));
+        photoList.add(new StockPhoto("lil_stock_20.jpg", "ringvål", "skistadion", "ballbinge", "lysløypa", "lysløype", "skogly"));
         photoList.add(new StockPhoto("lil_stock_21.jpg", "diplom", "ferdighetsmerke", "merkeprøver", "klubbkveld"));
         photoList.add(new StockPhoto("lil_stock_23.jpg", "årsmøte", "styremøte"));
 

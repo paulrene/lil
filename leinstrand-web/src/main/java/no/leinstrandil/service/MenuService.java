@@ -69,4 +69,43 @@ public class MenuService {
         return false;
     }
 
+    public List<MenuEntry> getFavoritesForPage(Page page) {
+        List<MenuEntry> favList = new ArrayList<>();
+
+        Set<MenuEntry> menuEntrySet = page.getMenuEntries();
+        if (menuEntrySet == null || menuEntrySet.isEmpty()) {
+            return favList;
+        }
+
+        for (MenuEntry me : menuEntrySet) {
+            MenuEntry parentEntry = me.getParent();
+            if (parentEntry != null) {
+                Set<MenuEntry> candidates = parentEntry.getSubMenuEntries();
+                for (MenuEntry candidate : candidates) {
+                    if (candidate.getFavorite() != null && candidate.getFavorite() > 0) {
+                        favList.add(candidate);
+                    }
+                }
+            }
+        }
+
+        Collections.sort(favList, new Comparator<MenuEntry>() {
+            @Override
+            public int compare(MenuEntry o1, MenuEntry o2) {
+                if (o1.getFavorite() == null || o2.getFavorite() == null) {
+                    return 0;
+                }
+                if (o1.getFavorite() == o2.getFavorite()) {
+                    return 0;
+                }
+                if (o1.getFavorite() > o2.getFavorite()) {
+                    return 1;
+                }
+                return -1;
+            }
+        });
+
+        return favList;
+    }
+
 }

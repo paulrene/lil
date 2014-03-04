@@ -1,7 +1,10 @@
 package no.leinstrandil;
 
+import java.net.MalformedURLException;
+
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -58,11 +61,10 @@ public class Main {
 
     private Map<String, Controller> controllers;
 
-    private String baseHref;
+    private URL baseUrl;
 
-
-    public Main(String baseHref) {
-        this.baseHref = baseHref;
+    public Main(URL baseUrl) {
+        this.baseUrl = baseUrl;
 
         storage = new Storage();
         menuService = new MenuService(storage);
@@ -84,9 +86,9 @@ public class Main {
 
         controllers = new HashMap<>();
         controllers.put(ControllerTemplate.CONTACT.getId(), new ContactController());
-        controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService));
+        controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
 
-        Spark.setPort(8080);
+        Spark.setPort(baseUrl.getPort());
         Spark.staticFileLocation("/static");
     }
 
@@ -134,14 +136,15 @@ public class Main {
                 }
 
                 FacebookPage lilPage = facebookService.getFacebookPageByPageId("LeinstrandIL");
-                context.put("baseHref", baseHref);
+                context.put("baseHref", baseUrl.toString());
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
                 context.put("facebookService", facebookService);
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());
-                context.put("lilNewsList", facebookService.getFacebookNews(lilPage));
+                context.put("lilNewsList", facebookService.getFacebookNews(lilPage, 5));
+                context.put("favoriteList", menuService.getFavoritesForPage(page));
                 context.put("thisPage", page);
                 String errorsJson = request.queryParams("errors");
                 if (errorsJson !=null) {
@@ -341,13 +344,13 @@ public class Main {
         return page;
     }
 
-    public static void main(String[] args) {
-        String baseHref = "http://localhost:8080/";
+    public static void main(String[] args) throws MalformedURLException {
+        URL baseUrl = new URL("http://localhost:8080/");
         if (args.length>0) {
-            baseHref = args[0];
+            baseUrl = new URL(args[0]);
         }
         Locale.setDefault(new Locale("nb", "no"));
-        new Main(baseHref).start();
+        new Main(baseUrl).start();
     }
 
 }
