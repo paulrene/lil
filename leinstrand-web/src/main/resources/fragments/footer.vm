@@ -106,6 +106,7 @@
             $('#${id}').redactor({
                 imageUpload: '/api/upload',
                 imageGetJson: '/api/images',
+                imageUploadErrorCallback: function(json) { alert(json.error); },
                 paragraphy: false,
                 convertDivs: false,
                 convertLinks: true,

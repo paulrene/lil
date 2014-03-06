@@ -1,7 +1,7 @@
 package no.leinstrandil;
 
+import java.util.UUID;
 import java.io.OutputStream;
-
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -259,6 +259,7 @@ public class Main {
         Spark.post(new Route("/api/upload") {
             @Override
             public Object handle(Request request, Response response) {
+                response.type("application/json");
                 if (!ServletFileUpload.isMultipartContent(request.raw())) {
                     halt(400);
                 }
@@ -274,28 +275,29 @@ public class Main {
                         } else {
                             Resource resource = new Resource();
                             resource.setContentType(item.getContentType());
-                            resource.setFileName(item.getName());
+                            resource.setOriginalFileName(item.getName());
                             resource.setData(IOUtils.toByteArray(stream));
                             resource.setUploader(null);
+                            resource.setFileName(UUID.randomUUID() + "." + getFileEnding(item));
                             resource.setCreated(new Date());
                             storage.begin();
                             storage.persist(resource);
                             storage.commit();
                             log.info("Received new resource named " + item.getName() + " with content-type "
                                     + item.getContentType());
-
                             response.type("application/json");
                             JSONObject o = new JSONObject();
                             o.put("filename", resource.getFileName());
-                            o.put("filelink", "/api/resources/" + resource.getId());
+                            o.put("filelink", "/resources/" + resource.getFileName());
                             return o.toString();
                         }
                     }
                 } catch (Exception e) {
-                    halt(503, e.getMessage());
+                    return new JSONObject().put("error", e.getClass().getName() + ": " + e.getMessage()).toString();
                 }
-                return new String();
+                return new JSONObject().put("error", "Request does not contain any multipart content!").toString();
             }
+
         });
 
         Spark.get(new Route("/api/images") {
@@ -306,8 +308,8 @@ public class Main {
                 for (Resource image : imageList) {
                     JSONObject o = new JSONObject();
                     o.put("title", image.getFileName());
-                    o.put("thumb", "/api/resources/" + image.getId());
-                    o.put("image", "/api/resources/" + image.getId());
+                    o.put("thumb", "/resources/" + image.getFileName());
+                    o.put("image", "/resources/" + image.getFileName());
                     o.put("folder", "Bilder");
                     list.put(o);
                 }
@@ -315,11 +317,10 @@ public class Main {
             }
         });
 
-        Spark.get(new Route("/api/resources/:id") {
+        Spark.get(new Route("/resources/:filename") {
             @Override
             public Object handle(Request request, Response response) {
-                Long id = Long.parseLong(request.params("id"));
-                Resource resource = fileService.getResourceById(id);
+                Resource resource = fileService.getResourceByFilename(request.params("filename"));
                 response.type(resource.getContentType());
                 try {
                     OutputStream out = response.raw().getOutputStream();
@@ -422,6 +423,22 @@ public class Main {
         page.setTitle("404: Ukjent Side");
         page.setUrlName("404");
         return page;
+    }
+
+    private static String getFileEnding(FileItemStream item) {
+        int index = item.getName().lastIndexOf('.');
+        if (index != -1) {
+            return item.getName().substring(index + 1);
+        }
+
+        String type = item.getContentType().toLowerCase();
+        switch(type) {
+            case "image/gif": return "gif";
+            case "image/jpeg": return "jpg";
+            case "image/png": return "png";
+        }
+
+        return null;
     }
 
     public static void main(String[] args) throws MalformedURLException {

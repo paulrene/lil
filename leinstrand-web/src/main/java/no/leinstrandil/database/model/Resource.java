@@ -18,6 +18,7 @@ public class Resource {
     @Id
     @GeneratedValue
     private Long id;
+    private String originalFileName;
     private String fileName;
     private String contentType;
     @Lob
@@ -32,6 +33,14 @@ public class Resource {
 
     public Long getId() {
         return id;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public String getContentType() {

@@ -22,4 +22,8 @@ public class FileService {
         return storage.createSingleQuery("from Resource r where r.id = " + id, Resource.class);
     }
 
+    public Resource getResourceByFilename(String fileName) {
+        return storage.createSingleQuery("from Resource r where r.fileName = '" + fileName + "'", Resource.class);
+    }
+
 }
