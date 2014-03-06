@@ -6,11 +6,11 @@
 
     <class>no.leinstrandil.database.model.MenuEntry</class>
     <class>no.leinstrandil.database.model.Page</class>
-    <class>no.leinstrandil.database.model.Resource</class>
     <class>no.leinstrandil.database.model.Node</class>
     <class>no.leinstrandil.database.model.TextNode</class>
     <class>no.leinstrandil.database.model.Role</class>
     <class>no.leinstrandil.database.model.User</class>
+    <class>no.leinstrandil.database.model.Resource</class>
     <class>no.leinstrandil.database.model.FacebookPage</class>
     <class>no.leinstrandil.database.model.FacebookPost</class>
 

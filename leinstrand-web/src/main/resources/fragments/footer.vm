@@ -104,6 +104,8 @@
             e.preventDefault();
 #foreach($id in $redactorIdList)
             $('#${id}').redactor({
+                imageUpload: '/api/upload',
+                imageGetJson: '/api/images',
                 paragraphy: false,
                 convertDivs: false,
                 convertLinks: true,

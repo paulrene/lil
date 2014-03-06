@@ -1,9 +1,7 @@
 package no.leinstrandil.database.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -24,12 +22,9 @@ public class Node {
     private Page page;
     @OneToMany(mappedBy = "node") @OrderBy("created DESC")
     private List<TextNode> textNodeVersions;
-    @OneToMany(mappedBy = "node")
-    private Set<Resource> resources;
 
     public Node() {
         textNodeVersions = new ArrayList<>();
-        resources = new HashSet<>();
     }
 
     public Long getId() {
@@ -50,14 +45,6 @@ public class Node {
 
     public void setPage(Page page) {
         this.page = page;
-    }
-
-    public Set<Resource> getResources() {
-        return resources;
-    }
-
-    public void setResources(Set<Resource> resources) {
-        this.resources = resources;
     }
 
     public List<TextNode> getTextNodeVersions() {

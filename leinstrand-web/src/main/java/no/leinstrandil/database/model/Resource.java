@@ -1,10 +1,13 @@
 package no.leinstrandil.database.model;
 
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -15,14 +18,13 @@ public class Resource {
     @Id
     @GeneratedValue
     private Long id;
-    @ManyToOne @JoinColumn(name = "nodeId")
-    private Node node;
-    @ManyToOne @JoinColumn(name = "authorId")
-    private User author;
-    private String filename;
-    private String resourceUrl;
+    private String fileName;
     private String contentType;
-    private Boolean attachment;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] data;
+    @ManyToOne @JoinColumn(name = "uploaderId")
+    private User uploader;
     private Date created;
 
     public Resource() {
@@ -30,30 +32,6 @@ public class Resource {
 
     public Long getId() {
         return id;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public void setAttachment(Boolean attachment) {
-        this.attachment = attachment;
-    }
-
-    public Boolean isAttachment() {
-        return attachment;
-    }
-
-    public String getResourceUrl() {
-        return resourceUrl;
-    }
-
-    public void setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl;
     }
 
     public String getContentType() {
@@ -64,20 +42,36 @@ public class Resource {
         this.contentType = contentType;
     }
 
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
     public Date getCreated() {
         return created;
     }
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public User getUploader() {
+        return uploader;
+    }
+
+    public void setUploader(User uploader) {
+        this.uploader = uploader;
     }
 
 }

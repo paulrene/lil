@@ -1,13 +1,16 @@
 package no.leinstrandil;
 
-import java.net.MalformedURLException;
+import java.io.OutputStream;
 
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,8 +18,10 @@ import java.util.Map;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.FacebookPage;
 import no.leinstrandil.database.model.Page;
+import no.leinstrandil.database.model.Resource;
 import no.leinstrandil.database.model.TextNode;
 import no.leinstrandil.service.FacebookService;
+import no.leinstrandil.service.FileService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
 import no.leinstrandil.service.StockPhotoService;
@@ -26,6 +31,11 @@ import no.leinstrandil.web.Controller;
 import no.leinstrandil.web.ControllerTemplate;
 import no.leinstrandil.web.FacebookController;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -55,6 +65,7 @@ public class Main {
     private final MenuService menuService;
     private final PageService pageService;
     private final UserService userService;
+    private final FileService fileService;
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
     private final VelocityEngine velocity;
@@ -70,6 +81,7 @@ public class Main {
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
         userService = new UserService(storage);
+        fileService = new FileService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
 
@@ -100,7 +112,6 @@ public class Main {
             }
         });
 
-
         Spark.get(new Route("/") {
             @Override
             public Object handle(Request request, Response response) {
@@ -108,7 +119,6 @@ public class Main {
                 return new String();
             }
         });
-
 
         Spark.get(new Route("/page/:urlName") {
             @Override
@@ -146,7 +156,7 @@ public class Main {
                 context.put("lilNewsList", facebookService.getFacebookNews(lilPage, 5));
                 context.put("thisPage", page);
                 String errorsJson = request.queryParams("errors");
-                if (errorsJson !=null) {
+                if (errorsJson != null) {
                     context.put("errors", decodeMap(errorsJson));
                 }
                 String infoJson = request.queryParams("info");
@@ -164,7 +174,6 @@ public class Main {
                 return writer.toString();
             }
         });
-
 
         Spark.post(new Route("/page/:urlName") {
             @Override
@@ -197,7 +206,6 @@ public class Main {
             }
         });
 
-
         Spark.get(new Route("/api/load/textnode") {
             @Override
             public Object handle(Request request, Response response) {
@@ -218,7 +226,6 @@ public class Main {
                 return textNode.getSource();
             }
         });
-
 
         Spark.post(new Route("/api/save/textnode/:id") {
             @Override
@@ -241,12 +248,86 @@ public class Main {
 
         });
 
-
         Spark.get(new Route("/api/fb/sync") {
             @Override
             public Object handle(Request request, Response response) {
                 facebookService.syncFacebookPagePosts();
                 return new String();
+            }
+        });
+
+        Spark.post(new Route("/api/upload") {
+            @Override
+            public Object handle(Request request, Response response) {
+                if (!ServletFileUpload.isMultipartContent(request.raw())) {
+                    halt(400);
+                }
+                try {
+                    ServletFileUpload upload = new ServletFileUpload();
+                    FileItemIterator fii = upload.getItemIterator(request.raw());
+                    while (fii.hasNext()) {
+                        FileItemStream item = fii.next();
+                        String name = item.getFieldName();
+                        InputStream stream = item.openStream();
+                        if (item.isFormField()) {
+                            log.debug("Form field " + name + " with value " + Streams.asString(stream) + " detected.");
+                        } else {
+                            Resource resource = new Resource();
+                            resource.setContentType(item.getContentType());
+                            resource.setFileName(item.getName());
+                            resource.setData(IOUtils.toByteArray(stream));
+                            resource.setUploader(null);
+                            resource.setCreated(new Date());
+                            storage.begin();
+                            storage.persist(resource);
+                            storage.commit();
+                            log.info("Received new resource named " + item.getName() + " with content-type "
+                                    + item.getContentType());
+
+                            response.type("application/json");
+                            JSONObject o = new JSONObject();
+                            o.put("filename", resource.getFileName());
+                            o.put("filelink", "/api/resources/" + resource.getId());
+                            return o.toString();
+                        }
+                    }
+                } catch (Exception e) {
+                    halt(503, e.getMessage());
+                }
+                return new String();
+            }
+        });
+
+        Spark.get(new Route("/api/images") {
+            @Override
+            public Object handle(Request request, Response response) {
+                JSONArray list = new JSONArray();
+                List<Resource> imageList = fileService.getImages();
+                for (Resource image : imageList) {
+                    JSONObject o = new JSONObject();
+                    o.put("title", image.getFileName());
+                    o.put("thumb", "/api/resources/" + image.getId());
+                    o.put("image", "/api/resources/" + image.getId());
+                    o.put("folder", "Bilder");
+                    list.put(o);
+                }
+                return list.toString();
+            }
+        });
+
+        Spark.get(new Route("/api/resources/:id") {
+            @Override
+            public Object handle(Request request, Response response) {
+                Long id = Long.parseLong(request.params("id"));
+                Resource resource = fileService.getResourceById(id);
+                response.type(resource.getContentType());
+                try {
+                    OutputStream out = response.raw().getOutputStream();
+                    out.write(resource.getData());
+                } catch (Exception e) {
+                    halt(503, e.getMessage());
+                }
+                return null;
             }
         });
     }
@@ -255,13 +336,13 @@ public class Main {
         if (obj == null) {
             return null;
         }
-        for(Object key : obj.keySet()) {
+        for (Object key : obj.keySet()) {
             Object value = obj.get((String) key);
             if (value instanceof JSONObject) {
                 obj.put((String) key, flatten((JSONObject) value));
             } else if (value instanceof JSONArray) {
                 JSONArray list = (JSONArray) value;
-                if(list.length() == 1) {
+                if (list.length() == 1) {
                     obj.put((String) key, list.get(0));
                 }
             }
@@ -345,7 +426,7 @@ public class Main {
 
     public static void main(String[] args) throws MalformedURLException {
         URL baseUrl = new URL("http://localhost:8080/");
-        if (args.length>0) {
+        if (args.length > 0) {
             baseUrl = new URL(args[0]);
         }
         Locale.setDefault(new Locale("nb", "no"));

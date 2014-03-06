@@ -18,25 +18,26 @@ public class User {
     private Long id;
     @OneToMany(mappedBy = "author")
     private Set<TextNode> textNodeSet;
-    @OneToMany(mappedBy = "author")
-    private Set<Resource> resources;
+    @OneToMany(mappedBy = "uploader")
+    private Set<Resource> resourceSet;
     @ManyToMany(mappedBy = "usersInRole")
     private Set<Role> roles;
 
     public User() {
         textNodeSet = new HashSet<>();
+        resourceSet = new HashSet<>();
     }
 
     public Long getId() {
         return id;
     }
 
-    public Set<Resource> getResources() {
-        return resources;
+    public Set<Resource> getResourceSet() {
+        return resourceSet;
     }
 
-    public void setResources(Set<Resource> resources) {
-        this.resources = resources;
+    public void setResourceSet(Set<Resource> resourceSet) {
+        this.resourceSet = resourceSet;
     }
 
     public Set<Role> getRoles() {
