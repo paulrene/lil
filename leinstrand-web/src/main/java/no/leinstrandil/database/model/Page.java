@@ -22,6 +22,7 @@ public class Page {
     private String urlName;
     private String template;
     private String templateConfig;
+    private String favoritePages;
     private Date created;
     private Date updated;
     private String redirectToUrl;
@@ -56,6 +57,14 @@ public class Page {
 
     public void setTemplateConfig(String templateConfig) {
         this.templateConfig = templateConfig;
+    }
+
+    public String getFavoritePages() {
+        return favoritePages;
+    }
+
+    public void setFavoritePages(String favoritePages) {
+        this.favoritePages = favoritePages;
     }
 
     public String getUrlName() {

@@ -65,28 +65,43 @@
         <!-- Begin Sidebar -->
         <div class="col-md-3">
 
+#set($subMenues = $menuService.getSubMenues($thisPage))
+    #if($subMenues.size() > 1)
+            <!-- Sub Menues -->
+            <div class="tab-v4">
+            <ul class="nav nav-pills nav-stacked margin-bottom-20">
+#foreach($menu in $subMenues)
+    #if($velocityCount == 1)
+                <li class="active"><a href="/page/$menu.getPage().getUrlName()"><i class="icon-home"></i> $menu.getDescription()</a></li>
+    #else
+                <li><a href="/page/$menu.getPage().getUrlName()"><i class="icon-cloud"></i> $menu.getDescription()</a></li>
+    #end
+#end
+            </ul>
+            </div>
+            <!-- End Sub Menues -->
+#end
+
+#set($favList = $pageService.getFavoritesForPage($thisPage))
+#if(!$favList.isEmpty())
             <!-- Quick Links -->
             <div class="magazine-sb-categories">
                 <div class="headline headline-md"><h2>Hurtiglenker</h2></div>
                 <div class="row">
+#set($half = $favList.size() / 2)
                     <ul class="list-unstyled col-xs-6">
-                        <li><a href="/page/fotball">Fotball</a></li>
-                        <li><a href="/page/skoyter">Skøyter</a></li>
-                        <li><a href="/page/kontaktoss">Kontakt Oss</a></li>
-                        <li><a href="/page/tillitsvalgte">Tillitsvalgte</a></li>
-                        <li><a href="/page/blimedlem">Bli Medlem</a></li>
+#foreach($fav in $favList)
+                        <li><a href="/page/$fav.getUrlName()">$fav.getTitle()</a></li>
+    #if($velocityCount == $half)
                     </ul>
                     <ul class="list-unstyled col-xs-6">
-                        <li><a href="/page/ski">Ski</a></li>
-                        <li><a href="/page/trimogaktivitet">Trim og aktivitet</a></li>
-                        <li><a href="/page/treningsavgift">Treningsavgift</a></li>
-                        <li><a href="/page/grasrotandelen">Grasrotandelen</a></li>
-                        <li><a href="/page/pamelding">Påmelding til aktiviteter</a></li>
+    #end
+#end
                     </ul>
                 </div>
             </div>
             <!-- End Quick Links -->
-
+#end
             <!-- Photo Stream -->
             <div class="headline"><h3>Bilder</h3></div>
             <ul class="list-unstyled blog-photos margin-bottom-30">

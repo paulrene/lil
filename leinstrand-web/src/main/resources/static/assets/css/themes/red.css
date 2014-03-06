@@ -179,8 +179,18 @@ blockquote:hover {
 /*Tabs v3*/
 .tab-v3 .nav-pills li a:hover,
 .tab-v3 .nav-pills li.active a {
-	background: #e74c3c;
-	border: solid 1px #c0392b;
+    background: #e74c3c;
+    border: solid 1px #c0392b;
+}
+
+/*Tabs v4*/
+.tab-v4 .nav-pills li a:hover {
+    background: grey;
+    color: white;
+}
+.tab-v4 .nav-pills li.active a {
+    background: #e74c3c;
+    color: white;
 }
 
 /*Accardion

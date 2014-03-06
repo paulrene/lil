@@ -1,6 +1,7 @@
 package no.leinstrandil.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import no.leinstrandil.database.model.Node;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.database.model.TextNode;
 import no.leinstrandil.database.model.User;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,15 @@ public class PageService {
 
     public PageService(Storage storage) {
         this.storage = storage;
+    }
+
+    private Page getPageById(Long pageId) {
+        try {
+            return storage.createSingleQuery("from Page p where p.id = " + pageId, Page.class);
+        } catch (NoResultException e) {
+            log.info("Could not find a Page with id: " + pageId);
+            return null;
+        }
     }
 
     public Page getPageByUrlName(String urlName) {
@@ -106,6 +117,23 @@ public class PageService {
         storage.commit();
         log.info("TextNode saved: urlName="+page.getUrlName()+", identifier="+identifier+", author="+author);
         return true;
+    }
+
+    public List<Page> getFavoritesForPage(Page page) {
+        List<Page> favList = new ArrayList<>();
+        String favJsonStr = page.getFavoritePages();
+        if (favJsonStr == null) {
+            return favList;
+        }
+        JSONArray favArray = new JSONArray(favJsonStr);
+        for (int n=0;n<favArray.length();n++) {
+            Long pageId = favArray.getLong(n);
+            Page favPage = getPageById(pageId);
+            if (favPage != null) {
+                favList.add(favPage);
+            }
+        }
+        return favList;
     }
 
 }

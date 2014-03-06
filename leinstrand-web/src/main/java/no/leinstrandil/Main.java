@@ -144,7 +144,6 @@ public class Main {
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());
                 context.put("lilNewsList", facebookService.getFacebookNews(lilPage, 5));
-                context.put("favoriteList", menuService.getFavoritesForPage(page));
                 context.put("thisPage", page);
                 String errorsJson = request.queryParams("errors");
                 if (errorsJson !=null) {

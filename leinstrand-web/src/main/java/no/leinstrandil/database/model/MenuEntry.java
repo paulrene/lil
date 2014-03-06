@@ -28,7 +28,6 @@ public class MenuEntry {
     private String description;
     private Integer priority;
     private Boolean disabled;
-    private Integer favorite;
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
     private Set<MenuEntry> subMenuEntries;
 
@@ -38,14 +37,6 @@ public class MenuEntry {
 
     public Long getId() {
         return id;
-    }
-
-    public Integer getFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(Integer favorite) {
-        this.favorite = favorite;
     }
 
     public String getDescription() {
