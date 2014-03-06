@@ -287,7 +287,7 @@ public class Main {
                                     + item.getContentType());
                             response.type("application/json");
                             JSONObject o = new JSONObject();
-                            o.put("filename", resource.getFileName());
+                            o.put("filename", resource.getOriginalFileName());
                             o.put("filelink", "/resources/" + resource.getFileName());
                             return o.toString();
                         }
@@ -306,7 +306,7 @@ public class Main {
                 List<Resource> imageList = fileService.getImages();
                 for (Resource image : imageList) {
                     JSONObject o = new JSONObject();
-                    o.put("title", image.getFileName());
+                    o.put("title", image.getOriginalFileName());
                     o.put("thumb", "/resources/" + image.getFileName());
                     o.put("image", "/resources/" + image.getFileName());
                     o.put("folder", "Bilder");
@@ -321,8 +321,9 @@ public class Main {
             public Object handle(Request request, Response response) {
                 String filename = request.params("filename");
                 Resource resource = fileService.getResourceByFilename(filename);
-                log.info("Serving resource named " + filename + " : " + resource);
+                log.info("Serving resource named " + filename + " : " + resource.getContentType());
                 response.type(resource.getContentType());
+                response.header("content-disposition", "attachment; filename=" + resource.getOriginalFileName());
                 try {
                     OutputStream out = response.raw().getOutputStream();
                     out.write(resource.getData());

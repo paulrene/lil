@@ -14,7 +14,7 @@ public class FileService {
     }
 
     public List<Resource> getImages() {
-        TypedQuery<Resource> query = storage.createQuery("from Resource r order by r.created desc", Resource.class);
+        TypedQuery<Resource> query = storage.createQuery("from Resource r where r.contentType like 'image/%' order by r.created desc", Resource.class);
         return query.getResultList();
     }
 
