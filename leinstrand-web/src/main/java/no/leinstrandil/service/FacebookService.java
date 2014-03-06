@@ -106,6 +106,10 @@ public class FacebookService {
     }
 
     public String getBody(FacebookPost post) {
+        if (post==null) {
+            return new String();
+        }
+
         String body = post.getMessage();
         if (body == null && post.getStory() != null) {
             return post.getStory();
@@ -121,6 +125,9 @@ public class FacebookService {
     }
 
     public String getAuthor(FacebookPost post) {
+        if (post.getFacebookPage()==null) {
+            return "Redaksjonen";
+        }
         return post.getFacebookPage().getFacebookPageName();
     }
 

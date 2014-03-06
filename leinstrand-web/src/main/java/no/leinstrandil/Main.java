@@ -297,7 +297,6 @@ public class Main {
                 }
                 return new JSONObject().put("error", "Request does not contain any multipart content!").toString();
             }
-
         });
 
         Spark.get(new Route("/api/images") {
@@ -320,7 +319,9 @@ public class Main {
         Spark.get(new Route("/resources/:filename") {
             @Override
             public Object handle(Request request, Response response) {
-                Resource resource = fileService.getResourceByFilename(request.params("filename"));
+                String filename = request.params("filename");
+                Resource resource = fileService.getResourceByFilename(filename);
+                log.info("Serving resource named " + filename + " : " + resource);
                 response.type(resource.getContentType());
                 try {
                     OutputStream out = response.raw().getOutputStream();
@@ -328,7 +329,7 @@ public class Main {
                 } catch (Exception e) {
                     halt(503, e.getMessage());
                 }
-                return null;
+                return new String();
             }
         });
     }

@@ -1,8 +1,10 @@
 package no.leinstrandil.web;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.FacebookPage;
+import no.leinstrandil.database.model.FacebookPost;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.PageService;
@@ -31,7 +33,19 @@ public class FacebookController implements Controller {
         context.put("statusList", facebookService.getFBStatus(facebookPage, 20));
         context.put("photoList", facebookService.getFBPhotos(facebookPage, 20));
         context.put("linkList", facebookService.getFBLinks(facebookPage, 20));
-        context.put("newsList", facebookService.getFacebookNews(facebookPage, 20));
+
+        List<FacebookPost> newsList = facebookService.getFacebookNews(facebookPage, 20);
+        while(newsList.size()<20) {
+            newsList.add(getEmptyPost());
+        }
+        context.put("newsList", newsList);
+    }
+
+    private FacebookPost getEmptyPost() {
+        FacebookPost post = new FacebookPost();
+        post.setMessage("Finner ingen Facebook post!");
+        post.setFacebookCreated(new Date());
+        return post;
     }
 
     @Override
