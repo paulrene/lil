@@ -54,6 +54,7 @@ public class SearchService {
                 } while (hit >=0 );
                 sr.hits = hitPositions.size();
 
+                int count = 0;
                 Set<String> variants = new HashSet<>();
                 StringBuilder snippet = new StringBuilder("..");
                 for (Integer hitPos : hitPositions) {
@@ -66,6 +67,7 @@ public class SearchService {
                     snippet.append(preview.substring(start, end));
                     snippet.append("..");
                     variants.add(preview.substring(hitPos, hitPos + q.length()));
+                    if ((count++) > 3) break;
                 }
                 String snippetStr = snippet.toString();
                 snippetStr = snippetStr.replace(">", "&gt;");
@@ -123,7 +125,7 @@ public class SearchService {
 
     public static void main(String[] args) {
         SearchService ss = new SearchService(new Storage());
-        List<SearchResult> list = ss.search("bjørn");
+        List<SearchResult> list = ss.search("v");
         System.out.println(list);
     }
 

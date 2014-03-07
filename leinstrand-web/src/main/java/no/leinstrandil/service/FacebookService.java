@@ -1,5 +1,8 @@
 package no.leinstrandil.service;
 
+import org.joda.time.DateTime;
+
+import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -12,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.FacebookEvent;
 import no.leinstrandil.database.model.FacebookPage;
 import no.leinstrandil.database.model.FacebookPost;
 import org.joda.time.DateTimeUtils;
@@ -106,7 +110,7 @@ public class FacebookService {
     }
 
     public String getBody(FacebookPost post) {
-        if (post==null) {
+        if (post == null) {
             return new String();
         }
 
@@ -124,8 +128,26 @@ public class FacebookService {
         return new SimpleDateFormat("d. MMMM, yyyy").format(post.getFacebookCreated());
     }
 
+    public boolean isEventEnded(FacebookEvent event) {
+        if (event.getEndTime() != null) {
+            return new Date().after(event.getEndTime());
+        } else {
+            return new Date().after(event.getStartTime());
+        }
+    }
+
+    public String getEventTime(FacebookEvent event) {
+        StringBuilder time = new StringBuilder();
+        time.append(new SimpleDateFormat("EEEE (d.M.yy) HH:mm").format(event.getStartTime()));
+        if (event.getEndTime() != null) {
+            time.append(" - ");
+            time.append(new SimpleDateFormat("HH:mm").format(event.getEndTime()));
+        }
+        return time.toString();
+    }
+
     public String getAuthor(FacebookPost post) {
-        if (post.getFacebookPage()==null) {
+        if (post.getFacebookPage() == null) {
             return "Redaksjonen";
         }
         return post.getFacebookPage().getFacebookPageName();
@@ -142,6 +164,14 @@ public class FacebookService {
     public FacebookPage getFacebookPageByPageId(String pageIdentifier) {
         return storage.createSingleQuery("from FacebookPage p where p.facebookPageIdentifier = '" + pageIdentifier
                 + "'", FacebookPage.class);
+    }
+
+    public List<FacebookEvent> getFBFutureEvents(FacebookPage facebookPage) {
+        Date yesterday = new DateTime().minusDays(1).toDate();
+        TypedQuery<FacebookEvent> query = storage.createQuery("from FacebookEvent e where e.facebookPage.id = "
+                + facebookPage.getId() + " and e.startTime > :dt order by e.startTime", FacebookEvent.class);
+        query.setParameter("dt", yesterday);
+        return query.getResultList();
     }
 
     public List<FacebookPost> getFBPhotos(FacebookPage facebookPage, int maxResults) {
@@ -184,6 +214,40 @@ public class FacebookService {
         }
 
         facebookPage.setLastSync(new Date());
+
+        syncPosts(facebookPage, facebook, reading);
+        syncEvents(facebookPage, facebook, reading);
+
+        storage.begin();
+        storage.persist(facebookPage);
+        storage.commit();
+    }
+
+    private void syncEvents(FacebookPage facebookPage, Facebook facebook, Reading reading) throws FacebookException {
+        ResponseList<Event> events = facebook.getEvents(facebookPage.getFacebookPageIdentifier(), reading);
+
+        for (Event event : events) {
+            TypedQuery<FacebookEvent> query = storage.createQuery(
+                    "from FacebookEvent e where e.facebookEventId = '" + event.getId() + "'", FacebookEvent.class);
+            if (query.getResultList().isEmpty()) {
+                FacebookEvent fe = new FacebookEvent();
+                fe.setFacebookPage(facebookPage);
+                fe.setName(event.getName());
+                fe.setStartTime(event.getStartTime());
+                fe.setEndTime(event.getEndTime());
+                fe.setDescription(event.getDescription());
+                fe.setLocation(event.getLocation());
+                fe.setFacebookUpdated(event.getUpdatedTime());
+                fe.setFacebookEventId(event.getId());
+                fe.setCreated(new Date());
+                storage.begin();
+                storage.persist(fe);
+                storage.commit();
+            }
+        }
+    }
+
+    private void syncPosts(FacebookPage facebookPage, Facebook facebook, Reading reading) throws FacebookException {
         ResponseList<Post> posts = facebook.getPosts(facebookPage.getFacebookPageIdentifier(), reading);
 
         for (Post post : posts) {
@@ -213,10 +277,6 @@ public class FacebookService {
                 storage.commit();
             }
         }
-
-        storage.begin();
-        storage.persist(facebookPage);
-        storage.commit();
     }
 
     public void syncFacebookPagePosts() {

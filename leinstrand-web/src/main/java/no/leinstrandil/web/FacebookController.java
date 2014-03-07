@@ -33,6 +33,7 @@ public class FacebookController implements Controller {
         context.put("statusList", facebookService.getFBStatus(facebookPage, 20));
         context.put("photoList", facebookService.getFBPhotos(facebookPage, 20));
         context.put("linkList", facebookService.getFBLinks(facebookPage, 20));
+        context.put("events", facebookService.getFBFutureEvents(facebookPage));
 
         List<FacebookPost> newsList = facebookService.getFacebookNews(facebookPage, 20);
         while(newsList.size()<20) {
