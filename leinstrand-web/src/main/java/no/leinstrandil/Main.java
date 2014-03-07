@@ -1,5 +1,8 @@
 package no.leinstrandil;
 
+import no.leinstrandil.service.SearchService;
+
+import no.leinstrandil.web.SearchResultsController;
 import java.util.UUID;
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -66,6 +69,7 @@ public class Main {
     private final PageService pageService;
     private final UserService userService;
     private final FileService fileService;
+    private final SearchService searchService;
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
     private final VelocityEngine velocity;
@@ -82,6 +86,7 @@ public class Main {
         pageService = new PageService(storage);
         userService = new UserService(storage);
         fileService = new FileService(storage);
+        searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
 
@@ -99,6 +104,7 @@ public class Main {
         controllers = new HashMap<>();
         controllers.put(ControllerTemplate.CONTACT.getId(), new ContactController());
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
+        controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
 
         Spark.setPort(baseUrl.getPort());
         Spark.staticFileLocation("/static");
@@ -323,7 +329,9 @@ public class Main {
                 Resource resource = fileService.getResourceByFilename(filename);
                 log.info("Serving resource named " + filename + " : " + resource.getContentType());
                 response.type(resource.getContentType());
-                response.header("content-disposition", "attachment; filename=" + resource.getOriginalFileName());
+                if (!resource.getContentType().startsWith("image/")) {
+                    response.header("content-disposition", "attachment; filename=" + resource.getOriginalFileName());
+                }
                 try {
                     OutputStream out = response.raw().getOutputStream();
                     out.write(resource.getData());
@@ -434,10 +442,13 @@ public class Main {
         }
 
         String type = item.getContentType().toLowerCase();
-        switch(type) {
-            case "image/gif": return "gif";
-            case "image/jpeg": return "jpg";
-            case "image/png": return "png";
+        switch (type) {
+        case "image/gif":
+            return "gif";
+        case "image/jpeg":
+            return "jpg";
+        case "image/png":
+            return "png";
         }
 
         return null;

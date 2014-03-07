@@ -38,12 +38,14 @@
         <div class="col-md-3 magazine-page">
             <!-- Search Bar -->
             <div class="headline headline-md"><h2>Søk</h2></div>
+            <form method="GET" action="/page/sokeresultat">
             <div class="input-group margin-bottom-40">
-                <input type="text" class="form-control" name="q" placeholder="Hva leter du etter?">
+                <input type="text" class="form-control" name="q" value="$!{q}" placeholder="Hva leter du etter?">
                 <span class="input-group-btn">
-                    <button class="btn-u" type="button">Søk</button>
+                    <button class="btn-u" type="submit">Søk</button>
                 </span>
             </div>
+            </form>
             <!-- End Search Bar -->
 
             <!-- Posts -->

@@ -64,7 +64,7 @@ var App = function () {
         jQuery('.theme-close').click(function () {
             jQuery('.style-switcher').hide();
         });
-        
+
         jQuery('li', panel).click(function () {
             var color = jQuery(this).attr("data-style");
             var data_header = jQuery(this).attr("data-header");
@@ -122,7 +122,7 @@ var App = function () {
                 directionNav: false,
                 move: 2
             });
-            
+
             $('#clients-flexslider1').flexslider({
                 animation: "slide",
                 easing: "swing",
@@ -135,7 +135,7 @@ var App = function () {
                 directionNav: false,
                 move: 2
             });
-            
+
             $('#photo-flexslider').flexslider({
                 animation: "slide",
                 controlNav: false,
@@ -143,7 +143,7 @@ var App = function () {
                 itemWidth: 80,
                 itemMargin: 0
             }); 
-            
+
             $('#testimonal_carousel').collapse({
                 toggle: false
             });

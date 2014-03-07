@@ -48,12 +48,14 @@
                     <li class="hidden-sm"><a class="search"><i class="icon-search search-btn"></i></a></li>
                 </ul>
                 <div class="search-open">
+                    <form method="GET" action="/page/sokeresultat">
                     <div class="input-group">
-                        <input type="text" class="form-control" name="q" placeholder="Hva leter du etter?">
+                        <input type="text" class="form-control" name="q" value="$!{q}" placeholder="Hva leter du etter?">
                         <span class="input-group-btn">
-                            <button class="btn-u" type="button">Søk</button>
+                            <button class="btn-u" type="submit">Søk</button>
                         </span>
                     </div><!-- /input-group -->
+                    </form>
                 </div>
             </div><!-- /navbar-collapse -->
         </div>

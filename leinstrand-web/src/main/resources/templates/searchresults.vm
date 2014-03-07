@@ -1,0 +1,130 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+<!--=== Breadcrumbs ===-->
+<div class="breadcrumbs margin-bottom-40">
+    <div class="container">
+        <h1 class="pull-left">Søkeresultat: <strong>$!{q}</strong></h1>
+        <ul class="pull-right breadcrumb">
+            <li><a href="/">Forsiden</a></li>
+            <li class="active">$thisPage.getTitle()</li>
+        </ul>
+    </div><!--/container-->
+</div><!--/breadcrumbs-->
+<!--=== End Breadcrumbs ===-->
+
+
+<!--=== Content Part ===-->
+<div class="container">
+    <div class="row blog-page blog-item">
+        <!-- Left Sidebar -->
+        <div class="col-md-9 md-margin-bottom-40">
+
+#if($pageCount > 1)
+            <!--Pagination-->
+            <div class="text-center">
+                <ul class="pagination">
+                    <li><a href="/page/sokeresultat?q=$!{q}&p=$prevPage">«</a></li>
+#foreach($index in [0..$pageCount])
+#set($displayIndex = $index + 1)
+                    <li#if($index==$p) class="active"#end ><a href="/page/sokeresultat?q=$!{q}&p=$index">$displayIndex</a></li>
+#end
+                    <li><a href="/page/sokeresultat?q=$!{q}&p=$nextPage">»</a></li>
+                </ul>
+            </div>
+            <!--End Pagination-->
+#end
+
+#set($divStyles = ["search-blocks search-blocks-left-green",
+                "search-blocks search-blocks-colored search-blocks-red",
+                "search-blocks search-blocks-left-orange",
+                "search-blocks search-blocks-colored search-blocks-blue"])
+#set($butStyles = ["btn-u btn-u-sea", "btn-u btn-u-blue", "btn-u btn-u-yellow", "btn-u btn-u-red"])
+
+#if($searchResult.isEmpty())
+            <!--Tag Box v4-->
+            <div class="tag-box tag-box-v4">
+                <h2>Beklager, ingen treff!</h2>
+                <p>Endre søkeuttrykket og prøv igjen! ;)</p>
+            </div>
+            <!--End Tag Box v4-->
+#else
+#foreach($resultIndex in [$startIndex..$endIndex])
+    #set($r = $searchResult.get($resultIndex))
+    #set($index = ($velocityCount - 1) % $divStyles.size())
+            <div class="$divStyles.get($index)">
+                <div class="row">
+                    <div class="col-md-11">
+                        <h2><a href="/page/$r.getPage().getUrlName()">$r.getPage().getTitle()</a></h2>
+                        <ul class="list-unstyled list-inline">
+                            <li><i class="icon-calendar"></i> $pageService.formatDate($r.getCreated()).</li>
+                            <li><i class="icon-pencil"></i> $pageService.getLastAuthorName($r.getPage())</li>
+                        </ul>
+                        <p>$r.preview</p>
+                        <a class="$butStyles.get($index)" href="/page/$r.getPage().getUrlName()">les hele siden</a>
+                    </div>
+                </div>
+            </div>
+    #if($resultIndex != $endIndex)
+            <div class="margin-bottom-20 clearfix"></div>
+    #end
+#end
+#end
+
+#if($pageCount > 1)
+            <!--Pagination-->
+            <div class="text-center">
+                <ul class="pagination">
+                    <li><a href="/page/sokeresultat?q=$!{q}&p=$prevPage">«</a></li>
+#foreach($index in [0..$pageCount])
+#set($displayIndex = $index + 1)
+                    <li#if($index==$p) class="active"#end ><a href="/page/sokeresultat?q=$!{q}&p=$index">$displayIndex</a></li>
+#end
+                    <li><a href="/page/sokeresultat?q=$!{q}&p=$nextPage">»</a></li>
+                </ul>
+            </div>
+            <!--End Pagination-->
+#end
+
+        </div>
+        <!-- End Left Sidebar -->
+
+        <!-- Right Sidebar -->
+        <div class="col-md-3 magazine-page">
+            <!-- Search Bar -->
+            <div class="headline headline-md"><h2>Søk</h2></div>
+            <form method="GET" action="/page/sokeresultat">
+            <div class="input-group margin-bottom-40">
+                <input type="text" class="form-control" name="q" value="$!{q}" placeholder="Hva leter du etter?">
+                <span class="input-group-btn">
+                    <button class="btn-u" type="submit">Søk</button>
+                </span>
+            </div>
+            </form>
+            <!-- End Search Bar -->
+
+            <!-- Posts -->
+            <div class="posts margin-bottom-40">
+                <div class="headline headline-md"><h2>Siste nytt fra laget</h2></div>
+#foreach($index in [0..4])
+    #set($news = $lilNewsList.get($index))
+                <dl class="dl-horizontal">
+                    <dt>
+                        <a href="$facebookService.getLinkUrl($news)"><img src="$facebookService.getSmallPictureUrl($news)" alt="" /></a>
+                    </dt>
+                    <dd>
+                        <p><a href="$facebookService.getLinkUrl($news)">$facebookService.getShortBody($news)</a></p> 
+                    </dd>
+                </dl>
+#end
+            </div><!--/posts-->
+            <!-- End Posts -->
+        </div>
+        <!-- End Right Sidebar -->
+    </div><!--/row-->
+</div><!--/container-->
+<!--=== End Content Part ===-->
+
+
+#parse("fragments/footer.vm")
