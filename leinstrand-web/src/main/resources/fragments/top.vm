@@ -16,7 +16,7 @@
             <div class="col-md-6">
                 <ul class="list-unstyled top-v1-data">
                     <li><a href="/"><i class="icon-home"></i></a></li>
-                    <li><a href="/fblogin">Logg inn med Facebook</a></li>
+                    <li><a href="/signin">Logg inn med Facebook</a></li>
                     <li><a href="/page/${thisPage.getUrlName()}#" id="redactor_edit"><i class="icon-edit"></i></a>
                         <a href="/page/${thisPage.getUrlName()}#" id="redactor_save"><i class="icon-save"></i></a>
                     </li>

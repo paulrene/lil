@@ -1,11 +1,10 @@
 package no.leinstrandil;
 
-import no.leinstrandil.service.SearchService;
-
-import no.leinstrandil.web.SearchResultsController;
-import java.util.UUID;
-import java.io.OutputStream;
+import facebook4j.Facebook;
+import facebook4j.FacebookException;
+import facebook4j.FacebookFactory;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -18,21 +17,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.FacebookPage;
 import no.leinstrandil.database.model.Page;
 import no.leinstrandil.database.model.Resource;
 import no.leinstrandil.database.model.TextNode;
+import no.leinstrandil.database.model.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
+import no.leinstrandil.service.SearchService;
 import no.leinstrandil.service.StockPhotoService;
 import no.leinstrandil.service.UserService;
 import no.leinstrandil.web.ContactController;
 import no.leinstrandil.web.Controller;
 import no.leinstrandil.web.ControllerTemplate;
 import no.leinstrandil.web.FacebookController;
+import no.leinstrandil.web.SearchResultsController;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -47,6 +50,9 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
@@ -76,11 +82,14 @@ public class Main {
 
     private Map<String, Controller> controllers;
 
-    private URL baseUrl;
+    @Option(name = "-appid", usage = "Sets the Facebook app id", required = true)
+    private String appId;
+    @Option(name = "-appsecret", usage = "Sets the Facebook app secret", required = true)
+    private String appSecret;
+    @Option(name = "-baseurl", usage = "Sets the webapp base url", required = false)
+    private String baseUrl = "http://localhost:8080/";
 
-    public Main(URL baseUrl) {
-        this.baseUrl = baseUrl;
-
+    public Main() throws MalformedURLException {
         storage = new Storage();
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
@@ -106,7 +115,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
 
-        Spark.setPort(baseUrl.getPort());
+        Spark.setPort(new URL(baseUrl).getPort());
         Spark.staticFileLocation("/static");
     }
 
@@ -341,6 +350,47 @@ public class Main {
                 return new String();
             }
         });
+
+        Spark.get(new Route("/signin") {
+            @Override
+            public Object handle(Request request, Response response) {
+                Facebook facebook = new FacebookFactory().getInstance();
+                facebook.setOAuthAppId(appId, appSecret);
+                facebook.setOAuthPermissions("basic_info,email,user_birthday");
+                request.session().attribute("facebook", facebook);
+                response.redirect(facebook.getOAuthAuthorizationURL(baseUrl.toString() + "callback"));
+                return new String();
+            }
+        });
+
+        Spark.get(new Route("/callback") {
+            @Override
+            public Object handle(Request request, Response response) {
+                Facebook facebook = (Facebook) request.session().attribute("facebook");
+                String oAuthCode = request.queryParams("code");
+                try {
+                    facebook.getOAuthAccessToken(oAuthCode);
+                    facebook4j.User fbUser = facebook.getMe();
+                    URL userPictureUrl = facebook.getPictureURL();
+
+                    User u = new User();
+
+                } catch (FacebookException e) {
+                    halt(503, e.getErrorMessage());
+                }
+                response.redirect(baseUrl.toString());
+                return new String();
+            }
+        });
+
+        Spark.get(new Route("/logout") {
+            @Override
+            public Object handle(Request request, Response response) {
+                request.session().invalidate();
+                response.redirect(baseUrl.toString());
+                return new String();
+            }
+        });
     }
 
     private static JSONObject flatten(final JSONObject obj) {
@@ -455,12 +505,16 @@ public class Main {
     }
 
     public static void main(String[] args) throws MalformedURLException {
-        URL baseUrl = new URL("http://localhost:8080/");
-        if (args.length > 0) {
-            baseUrl = new URL(args[0]);
-        }
         Locale.setDefault(new Locale("nb", "no"));
-        new Main(baseUrl).start();
+        Main main = new Main();
+        CmdLineParser parser = new CmdLineParser(main);
+        try {
+            parser.parseArgument(args);
+            main.start();
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+        }
     }
 
 }
