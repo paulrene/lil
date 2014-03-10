@@ -22,7 +22,6 @@ import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.web.FacebookPage;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.Resource;
-import no.leinstrandil.database.model.web.TextNode;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
@@ -153,15 +152,12 @@ public class Main {
                     return new String();
                 }
 
-                User user = null;
-                Long userId = (Long) request.session().attribute("userId");
-                if (userId != null) {
-                    user = userService.getUserById(userId);
-                    log.info("User " + user.getId() + ":" + user.getUsername() + " looking at " + urlName);
-                }
                 VelocityContext context = new VelocityContext();
-                context.put("user", user);
 
+                User user = userService.getLoggedInUserFromSession(request);
+                if (user != null) {
+                    context.put("user", user);
+                }
 
                 Controller controller = controllers.get(page.getTemplate());
                 if (controller != null) {
@@ -229,7 +225,7 @@ public class Main {
             }
         });
 
-        Spark.get(new Route("/api/load/textnode") {
+        /*Spark.get(new Route("/api/load/textnode") {
             @Override
             public Object handle(Request request, Response response) {
                 response.type("text/plain");
@@ -248,11 +244,17 @@ public class Main {
 
                 return textNode.getSource();
             }
-        });
+        });*/
 
         Spark.post(new Route("/api/save/textnode/:id") {
             @Override
             public Object handle(Request request, Response response) {
+                User user = userService.getLoggedInUserFromSession(request);
+                if (!userService.hasEditorRole(user)) {
+                    halt(403, "You are not an editor!");
+                    return new String();
+                }
+
                 String idStr = request.params("id");
                 String[] idArray = idStr.split("-");
                 String urlName = idArray[0];
@@ -265,10 +267,8 @@ public class Main {
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {
                     halt(409, "You are attempting save a change to an old version.");
                 }
-
                 return new String();
             }
-
         });
 
         Spark.get(new Route("/api/fb/sync") {

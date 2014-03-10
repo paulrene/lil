@@ -9,8 +9,10 @@ import java.util.Date;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Principal;
+import no.leinstrandil.database.model.web.Role;
 import no.leinstrandil.database.model.web.User;
 import org.slf4j.Logger;
+import spark.Request;
 
 public class UserService {
     private final Logger log = org.slf4j.LoggerFactory.getLogger(UserService.class);
@@ -81,6 +83,27 @@ public class UserService {
             log.debug("Could not find user with id: " + id);
             return null;
         }
+    }
+
+    public boolean hasEditorRole(User user) {
+        if (user == null) {
+            return false;
+        }
+        for(Role role : user.getRoles()) {
+            if("editor".equals(role.getIdentifier())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public User getLoggedInUserFromSession(Request request) {
+        User user = null;
+        Long userId = (Long) request.session().attribute("userId");
+        if (userId != null) {
+            user = getUserById(userId);
+        }
+        return user;
     }
 
 }

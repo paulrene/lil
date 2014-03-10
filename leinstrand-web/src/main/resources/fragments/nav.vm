@@ -31,7 +31,7 @@
 #if(!$subMenuEntries.isEmpty())
                         <ul class="dropdown-menu">
 #foreach($subMenu in $subMenuEntries)
-#if(!$subMenu.isHidden())
+#if(!$subMenu.isDisabled())
 #if($subMenu.getPage())
 #set($urlName = $subMenu.getPage().getUrlName())
                             <li#if($urlName.equals($thisPage.getUrlName())) class="active"#end><a href="/page/$urlName">$subMenu.getDescription()</a></li>
