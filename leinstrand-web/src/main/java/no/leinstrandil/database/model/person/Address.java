@@ -22,7 +22,7 @@ public class Address {
     private String zip;
     private String city;
     private String country;
-    private Date primary;
+    private Date prime;
     private Date created;
 
     public Address() {
@@ -88,12 +88,12 @@ public class Address {
         this.zip = zip;
     }
 
-    public Date getPrimary() {
-        return primary;
+    public Date getPrime() {
+        return prime;
     }
 
-    public void setPrimary(Date primary) {
-        this.primary = primary;
+    public void setPrime(Date prime) {
+        this.prime = prime;
     }
 
 }

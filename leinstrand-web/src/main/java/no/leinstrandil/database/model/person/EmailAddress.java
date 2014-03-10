@@ -19,7 +19,7 @@ public class EmailAddress {
     private String email;
     private String code;
     private Date verified;
-    private Date primary;
+    private Date prime;
     private Date created;
 
     public EmailAddress() {
@@ -53,12 +53,12 @@ public class EmailAddress {
         this.email = email;
     }
 
-    public Date getPrimary() {
-        return primary;
+    public Date getPrime() {
+        return prime;
     }
 
-    public void setPrimary(Date primary) {
-        this.primary = primary;
+    public void setPrime(Date prime) {
+        this.prime = prime;
     }
 
     public Principal getPrincipal() {

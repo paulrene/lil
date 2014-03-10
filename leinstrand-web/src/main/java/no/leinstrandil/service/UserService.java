@@ -13,7 +13,6 @@ import no.leinstrandil.database.model.web.User;
 import org.slf4j.Logger;
 
 public class UserService {
-
     private final Logger log = org.slf4j.LoggerFactory.getLogger(UserService.class);
 
     private Storage storage;
@@ -27,6 +26,7 @@ public class UserService {
         User user = getUserByFacebookId(fbUser.getId());
         if (user != null) {
             // TODO: Update user object?
+            log.info("Known user " + user.getId() + ":" + user.getUsername() + " found.");
             return user;
         }
         log.info("Creating new facebook user named: " + fbUser.getName());
@@ -65,11 +65,20 @@ public class UserService {
         return newUser;
     }
 
-    private User getUserByFacebookId(String id) {
+    private User getUserByFacebookId(String facebookId) {
         try {
-            return storage.createSingleQuery("from User where facebookId = '" + id + "'", User.class);
+            return storage.createSingleQuery("from User where facebookId = '" + facebookId + "'", User.class);
         } catch (NoResultException e) {
-            log.debug("Could not find local user with facebook id: " + id);
+            log.debug("Could not find local user with facebook id: " + facebookId);
+            return null;
+        }
+    }
+
+    public User getUserById(Long id) {
+        try {
+            return storage.createSingleQuery("from User where id = " + id, User.class);
+        } catch (NoResultException e) {
+            log.debug("Could not find user with id: " + id);
             return null;
         }
     }

@@ -1,11 +1,5 @@
 package no.leinstrandil;
 
-import no.leinstrandil.database.model.web.FacebookPage;
-import no.leinstrandil.database.model.web.Page;
-import no.leinstrandil.database.model.web.Resource;
-import no.leinstrandil.database.model.web.TextNode;
-import no.leinstrandil.database.model.web.User;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -25,6 +19,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.web.FacebookPage;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.Resource;
+import no.leinstrandil.database.model.web.TextNode;
+import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
 import no.leinstrandil.service.MenuService;
@@ -154,7 +153,15 @@ public class Main {
                     return new String();
                 }
 
+                User user = null;
+                Long userId = (Long) request.session().attribute("userId");
+                if (userId != null) {
+                    user = userService.getUserById(userId);
+                    log.info("User " + user.getId() + ":" + user.getUsername() + " looking at " + urlName);
+                }
                 VelocityContext context = new VelocityContext();
+                context.put("user", user);
+
 
                 Controller controller = controllers.get(page.getTemplate());
                 if (controller != null) {
@@ -360,6 +367,7 @@ public class Main {
                 facebook.setOAuthPermissions("basic_info,email,user_birthday");
                 request.session().attribute("facebook", facebook);
                 response.redirect(facebook.getOAuthAuthorizationURL(baseUrl.toString() + "callback"));
+                log.info("Logging in user. Redirecting to Facebook.");
                 return new String();
             }
         });
@@ -367,13 +375,16 @@ public class Main {
         Spark.get(new Route("/callback") {
             @Override
             public Object handle(Request request, Response response) {
+                log.info("Callback from Facebook. Attempting to get access token.");
                 Facebook facebook = (Facebook) request.session().attribute("facebook");
                 String oAuthCode = request.queryParams("code");
                 try {
                     facebook.getOAuthAccessToken(oAuthCode);
                     User user = userService.ensureFacebookUser(facebook);
                     request.session().attribute("userId", user.getId());
+                    log.info("User with id:username " + user.getId() + ":" + user.getUsername() + " logged in.");
                 } catch (FacebookException e) {
+                    log.info("Failed while attempting to retrieve access token or user from Facebook: " + e.getMessage());
                     halt(503, e.getErrorMessage());
                 }
                 response.redirect(baseUrl.toString());
