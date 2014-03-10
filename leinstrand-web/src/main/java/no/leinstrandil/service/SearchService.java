@@ -1,5 +1,9 @@
 package no.leinstrandil.service;
 
+import no.leinstrandil.database.model.web.Node;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.TextNode;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,9 +13,6 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.Node;
-import no.leinstrandil.database.model.Page;
-import no.leinstrandil.database.model.TextNode;
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 

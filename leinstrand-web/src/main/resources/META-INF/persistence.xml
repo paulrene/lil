@@ -4,15 +4,22 @@
   <persistence-unit name="LeinstrandIL" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>no.leinstrandil.database.model.MenuEntry</class>
-    <class>no.leinstrandil.database.model.Page</class>
-    <class>no.leinstrandil.database.model.Node</class>
-    <class>no.leinstrandil.database.model.TextNode</class>
-    <class>no.leinstrandil.database.model.Role</class>
-    <class>no.leinstrandil.database.model.User</class>
-    <class>no.leinstrandil.database.model.Resource</class>
-    <class>no.leinstrandil.database.model.FacebookPage</class>
-    <class>no.leinstrandil.database.model.FacebookPost</class>
+    <class>no.leinstrandil.database.model.web.MenuEntry</class>
+    <class>no.leinstrandil.database.model.web.Page</class>
+    <class>no.leinstrandil.database.model.web.Node</class>
+    <class>no.leinstrandil.database.model.web.TextNode</class>
+    <class>no.leinstrandil.database.model.web.Role</class>
+    <class>no.leinstrandil.database.model.web.User</class>
+    <class>no.leinstrandil.database.model.web.Resource</class>
+    <class>no.leinstrandil.database.model.web.FacebookPage</class>
+    <class>no.leinstrandil.database.model.web.FacebookPost</class>
+    <class>no.leinstrandil.database.model.person.Address</class>
+    <class>no.leinstrandil.database.model.person.EmailAddress</class>
+    <class>no.leinstrandil.database.model.person.MobileNumber</class>
+    <class>no.leinstrandil.database.model.person.Principal</class>
+    <class>no.leinstrandil.database.model.club.Sport</class>
+    <class>no.leinstrandil.database.model.club.Team</class>
+    <class>no.leinstrandil.database.model.club.Activity</class>
 
     <!-- <shared-cache-mode>NONE</shared-cache-mode> -->
 

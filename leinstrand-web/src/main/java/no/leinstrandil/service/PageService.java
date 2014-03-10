@@ -1,5 +1,10 @@
 package no.leinstrandil.service;
 
+import no.leinstrandil.database.model.web.Node;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.TextNode;
+import no.leinstrandil.database.model.web.User;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,10 +12,6 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.Node;
-import no.leinstrandil.database.model.Page;
-import no.leinstrandil.database.model.TextNode;
-import no.leinstrandil.database.model.User;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

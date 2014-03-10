@@ -1,5 +1,8 @@
 package no.leinstrandil.service;
 
+import no.leinstrandil.database.model.web.MenuEntry;
+import no.leinstrandil.database.model.web.Page;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,8 +11,6 @@ import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.MenuEntry;
-import no.leinstrandil.database.model.Page;
 
 public class MenuService {
 

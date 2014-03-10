@@ -1,4 +1,4 @@
-package no.leinstrandil.database.model;
+package no.leinstrandil.database.model.web;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -10,13 +10,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.club.Activity;
+import no.leinstrandil.database.model.club.Team;
 
 @Entity
 @Table(name = "page")
 public class Page {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     private Long id;
     private String title;
     private String urlName;
@@ -26,6 +27,10 @@ public class Page {
     private Date created;
     private Date updated;
     private String redirectToUrl;
+    @OneToMany(mappedBy = "page")
+    private Set<Team> teams;
+    @OneToMany(mappedBy = "page")
+    private Set<Activity> activities;
     @ManyToOne @JoinColumn(name = "requiredRoleId")
     private Role requireRole;
     @ManyToOne @JoinColumn(name = "lastAuthorId")
@@ -37,6 +42,9 @@ public class Page {
 
     public Page() {
         menuEntries = new HashSet<>();
+        activities = new HashSet<>();
+        teams = new HashSet<>();
+        nodes = new HashSet<>();
     }
 
     public Long getId() {

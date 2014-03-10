@@ -1,11 +1,12 @@
 package no.leinstrandil.web;
 
+import no.leinstrandil.database.model.web.FacebookPage;
+import no.leinstrandil.database.model.web.FacebookPost;
+import no.leinstrandil.database.model.web.Page;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import no.leinstrandil.database.model.FacebookPage;
-import no.leinstrandil.database.model.FacebookPost;
-import no.leinstrandil.database.model.Page;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.PageService;
 import org.apache.velocity.VelocityContext;

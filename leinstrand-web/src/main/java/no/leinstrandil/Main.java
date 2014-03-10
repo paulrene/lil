@@ -1,5 +1,11 @@
 package no.leinstrandil;
 
+import no.leinstrandil.database.model.web.FacebookPage;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.Resource;
+import no.leinstrandil.database.model.web.TextNode;
+import no.leinstrandil.database.model.web.User;
+
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -19,11 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.FacebookPage;
-import no.leinstrandil.database.model.Page;
-import no.leinstrandil.database.model.Resource;
-import no.leinstrandil.database.model.TextNode;
-import no.leinstrandil.database.model.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
 import no.leinstrandil.service.MenuService;
@@ -370,11 +371,8 @@ public class Main {
                 String oAuthCode = request.queryParams("code");
                 try {
                     facebook.getOAuthAccessToken(oAuthCode);
-                    facebook4j.User fbUser = facebook.getMe();
-                    URL userPictureUrl = facebook.getPictureURL();
-
-                    User u = new User();
-
+                    User user = userService.ensureFacebookUser(facebook);
+                    request.session().attribute("userId", user.getId());
                 } catch (FacebookException e) {
                     halt(503, e.getErrorMessage());
                 }

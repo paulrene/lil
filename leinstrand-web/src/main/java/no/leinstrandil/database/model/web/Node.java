@@ -1,4 +1,4 @@
-package no.leinstrandil.database.model;
+package no.leinstrandil.database.model.web;
 
 import java.util.ArrayList;
 import java.util.List;

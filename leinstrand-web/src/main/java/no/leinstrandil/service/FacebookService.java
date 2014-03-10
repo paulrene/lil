@@ -1,7 +1,10 @@
 package no.leinstrandil.service;
 
-import org.joda.time.DateTime;
+import no.leinstrandil.database.model.web.FacebookEvent;
+import no.leinstrandil.database.model.web.FacebookPage;
+import no.leinstrandil.database.model.web.FacebookPost;
 
+import org.joda.time.DateTime;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -15,9 +18,6 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.FacebookEvent;
-import no.leinstrandil.database.model.FacebookPage;
-import no.leinstrandil.database.model.FacebookPost;
 import org.joda.time.DateTimeUtils;
 
 public class FacebookService {

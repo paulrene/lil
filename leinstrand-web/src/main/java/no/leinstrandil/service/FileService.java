@@ -1,9 +1,10 @@
 package no.leinstrandil.service;
 
+import no.leinstrandil.database.model.web.Resource;
+
 import java.util.List;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
-import no.leinstrandil.database.model.Resource;
 
 public class FileService {
 
