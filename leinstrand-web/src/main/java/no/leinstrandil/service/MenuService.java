@@ -1,7 +1,6 @@
 package no.leinstrandil.service;
 
-import no.leinstrandil.database.model.web.MenuEntry;
-import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.Role;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +10,9 @@ import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.web.MenuEntry;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.User;
 
 public class MenuService {
 
@@ -84,6 +86,27 @@ public class MenuService {
         sortListOfEntries(subList);
         subList.add(0, menuEntrySet.iterator().next());
         return subList;
+    }
+
+    public boolean hasAccess(MenuEntry menu, User user) {
+        if (menu.isDisabled()) {
+            return false;
+        }
+        if (menu.isUserRequired() && user == null) {
+            return false;
+        }
+        if (menu.getRequireRole() != null) {
+            if (user == null) {
+                return false;
+            }
+            for(Role role : user.getRoles()) {
+                if(role.getIdentifier().equals(menu.getRequireRole().getIdentifier())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
 }

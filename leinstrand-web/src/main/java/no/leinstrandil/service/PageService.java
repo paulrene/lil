@@ -1,10 +1,5 @@
 package no.leinstrandil.service;
 
-import no.leinstrandil.database.model.web.Node;
-import no.leinstrandil.database.model.web.Page;
-import no.leinstrandil.database.model.web.TextNode;
-import no.leinstrandil.database.model.web.User;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +7,11 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.person.Principal;
+import no.leinstrandil.database.model.web.Node;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.TextNode;
+import no.leinstrandil.database.model.web.User;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +84,16 @@ public class PageService {
         return new SimpleDateFormat("d. MMMM, yyyy").format(date);
     }
 
-    public String getLastAuthorName(Page page) {
+    public String getAuthors(Page page) {
         if (page.getLastAuthor() == null) {
             return "Redaksjonen";
         } else {
-            return "User ID: " + page.getLastAuthor().getId(); // TODO: Return real name of user.
+            Principal principal = page.getLastAuthor().getPrincipal();
+            if (principal == null) {
+                return page.getLastAuthor().getUsername();
+            } else {
+                return principal.getName();
+            }
         }
     }
 
@@ -108,11 +113,11 @@ public class PageService {
         storage.begin();
         TextNode textNode = new TextNode();
         textNode.setCreated(new Date());
-        textNode.setAuthor(author != null ? author : newestTextNode.getAuthor());
+        textNode.setAuthor(author);
         textNode.setNode(newestTextNode.getNode());
         textNode.setSource(sourceCode);
         storage.persist(textNode);
-        page.setLastAuthor(author != null ? author : newestTextNode.getAuthor());
+        page.setLastAuthor(author);
         page.setUpdated(new Date());
         storage.persist(page);
         storage.commit();

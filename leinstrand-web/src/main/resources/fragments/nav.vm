@@ -21,7 +21,7 @@
                 <ul class="nav navbar-nav navbar-right">
 #set($rootEntries = $menuService.getRootEntries())
 #foreach($rootMenu in $rootEntries)
-#if(!$rootMenu.isDisabled())
+#if($menuService.hasAccess($rootMenu, $user))
                     <li class="dropdown#if($menuService.isPageInThisTopMenu($rootMenu, $thisPage)) active#end">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="0" data-close-others="false">
                             $rootMenu.getDescription()
@@ -31,7 +31,7 @@
 #if(!$subMenuEntries.isEmpty())
                         <ul class="dropdown-menu">
 #foreach($subMenu in $subMenuEntries)
-#if(!$subMenu.isDisabled())
+#if($menuService.hasAccess($subMenu, $user))
 #if($subMenu.getPage())
 #set($urlName = $subMenu.getPage().getUrlName())
                             <li#if($urlName.equals($thisPage.getUrlName())) class="active"#end><a href="/page/$urlName">$subMenu.getDescription()</a></li>

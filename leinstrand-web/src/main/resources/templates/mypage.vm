@@ -1,0 +1,130 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+
+
+
+<!--=== Content Part ===-->
+<div class="container">
+    <div class="row">
+        <!--Begin Sidebar Menu-->
+        <div class="col-md-3">            
+            <ul class="list-group sidebar-nav-v1">
+                <li class="list-group-item"><a href="feature_grid.html">Grid Layout</a></li>
+                <li class="list-group-item">
+                    <span class="badge badge-green">New</span>                    
+                    <a href="feature_boxes.html">Content Boxes</a>
+                </li>
+                <li class="list-group-item"><a href="feature_typography.html">Typography</a></li>
+                <li class="list-group-item">
+                    <span class="badge badge-red">New</span>                    
+                    <a href="feature_tagline_boxes.html">Tagline Boxes</a>
+                </li>
+                <li class="list-group-item"><a href="feature_buttons.html">Buttons</a></li>
+                <li class="list-group-item">
+                    <span class="badge">New</span>                                        
+                    <a href="feature_icons.html">Icons</a>
+                </li>
+                <li class="list-group-item"><a href="feature_thumbails.html">Thumbails</a></li>
+                <li class="list-group-item"><a href="feature_components.html">Components</a></li>
+                <li class="list-group-item active">
+                    <span class="badge badge-blue">New</span>                    
+                    <a href="feature_accardion_and_tabs.html">Accardion and Tabs</a>
+                </li>
+                <li class="list-group-item"><a href="feature_navigations.html">Navigations</a></li>
+                <li class="list-group-item"><a href="feature_tables.html">Tables</a></li>
+                <li class="list-group-item"><a href="feature_forms.html">Forms</a></li>
+                <li class="list-group-item">
+                    <span class="badge badge-sea">New</span>                    
+                    <a href="feature_testimonials.html">Testimonials</a>
+                </li>
+            </ul>
+        </div>
+        <!--End Sidebar Menu-->
+
+        <!--Begin Content-->
+        <div class="col-md-9">
+
+            <div class="tab-v1">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#home" data-toggle="tab">Home</a></li>
+                    <li><a href="#profile" data-toggle="tab">Profile</a></li>
+                    <li><a href="#messages" data-toggle="tab">Messages</a></li>
+                    <li><a href="#settings" data-toggle="tab">Settings</a></li>
+                </ul>                
+                <div class="tab-content">
+                    <div class="tab-pane active" id="home">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img alt="" class="img-responsive img-tab-space" src="assets/img/new/img4.jpg">                                
+                            </div>
+                            <div class="col-md-8">
+                                <h4>Heading Sample 1</h4>
+                                <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum <strong>ivamus imperdiet</strong> condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque <strong>fermentum vivamus</strong> imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac felis consectetur id. Donec eget orci metusvivamus imperdiet.</p>                        
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="profile">
+                        <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/5.jpg">                         
+                        <h4>Heading Sample 2</h4>
+                        <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, <strong>ac adipiscing nunc.</strong> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac <strong>interdum ullamcorper.</strong></p>
+                    </div>
+                    <div class="tab-pane" id="messages">
+                        <h4>Heading Sample 3</h4>
+                        <p><img alt="" class="pull-right rgt-img-margin img-width-200" src="assets/img/main/6.jpg"> <strong>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id.</strong> Donec eget orci metus, Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, consectetur id. Donec eget orci metus, ac adipiscing nunc. <strong>Pellentesque fermentum</strong>, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper.</p>
+                    </div>
+                    <div class="tab-pane" id="settings">
+                        <h4>Heading Sample 4</h4>
+                        <p><img alt="" class="pull-right rgt-img-margin img-width-200" src="assets/img/main/1.jpg"> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, consectetur id. Donec eget orci metus, ac adipiscing nunc. <strong>Pellentesque fermentum</strong>, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="margin-bottom-40"></div>
+
+            <div class="row tab-v3">
+                <div class="col-sm-3">
+                    <ul class="nav nav-pills nav-stacked"> 
+                        <li class="active"><a href="#home-2" data-toggle="tab"><i class="icon-home"></i> Home</a></li>
+                        <li><a href="#profile-2" data-toggle="tab"><i class="icon-cloud"></i> Profile</a></li>
+                        <li><a href="#messages-2" data-toggle="tab"><i class="icon-comments"></i> Messages</a></li>
+                        <li><a href="#settings-2" data-toggle="tab"><i class="icon-gear"></i> Settings</a></li>                        
+                    </ul>                    
+                </div>
+                <div class="col-sm-9">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home-2">
+                            <h4>Heading Sample 1</h4>
+                            <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum <strong>ivamus imperdiet</strong> condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc.</p> 
+                            <p>Pellentesque <strong>fermentum vivamus</strong> imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac felis consectetur id. Donec eget orci metusvivamus imperdiet.</p>                        
+                        </div>
+                        <div class="tab-pane" id="profile-2">
+                            <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/5.jpg">                         
+                            <h4>Heading Sample 2</h4>
+                            <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, <strong>ac adipiscing nunc.</strong> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac <strong>interdum ullamcorper.</strong></p>
+                        </div>
+                        <div class="tab-pane" id="messages-2">
+                            <h4>Heading Sample 3</h4>
+                            <p><img alt="" class="pull-right rgt-img-margin img-width-200" src="assets/img/main/6.jpg"> <strong>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id.</strong> Donec eget orci metus, Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, consectetur id. Donec eget orci metus, ac adipiscing nunc. <strong>Pellentesque fermentum</strong>, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper.</p>
+                        </div>
+                        <div class="tab-pane" id="settings-2">
+                            <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/7.jpg">                         
+                            <h4>Heading Sample 4</h4>
+                            <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, <strong>ac adipiscing nunc.</strong> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac <strong>interdum ullamcorper.</strong></p>
+                        </div>
+                    </div>                                    
+                </div>
+            </div>            
+        </div>
+        <!--End Content-->
+    </div>          
+</div><!--/container-->     
+<!--=== End Content Part ===-->
+
+
+
+
+
+
+#parse("fragments/footer.vm")

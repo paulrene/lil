@@ -24,6 +24,7 @@ public class Page {
     private String template;
     private String templateConfig;
     private String favoritePages;
+    private Boolean userRequired;
     private Date created;
     private Date updated;
     private String redirectToUrl;
@@ -49,6 +50,30 @@ public class Page {
 
     public Long getId() {
         return id;
+    }
+
+    public Set<Activity> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(Set<Activity> activities) {
+        this.activities = activities;
+    }
+
+    public Set<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Set<Team> teams) {
+        this.teams = teams;
+    }
+
+    public Boolean isUserRequired() {
+        return userRequired;
+    }
+
+    public void setUserRequired(Boolean userRequired) {
+        this.userRequired = userRequired;
     }
 
     public String getTemplate() {

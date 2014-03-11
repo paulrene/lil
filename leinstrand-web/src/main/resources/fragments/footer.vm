@@ -43,7 +43,6 @@
                 <!-- Stay Connected -->
                 <div class="headline"><h2>Følg oss i Sosiale Media</h2></div> 
                 <ul class="social-icons">
-                    <li><a href="/rss" data-original-title="Feed" class="social_rss"></a></li>
                     <li><a href="https://www.facebook.com/LeinstrandIL" data-original-title="Facebook" class="social_facebook"></a></li>
                 </ul>
             </div><!--/col-md-4-->

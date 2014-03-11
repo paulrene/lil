@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
@@ -78,17 +76,14 @@ public class Main {
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
     private final VelocityEngine velocity;
+    private final Config config;
 
     private Map<String, Controller> controllers;
 
-    @Option(name = "-appid", usage = "Sets the Facebook app id", required = true)
-    private String appId;
-    @Option(name = "-appsecret", usage = "Sets the Facebook app secret", required = true)
-    private String appSecret;
-    @Option(name = "-baseurl", usage = "Sets the webapp base url", required = false)
-    private String baseUrl = "http://localhost:8080/";
 
-    public Main() throws MalformedURLException {
+    public Main(Config config) throws MalformedURLException {
+        this.config = config;
+
         storage = new Storage();
         menuService = new MenuService(storage);
         pageService = new PageService(storage);
@@ -114,8 +109,8 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
 
-        Spark.setPort(new URL(baseUrl).getPort());
         Spark.staticFileLocation("/static");
+        Spark.setPort(config.getPort());
     }
 
     private void start() {
@@ -165,7 +160,7 @@ public class Main {
                 }
 
                 FacebookPage lilPage = facebookService.getFacebookPageByPageId("LeinstrandIL");
-                context.put("baseHref", baseUrl.toString());
+                context.put("baseHref", config.getBaseUrl());
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
@@ -264,7 +259,7 @@ public class Main {
                 String sourceCode = urlDecode(request.body());
                 Page page = pageService.getPageByUrlName(urlName);
 
-                if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, null, sourceCode)) {
+                if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, user, sourceCode)) {
                     halt(409, "You are attempting save a change to an old version.");
                 }
                 return new String();
@@ -363,10 +358,10 @@ public class Main {
             @Override
             public Object handle(Request request, Response response) {
                 Facebook facebook = new FacebookFactory().getInstance();
-                facebook.setOAuthAppId(appId, appSecret);
+                facebook.setOAuthAppId(config.getAppId(), config.getAppSecret());
                 facebook.setOAuthPermissions("basic_info,email,user_birthday");
                 request.session().attribute("facebook", facebook);
-                response.redirect(facebook.getOAuthAuthorizationURL(baseUrl.toString() + "callback"));
+                response.redirect(facebook.getOAuthAuthorizationURL(config.getBaseUrl() + "callback"));
                 log.info("Logging in user. Redirecting to Facebook.");
                 return new String();
             }
@@ -387,7 +382,7 @@ public class Main {
                     log.info("Failed while attempting to retrieve access token or user from Facebook: " + e.getMessage());
                     halt(503, e.getErrorMessage());
                 }
-                response.redirect(baseUrl.toString());
+                response.redirect(config.getBaseUrl());
                 return new String();
             }
         });
@@ -396,7 +391,7 @@ public class Main {
             @Override
             public Object handle(Request request, Response response) {
                 request.session().invalidate();
-                response.redirect(baseUrl.toString());
+                response.redirect(config.getBaseUrl());
                 return new String();
             }
         });
@@ -515,10 +510,13 @@ public class Main {
 
     public static void main(String[] args) throws MalformedURLException {
         Locale.setDefault(new Locale("nb", "no"));
-        Main main = new Main();
-        CmdLineParser parser = new CmdLineParser(main);
+
+        Config config = new Config();
+        CmdLineParser parser = new CmdLineParser(config);
         try {
             parser.parseArgument(args);
+
+            Main main = new Main(config);
             main.start();
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
