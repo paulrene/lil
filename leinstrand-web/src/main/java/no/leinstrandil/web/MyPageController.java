@@ -1,7 +1,6 @@
 package no.leinstrandil.web;
 
 import java.text.ParseException;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +20,12 @@ public class MyPageController implements Controller {
 
     @Override
     public void handleGet(User user, Request request, VelocityContext context) {
+        String tab = request.queryParams("tab");
+        if (tab == null) {
+            tab = "profil";
+        }
+        context.put("tab", tab);
+
     }
 
     @Override
@@ -32,8 +37,14 @@ public class MyPageController implements Controller {
         String action = request.queryParams("action");
         if ("save-profile".equals(action)) {
             saveProfile(user, request, errorMap, infoList);
+        } else if ("save-address".equals(action)) {
+            saveAddress(user, request, errorMap, infoList);
         }
 
+    }
+
+    private void saveAddress(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        infoList.add("Din adresse ble lagret.");
     }
 
     private void saveProfile(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

@@ -1,7 +1,6 @@
 package no.leinstrandil;
 
 import no.leinstrandil.web.MyPageController;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -223,12 +222,19 @@ public class Main {
                     controller.handlePost(user, request, errorMap, infoList);
                 }
 
+                boolean haveQuery = false;
                 StringBuilder pathBuilder = new StringBuilder("/page/").append(urlName);
                 if (!errorMap.isEmpty()) {
                     pathBuilder.append("?errors=" + urlEncode(encodeMap(errorMap)));
                     pathBuilder.append("&data=" + urlEncode(encodeMapArray(request.queryMap().toMap())));
+                    haveQuery = true;
                 } else if (!infoList.isEmpty()) {
                     pathBuilder.append("?info=" + urlEncode(encodeList(infoList)));
+                    haveQuery = true;
+                }
+                String tab = request.queryParams("tab");
+                if (tab != null) {
+                    pathBuilder.append(haveQuery?"&":"?").append("tab=").append(urlEncode(tab));
                 }
 
                 response.redirect(pathBuilder.toString());

@@ -14,8 +14,8 @@
                 <h2><img class="img-circle" style="height:32px;vertical-align:middle;" src="$user.getPrincipal().getPictureUrl()"> $user.getUsername()</a></h2>
             </div>
             <ul class="nav nav-pills nav-stacked"> 
-                <li class="active"><a href="#profile" data-toggle="tab"><i class="icon-user"></i> Profil</a></li>
-                <li><a href="#address" data-toggle="tab"><i class="icon-home"></i> Adresse</a></li>
+                <li#if($tab=="profil") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=profil"><i class="icon-user"></i> Profil</a></li>
+                <li#if($tab=="adresse") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=adresse"><i class="icon-home"></i> Adresse</a></li>
                 <li><a href="#email" data-toggle="tab"><i class="icon-envelope"></i> E-post</a></li>
                 <li><a href="#mobile" data-toggle="tab"><i class="icon-mobile-phone"></i> Mobiltelefon</a></li>
                 <li><a href="#family" data-toggle="tab"><i class="icon-group"></i> Familie</a></li>
@@ -31,66 +31,14 @@
         <div class="col-md-9">
             <div class="row">
                 <div class="tab-content">
+#parse("templates/mypagetabs/profile.vm")
+#parse("templates/mypagetabs/address.vm")
 
-                    <div class="tab-pane active" id="profile">
-                        <h4>Din Profil</h4>
-#if($info)
-                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
-#end
-                        <form class="form-horizontal" role="form" method="POST">
-                            <input type="hidden" name="action" value="save-profile">
-                            <div class="form-group#if($errors.opt("name")) has-error#end">
-                                <label for="inputName" class="col-lg-2 control-label">Navn</label>
-                                <div class="col-lg-10">
-                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Navn" value="$!principal.getName()">
-                                </div>
-                            </div>
-#if($errors.opt("name"))
-                            <span class="label label-danger">$errors.opt("name")</span>
-#end
-                            <div class="form-group#if($errors.opt("birthdate")) has-error#end">
-                                <label for="inputBirthdate" class="col-lg-2 control-label">Fødselsdag</label>
-                                <div class="col-lg-10">
-                                    <input type="date" name="birthdate" class="form-control" id="inputBirthdate" placeholder="Fødselsdag" value="$userService.toDatePickerValue($principal.getBirthDate())">
-                                </div>
-                            </div>
-#if($errors.opt("birthdate"))
-                            <span class="label label-danger">$errors.opt("birthdate")</span>
-#end
-                            <div class="form-group#if($errors.opt("gender")) has-error#end">
-                                <label for="inputGender" class="col-lg-2 control-label">Kjønn</label>
-                                <div class="col-lg-10">
-                                    <select name="gender" class="form-control" id="inputGender">
-                                        #if(!$principal.getGender())
-                                        <option value=""> -- Velg Kjønn --</option>
-                                        #end
-                                        <option#if($principal.getGender()=="male") selected#end value="male">Gutt</option>
-                                        <option#if($principal.getGender()=="female") selected#end  value="female">Jente</option>
-                                    </select>
-                                </div>
-                            </div>
-#if($errors.opt("gender"))
-                            <span class="label label-danger">$errors.opt("gender")</span>
-#end
-                            <div class="form-group">
-                                <div class="col-lg-offset-2 col-lg-10">
-                                    <button type="submit" class="btn-u btn-u-green">Lagre</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="tab-pane" id="address">
-                        <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/5.jpg">                         
-                        <h4>Heading Sample 2</h4>
-                        <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, <strong>ac adipiscing nunc.</strong> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac <strong>interdum ullamcorper.</strong></p>
-                    </div>
-                    
                     <div class="tab-pane" id="email">
                         <h4>Heading Sample 3</h4>
                         <p><img alt="" class="pull-right rgt-img-margin img-width-200" src="assets/img/main/6.jpg"> <strong>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id.</strong> Donec eget orci metus, Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, consectetur id. Donec eget orci metus, ac adipiscing nunc. <strong>Pellentesque fermentum</strong>, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper.</p>
                     </div>
-                    
+
                     <div class="tab-pane" id="mobile">
                         <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/7.jpg">                         
                         <h4>Heading Sample 4</h4>
