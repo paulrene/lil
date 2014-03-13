@@ -1,12 +1,12 @@
 package no.leinstrandil.web;
 
-import no.leinstrandil.database.model.web.FacebookPage;
-import no.leinstrandil.database.model.web.FacebookPost;
-import no.leinstrandil.database.model.web.Page;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.web.FacebookPage;
+import no.leinstrandil.database.model.web.FacebookPost;
+import no.leinstrandil.database.model.web.Page;
+import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.PageService;
 import org.apache.velocity.VelocityContext;
@@ -24,7 +24,7 @@ public class FacebookController implements Controller {
    }
 
     @Override
-    public void handleGet(Request request, VelocityContext context) {
+    public void handleGet(User user, Request request, VelocityContext context) {
         String urlName = request.params("urlName");
         Page page = pageService.getPageByUrlName(urlName);
         JSONObject templateConfig = new JSONObject(page.getTemplateConfig());
@@ -51,7 +51,7 @@ public class FacebookController implements Controller {
     }
 
     @Override
-    public void handlePost(Request request, Map<String, String> errorMap, List<String> infoList) {
+    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
     }
 
 }

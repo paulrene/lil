@@ -1,5 +1,7 @@
 package no.leinstrandil;
 
+import no.leinstrandil.web.MyPageController;
+
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -108,6 +110,7 @@ public class Main {
         controllers.put(ControllerTemplate.CONTACT.getId(), new ContactController());
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
+        controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService));
 
         Spark.staticFileLocation("/static");
         Spark.setPort(config.getPort());
@@ -134,11 +137,18 @@ public class Main {
             public Object handle(Request request, Response response) {
                 response.type("text/html");
 
+                User user = userService.getLoggedInUserFromSession(request);
+
                 String urlName = request.params("urlName");
                 Page page = pageService.getPageByUrlName(urlName);
                 if (page == null) {
                     log.info("Could not find Page with urlName: " + urlName);
                     page = create404Page();
+                } else {
+                    if (page.isUserRequired() && user == null) {
+                        page = create401Page();
+                    }
+                    // TODO: Handle roles!
                 }
 
                 if (page.getRedirectToUrl() != null) {
@@ -149,14 +159,13 @@ public class Main {
 
                 VelocityContext context = new VelocityContext();
 
-                User user = userService.getLoggedInUserFromSession(request);
                 if (user != null) {
                     context.put("user", user);
                 }
 
                 Controller controller = controllers.get(page.getTemplate());
                 if (controller != null) {
-                    controller.handleGet(request, context);
+                    controller.handleGet(user, request, context);
                 }
 
                 FacebookPage lilPage = facebookService.getFacebookPageByPageId("LeinstrandIL");
@@ -187,6 +196,7 @@ public class Main {
                 template.merge(context, writer);
                 return writer.toString();
             }
+
         });
 
         Spark.post(new Route("/page/:urlName") {
@@ -194,17 +204,23 @@ public class Main {
             public Object handle(Request request, Response response) {
                 response.type("text/html");
 
+                User user = userService.getLoggedInUserFromSession(request);
+
                 String urlName = request.params("urlName");
                 Page page = pageService.getPageByUrlName(urlName);
                 if (page == null) {
                     page = create404Page();
+                } else {
+                    if (page.isUserRequired() && user == null) {
+                        page = create401Page();
+                    }
                 }
 
                 List<String> infoList = new ArrayList<>();
                 Map<String, String> errorMap = new HashMap<>();
                 Controller controller = controllers.get(page.getTemplate());
                 if (controller != null) {
-                    controller.handlePost(request, errorMap, infoList);
+                    controller.handlePost(user, request, errorMap, infoList);
                 }
 
                 StringBuilder pathBuilder = new StringBuilder("/page/").append(urlName);
@@ -486,6 +502,14 @@ public class Main {
         page.setTemplate("404");
         page.setTitle("404: Ukjent Side");
         page.setUrlName("404");
+        return page;
+    }
+
+    private Page create401Page() {
+        Page page = new Page();
+        page.setTemplate("401");
+        page.setTitle("401: Ingen tilgang");
+        page.setUrlName("401");
         return page;
     }
 

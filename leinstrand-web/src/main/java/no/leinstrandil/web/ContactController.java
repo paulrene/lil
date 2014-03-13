@@ -1,20 +1,20 @@
 package no.leinstrandil.web;
 
-import org.apache.velocity.VelocityContext;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import no.leinstrandil.database.model.web.User;
+import org.apache.velocity.VelocityContext;
 import spark.Request;
 
 public class ContactController implements Controller {
 
     @Override
-    public void handleGet(Request request, VelocityContext context) {
+    public void handleGet(User user, Request request, VelocityContext context) {
     }
 
     @Override
-    public void handlePost(Request request, Map<String, String> errorMap, List<String> infoList) {
+    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
         String action = request.queryParams("action");
         if ("sendmessage".equals(action)) {
             String name = checkNotNullOrEmpty(request, "name", errorMap, "Du må fortelle oss hva du heter.");

@@ -106,4 +106,35 @@ public class UserService {
         return user;
     }
 
+    public String toDatePickerValue(Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
+    }
+
+    public void updateProfile(User user, String name, Date birthDate, String gender) {
+        Principal principal = user.getPrincipal();
+        principal.setName(name);
+        String[] nameParts = name.split(" ");
+        if (nameParts.length == 2) {
+            principal.setFirstName(nameParts[0]);
+            principal.setMiddleName(null);
+            principal.setLastName(nameParts[1]);
+        } else if(nameParts.length == 3) {
+            principal.setFirstName(nameParts[0]);
+            principal.setMiddleName(nameParts[1]);
+            principal.setLastName(nameParts[2]);
+        } else {
+            principal.setFirstName(nameParts[0]);
+            principal.setMiddleName(nameParts[1]); // TODO Build middle name
+            principal.setLastName(nameParts[nameParts.length - 1]);
+        }
+        principal.setBirthDate(birthDate);
+        principal.setGender(gender);
+        storage.begin();
+        storage.persist(principal);
+        storage.commit();
+    }
+
 }

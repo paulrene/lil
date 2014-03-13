@@ -2,6 +2,7 @@ package no.leinstrandil.web;
 
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.SearchService;
 import no.leinstrandil.service.SearchService.SearchResult;
 import org.apache.velocity.VelocityContext;
@@ -16,7 +17,7 @@ public class SearchResultsController implements Controller {
     }
 
     @Override
-    public void handleGet(Request request, VelocityContext context) {
+    public void handleGet(User user, Request request, VelocityContext context) {
         String q = request.queryParams("q");
         String pageStr = request.queryParams("p");
         int page = 0;
@@ -58,7 +59,7 @@ public class SearchResultsController implements Controller {
     }
 
     @Override
-    public void handlePost(Request request, Map<String, String> errorMap, List<String> infoList) {
+    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
 
     }
 
