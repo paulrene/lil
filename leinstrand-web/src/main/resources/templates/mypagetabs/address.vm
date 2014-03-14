@@ -4,30 +4,30 @@
                             <input type="hidden" name="action" value="save-address">
 
                             <div class="form-group#if($errors.opt("address1")) has-error#end">
-                                <label for="inputName" class="col-lg-2 control-label">Adresse</label>
+                                <label for="inputAddress" class="col-lg-2 control-label">Adresse</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="address1" class="form-control" id="inputName" placeholder="Adresse" value="$!data.opt("address1")">
+                                    <input type="text" name="address1" class="form-control" id="inputAddress" placeholder="Adresse" value="$!data.opt("address1")">
                                     #inputerror( "address1" )
                                 </div>
                             </div>
                             <div class="form-group#if($errors.opt("zip")) has-error#end">
-                                <label for="inputName" class="col-lg-2 control-label">Postnummer</label>
+                                <label for="inputZip" class="col-lg-2 control-label">Postnummer</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="zip" class="form-control" id="inputName" placeholder="Postnummer" value="$!data.opt("zip")">
+                                    <input type="text" name="zip" class="form-control" id="inputZip" placeholder="Postnummer" value="$!data.opt("zip")">
                                     #inputerror( "zip" )
                                 </div>
                             </div>
                             <div class="form-group#if($errors.opt("city")) has-error#end">
-                                <label for="inputName" class="col-lg-2 control-label">Poststed</label>
+                                <label for="inputCity" class="col-lg-2 control-label">Poststed</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="city" class="form-control" id="inputName" placeholder="Poststed" value="$!data.opt("city")">
+                                    <input type="text" name="city" class="form-control" id="inputCity" placeholder="Poststed" value="$!data.opt("city")">
                                     #inputerror( "city" )
                                 </div>
                             </div>
                             <div class="form-group#if($errors.opt("country")) has-error#end">
-                                <label for="inputName" class="col-lg-2 control-label">Land</label>
+                                <label for="inputCountry" class="col-lg-2 control-label">Land</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="country" class="form-control" id="inputName" placeholder="Land" value="$!data.opt("country")">
+                                    <input type="text" name="country" class="form-control" id="inputCountry" placeholder="Land" value="$!data.opt("country")">
                                     #inputerror( "country" )
                                 </div>
                             </div>

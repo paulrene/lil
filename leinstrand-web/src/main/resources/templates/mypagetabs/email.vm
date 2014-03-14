@@ -1,0 +1,23 @@
+                    <div class="tab-pane#if($tab=="epost") active#end" id="email">
+                        <h4>E-post</h4>
+                        <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=epost">
+                            <input type="hidden" name="action" value="save-email">
+
+                            <div class="form-group#if($errors.opt("email")) has-error#end">
+                                <label for="inputEmail" class="col-lg-2 control-label">E-post</label>
+                                <div class="col-lg-10">
+                                    <input type="text" name="email" class="form-control" id="inputEmail" placeholder="E-post" value="$!data.opt("email")">
+                                    #inputerror( "email" )
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button type="submit" class="btn-u btn-u-green">Lagre</button>
+#if($info)
+                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
+                                </div>
+                            </div>
+                        </form>
+                    </div>

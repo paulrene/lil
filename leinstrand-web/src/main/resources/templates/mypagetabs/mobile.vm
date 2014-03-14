@@ -1,0 +1,23 @@
+                    <div class="tab-pane#if($tab=="mobil") active#end" id="mobile">
+                        <h4>Mobiltelefon</h4>
+                        <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=mobil">
+                            <input type="hidden" name="action" value="save-mobile">
+
+                            <div class="form-group#if($errors.opt("address1")) has-error#end">
+                                <label for="inputMobile" class="col-lg-2 control-label">Mobiltelefon</label>
+                                <div class="col-lg-10">
+                                    <input type="text" name="mobile" class="form-control" id="inputMobile" placeholder="Mobiltelefon" value="$!data.opt("mobile")">
+                                    #inputerror( "mobile" )
+                                </div>
+                            </div>
+ 
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button type="submit" class="btn-u btn-u-green">Lagre</button>
+#if($info)
+                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
+                                </div>
+                            </div>
+                        </form>
+                    </div>

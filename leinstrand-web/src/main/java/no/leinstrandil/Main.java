@@ -147,7 +147,7 @@ public class Main {
                     if (page.isUserRequired() && user == null) {
                         page = create401Page();
                     }
-                    // TODO: Handle roles!
+                    // TODO: Handle page roles!
                 }
 
                 if (page.getRedirectToUrl() != null) {

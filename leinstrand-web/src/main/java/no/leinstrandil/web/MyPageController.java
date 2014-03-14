@@ -1,5 +1,7 @@
 package no.leinstrandil.web;
 
+import no.leinstrandil.database.model.person.MobileNumber;
+import no.leinstrandil.database.model.person.EmailAddress;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,6 +41,22 @@ public class MyPageController implements Controller {
                 data.put("country", address.getCountry());
                 context.put("data", data);
             }
+        } else if (tab.equals("epost")) {
+            List<EmailAddress> emailList = user.getPrincipal().getEmailAddressList();
+            if (!emailList.isEmpty()) {
+                EmailAddress email = emailList.get(0);
+                JSONObject data = new JSONObject();
+                data.put("email", email.getEmail());
+                context.put("data", data);
+            }
+        } else if (tab.equals("mobil")) {
+            List<MobileNumber> mobileList = user.getPrincipal().getMobileNumberList();
+            if (!mobileList.isEmpty()) {
+                MobileNumber mobile = mobileList.get(0);
+                JSONObject data = new JSONObject();
+                data.put("mobile", mobile.getNumber());
+                context.put("data", data);
+            }
         }
 
     }
@@ -48,14 +66,48 @@ public class MyPageController implements Controller {
         if (user == null) {
             return;
         }
-
         String action = request.queryParams("action");
         if ("save-profile".equals(action)) {
             saveProfile(user, request, errorMap, infoList);
         } else if ("save-address".equals(action)) {
             saveAddress(user, request, errorMap, infoList);
+        } else if ("save-email".equals(action)) {
+            saveEmail(user, request, errorMap, infoList);
+        } else if ("save-mobile".equals(action)) {
+            saveMobile(user, request, errorMap, infoList);
+        }
+    }
+
+    private void saveMobile(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String mobile = request.queryParams("mobile");
+        if (mobile == null || mobile.isEmpty()) {
+            String newMobile = mobile.replace("+", "");
+            try { Long.parseLong(newMobile); }  catch (NumberFormatException e) {
+                errorMap.put("mobile", "Mobilnummeret kan kun bestå av tall.");
+            }
+            if (newMobile.length()<8) {
+                errorMap.put("mobile", "Mobilnummeret må bestå av minst 8 siffer.");
+            }
         }
 
+        if (errorMap.isEmpty()) {
+            userService.updateMobile(user, mobile);
+            infoList.add("Ditt mobilnummer ble lagret.");
+        }
+    }
+
+    private void saveEmail(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String email = request.queryParams("email");
+        if (email == null || email.isEmpty()) {
+            if (!email.contains("@")) {
+                errorMap.put("email", "E-postadressen må inneholde en krøllalfa.");
+            }
+        }
+
+        if (errorMap.isEmpty()) {
+            userService.updateEmail(user, email);
+            infoList.add("Din e-postadresse ble lagret.");
+        }
     }
 
     private void saveAddress(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

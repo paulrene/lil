@@ -1,5 +1,8 @@
 package no.leinstrandil.service;
 
+import no.leinstrandil.database.model.person.EmailAddress;
+
+import no.leinstrandil.database.model.person.MobileNumber;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import java.net.URL;
@@ -151,6 +154,32 @@ public class UserService {
         user.getPrincipal().getAddressList().add(address);
         storage.begin();
         storage.persist(address);
+        storage.commit();
+    }
+
+    public void updateMobile(User user, String mobile) {
+        MobileNumber mobileNumber = new MobileNumber();
+        mobileNumber.setNumber(mobile);
+        mobileNumber.setVerified(null);
+        mobileNumber.setCreated(new Date());
+        mobileNumber.setPrime(new Date());
+        mobileNumber.setPrincipal(user.getPrincipal());
+        user.getPrincipal().getMobileNumberList().add(mobileNumber);
+        storage.begin();
+        storage.persist(mobileNumber);
+        storage.commit();
+    }
+
+    public void updateEmail(User user, String email) {
+        EmailAddress emailAddress = new EmailAddress();
+        emailAddress.setEmail(email);
+        emailAddress.setVerified(null);
+        emailAddress.setCreated(new Date());
+        emailAddress.setPrime(new Date());
+        emailAddress.setPrincipal(user.getPrincipal());
+        user.getPrincipal().getEmailAddressList().add(emailAddress);
+        storage.begin();
+        storage.persist(emailAddress);
         storage.commit();
     }
 
