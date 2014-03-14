@@ -1,4 +1,10 @@
 
+#macro( inputerror $name )
+    #if($errors.opt($name))
+        <span class="label label-danger">$errors.opt($name)</span>
+    #end
+#end
+
 #macro( fielderror $name )
     #if($errors.opt($name))
     <div class="alert alert-danger fade in">

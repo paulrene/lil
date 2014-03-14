@@ -33,11 +33,11 @@ public class Principal {
     private String gender;
     private String pictureUrl;
     private Date birthDate;
-    @OneToMany(mappedBy = "principal") @OrderBy("primary DESC")
+    @OneToMany(mappedBy = "principal") @OrderBy("prime DESC")
     private List<Address> addressList;
-    @OneToMany(mappedBy = "principal") @OrderBy("primary DESC")
+    @OneToMany(mappedBy = "principal") @OrderBy("prime DESC")
     private List<EmailAddress> emailAddressList;
-    @OneToMany(mappedBy = "principal") @OrderBy("primary DESC")
+    @OneToMany(mappedBy = "principal") @OrderBy("prime DESC")
     private List<MobileNumber> mobileNumberList;
     @OneToMany(mappedBy = "principal") @OrderBy("created DESC")
     private List<TeamMembership> teamMemberships;

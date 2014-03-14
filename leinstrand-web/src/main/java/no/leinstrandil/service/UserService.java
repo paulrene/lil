@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.Role;
 import no.leinstrandil.database.model.web.User;
@@ -134,6 +135,22 @@ public class UserService {
         principal.setGender(gender);
         storage.begin();
         storage.persist(principal);
+        storage.commit();
+    }
+
+    public void updateAddress(User user, String address1, String address2, String zip, String city, String country) {
+        Address address = new Address();
+        address.setAddress1(address1);
+        address.setAddress2(address2);
+        address.setZip(zip);
+        address.setCity(city);
+        address.setCountry(country);
+        address.setCreated(new Date());
+        address.setPrime(new Date());
+        address.setPrincipal(user.getPrincipal());
+        user.getPrincipal().getAddressList().add(address);
+        storage.begin();
+        storage.persist(address);
         storage.commit();
     }
 

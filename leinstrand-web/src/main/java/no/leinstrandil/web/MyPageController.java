@@ -5,9 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
+import org.json.JSONObject;
 import spark.Request;
 
 public class MyPageController implements Controller {
@@ -25,6 +27,19 @@ public class MyPageController implements Controller {
             tab = "profil";
         }
         context.put("tab", tab);
+
+        if (tab.equals("adresse")) {
+            List<Address> addressList = user.getPrincipal().getAddressList();
+            if (!addressList.isEmpty()) {
+                Address address = addressList.get(0);
+                JSONObject data = new JSONObject();
+                data.put("address1", address.getAddress1());
+                data.put("zip", address.getZip());
+                data.put("city", address.getCity());
+                data.put("country", address.getCountry());
+                context.put("data", data);
+            }
+        }
 
     }
 
@@ -44,7 +59,28 @@ public class MyPageController implements Controller {
     }
 
     private void saveAddress(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
-        infoList.add("Din adresse ble lagret.");
+        String address1 = request.queryParams("address1");
+        String city = request.queryParams("city");
+        String zip = request.queryParams("zip");
+        String country = request.queryParams("country");
+
+        if (address1 == null || address1.isEmpty()) {
+            // We allow empty street addresses.
+        }
+        if (zip == null || zip.isEmpty()) {
+            errorMap.put("zip", "Postnummer må fylles ut.");
+        }
+        if (city == null || city.isEmpty()) {
+            errorMap.put("city", "Poststed må fylles ut.");
+        }
+        if (country == null || country.isEmpty()) {
+            country = "Norge";
+        }
+
+        if (errorMap.isEmpty()) {
+            userService.updateAddress(user, address1, "", zip, city, country);
+            infoList.add("Din adresse ble lagret.");
+        }
     }
 
     private void saveProfile(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

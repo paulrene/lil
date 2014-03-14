@@ -1,28 +1,21 @@
                     <div class="tab-pane#if($tab=="profil") active#end" id="profile">
                         <h4>Din Profil</h4>
-#if($info)
-                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
-#end
                         <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=profil">
                             <input type="hidden" name="action" value="save-profile">
                             <div class="form-group#if($errors.opt("name")) has-error#end">
                                 <label for="inputName" class="col-lg-2 control-label">Navn</label>
                                 <div class="col-lg-10">
                                     <input type="text" name="name" class="form-control" id="inputName" placeholder="Navn" value="$!principal.getName()">
+                                    #inputerror( "name" )
                                 </div>
                             </div>
-#if($errors.opt("name"))
-                            <span class="label label-danger">$errors.opt("name")</span>
-#end
                             <div class="form-group#if($errors.opt("birthdate")) has-error#end">
                                 <label for="inputBirthdate" class="col-lg-2 control-label">Fødselsdag</label>
                                 <div class="col-lg-10">
                                     <input type="date" name="birthdate" class="form-control" id="inputBirthdate" placeholder="Fødselsdag" value="$userService.toDatePickerValue($principal.getBirthDate())">
+                                    #inputerror( "birthdate" )
                                 </div>
                             </div>
-#if($errors.opt("birthdate"))
-                            <span class="label label-danger">$errors.opt("birthdate")</span>
-#end
                             <div class="form-group#if($errors.opt("gender")) has-error#end">
                                 <label for="inputGender" class="col-lg-2 control-label">Kjønn</label>
                                 <div class="col-lg-10">
@@ -33,14 +26,15 @@
                                         <option#if($principal.getGender()=="male") selected#end value="male">Gutt</option>
                                         <option#if($principal.getGender()=="female") selected#end  value="female">Jente</option>
                                     </select>
+                                    #inputerror( "gender" )
                                 </div>
                             </div>
-#if($errors.opt("gender"))
-                            <span class="label label-danger">$errors.opt("gender")</span>
-#end
                             <div class="form-group">
                                 <div class="col-lg-offset-2 col-lg-10">
                                     <button type="submit" class="btn-u btn-u-green">Lagre</button>
+#if($info)
+                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
                                 </div>
                             </div>
                         </form>

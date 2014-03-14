@@ -1,40 +1,43 @@
                     <div class="tab-pane#if($tab=="adresse") active#end" id="address">
                         <h4>Adresse</h4>
-#if($info)
-                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
-#end
                         <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=adresse">
                             <input type="hidden" name="action" value="save-address">
 
-                            <div class="form-group#if($errors.opt("name")) has-error#end">
+                            <div class="form-group#if($errors.opt("address1")) has-error#end">
                                 <label for="inputName" class="col-lg-2 control-label">Adresse</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Adresse" value="">
+                                    <input type="text" name="address1" class="form-control" id="inputName" placeholder="Adresse" value="$!data.opt("address1")">
+                                    #inputerror( "address1" )
                                 </div>
                             </div>
-                            <div class="form-group#if($errors.opt("name")) has-error#end">
+                            <div class="form-group#if($errors.opt("zip")) has-error#end">
                                 <label for="inputName" class="col-lg-2 control-label">Postnummer</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Postnummer" value="">
+                                    <input type="text" name="zip" class="form-control" id="inputName" placeholder="Postnummer" value="$!data.opt("zip")">
+                                    #inputerror( "zip" )
                                 </div>
                             </div>
-                            <div class="form-group#if($errors.opt("name")) has-error#end">
+                            <div class="form-group#if($errors.opt("city")) has-error#end">
                                 <label for="inputName" class="col-lg-2 control-label">Poststed</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Poststed" value="">
+                                    <input type="text" name="city" class="form-control" id="inputName" placeholder="Poststed" value="$!data.opt("city")">
+                                    #inputerror( "city" )
                                 </div>
                             </div>
-                            <div class="form-group#if($errors.opt("name")) has-error#end">
+                            <div class="form-group#if($errors.opt("country")) has-error#end">
                                 <label for="inputName" class="col-lg-2 control-label">Land</label>
                                 <div class="col-lg-10">
-                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Land" value="">
+                                    <input type="text" name="country" class="form-control" id="inputName" placeholder="Land" value="$!data.opt("country")">
+                                    #inputerror( "country" )
                                 </div>
                             </div>
-
 
                             <div class="form-group">
                                 <div class="col-lg-offset-2 col-lg-10">
                                     <button type="submit" class="btn-u btn-u-green">Lagre</button>
+#if($info)
+                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
                                 </div>
                             </div>
                         </form>
