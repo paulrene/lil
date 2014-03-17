@@ -1,0 +1,90 @@
+                    <div class="tab-pane#if($tab=="familie") active#end" id="family">
+                        <h4>Din familie</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Navn</th>
+                                    <th>Fødselsdato</th>
+                                    <th>Kjønn</th>
+                                    <th>Status</th>
+                                    <th>Endre</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+#foreach($member in $family.getMembers())
+                                <tr>
+                                    <td>$member.getName() (${userService.getAge($member)} år) #if($member.getUser())<i class="icon-user"></i> #end</td>
+                                    <td>$userService.formatBirthDate($member.getBirthDate())</td>
+                                    <td><i class="icon-$member.getGender()"></i></td>
+                                    <td><span class="label label-success">#if($family.getPrimaryPrincipal()==$member)Primærkontakt#{else}Familiemedlem#end</span></td>
+                                    <td>
+                                    </td>
+                                </tr>
+#end
+<!--                                <tr>
+                                    <td>$user.getPrincipal().getName()</td>
+                                    <td>$userService.formatBirthDate($user.getPrincipal().getBirthDate())</td>
+                                    <td><i class="icon-female"></i></td>
+                                    <td><span class="label label-success">Familiemedlem</span></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-xs""><i class="icon-trash"></i></button>
+                                        <button class="btn btn-warning btn-xs"><i class="icon-pencil"></i></button>
+                                        <button class="btn btn-primary btn-xs"><i class="icon-magic"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><i class="icon-user"></i> $user.getPrincipal().getName()</td>
+                                    <td>$userService.formatBirthDate($user.getPrincipal().getBirthDate())</td>
+                                    <td><i class="icon-female"></i></td>
+                                    <td><span class="label label-info">Invitert..</span></td>
+                                    <td>
+                                        <button class="btn btn-info btn-xs"><i class="icon-envelope"></i></button>
+                                    </td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+
+                        <div class="margin-bottom-20"></div>
+
+                        <h4>Legg til et familiemedlem</h4>
+                        <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
+                            <input type="hidden" name="action" value="add-family-member">
+                            <div class="form-group#if($errors.opt("name")) has-error#end">
+                                <label for="inputName" class="sr-only">Navn</label>
+                                <input type="text" name="name" class="form-control" id="inputName" placeholder="Navn" value="$!data.opt("name")">
+                            </div>
+                            <div class="form-group#if($errors.opt("birthdate")) has-error#end">
+                                <label for="inputBirthdate" class="sr-only">Fødselsdag</label>
+                                <input type="date" name="birthdate" class="form-control" id="inputBirthdate" placeholder="Fødselsdag" value="$!data.opt("birthdate")">
+                            </div>
+                            <div class="form-group#if($errors.opt("gender")) has-error#end">
+                                <label for="inputGender" class="sr-only">Kjønn</label>
+                                <select name="gender" class="form-control" id="inputGender">
+                                    <option value=""> -- Velg Kjønn --</option>
+                                    <option#if($!data.opt("gender")=="male") selected#end value="male">Gutt</option>
+                                    <option#if($!data.opt("gender")=="female") selected#end  value="female">Jente</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-u btn-u-default">Legg til</button>
+                        </form>
+                        #inputerror( "name" )
+                        #inputerror( "birthdate" )
+                        #inputerror( "gender" )
+#if($info)
+    <span class="label label-success">$info.get(0)</span>
+#end
+
+                        <div class="margin-bottom-20"></div>
+
+                        <h4>Inviter en eksisterende bruker til din familie</h4>
+                        <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
+                            <input type="hidden" name="action" value="invite-family-member">
+                            <div class="form-group#if($errors.opt("email")) has-error#end">
+                                <label for="inputEmail" class="sr-only">E-post</label>
+                                <input type="text" name="email" class="form-control" id="inputEmail" placeholder="E-post" value="">
+                            </div>
+                            <button type="submit" class="btn-u btn-u-default">Inviter</button>
+                        </form>
+                        #inputerror( "email" )
+                    </div>
+                    

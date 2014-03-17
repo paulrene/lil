@@ -1,8 +1,5 @@
 package no.leinstrandil.service;
 
-import no.leinstrandil.database.model.person.EmailAddress;
-
-import no.leinstrandil.database.model.person.MobileNumber;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import java.net.URL;
@@ -12,9 +9,14 @@ import java.util.Date;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Address;
+import no.leinstrandil.database.model.person.EmailAddress;
+import no.leinstrandil.database.model.person.Family;
+import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.Role;
 import no.leinstrandil.database.model.web.User;
+import org.joda.time.LocalDate;
+import org.joda.time.Years;
 import org.slf4j.Logger;
 import spark.Request;
 
@@ -117,8 +119,30 @@ public class UserService {
         return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
 
+    public String formatBirthDate(Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat("dd. MMMM, yyyy").format(date);
+    }
+
+    public int getAge(Principal principal) {
+        LocalDate birthDate = new LocalDate(principal.getBirthDate());
+        LocalDate now = new LocalDate();
+        return Years.yearsBetween(birthDate, now).getYears();
+    }
+
     public void updateProfile(User user, String name, Date birthDate, String gender) {
         Principal principal = user.getPrincipal();
+        setPrincipalName(name, principal);
+        principal.setBirthDate(birthDate);
+        principal.setGender(gender);
+        storage.begin();
+        storage.persist(principal);
+        storage.commit();
+    }
+
+    private void setPrincipalName(String name, Principal principal) {
         principal.setName(name);
         String[] nameParts = name.split(" ");
         if (nameParts.length == 2) {
@@ -134,11 +158,6 @@ public class UserService {
             principal.setMiddleName(nameParts[1]); // TODO Build middle name
             principal.setLastName(nameParts[nameParts.length - 1]);
         }
-        principal.setBirthDate(birthDate);
-        principal.setGender(gender);
-        storage.begin();
-        storage.persist(principal);
-        storage.commit();
     }
 
     public void updateAddress(User user, String address1, String address2, String zip, String city, String country) {
@@ -181,6 +200,37 @@ public class UserService {
         storage.begin();
         storage.persist(emailAddress);
         storage.commit();
+    }
+
+    public void addFamilyMember(User user, String name, Date birthDate, String gender) {
+        Family family = user.getPrincipal().getFamily();
+        Principal principal = new Principal();
+        setPrincipalName(name, principal);
+        principal.setBirthDate(birthDate);
+        principal.setGender(gender);
+        principal.setCreated(new Date());
+        principal.setUpdated(new Date());
+        principal.setFamily(family);
+        family.getMembers().add(principal);
+        storage.begin();
+        storage.persist(principal);
+        storage.persist(family);
+        storage.commit();
+    }
+
+    public Family ensureFamilyForUser(User user) {
+        Family family = user.getPrincipal().getFamily();
+        if (family != null) {
+            return family;
+        }
+        family = new Family();
+        family.getMembers().add(user.getPrincipal());
+        family.setPrimaryPrincipal(user.getPrincipal());
+        user.getPrincipal().setFamily(family);
+        storage.begin();
+        storage.persist(family);
+        storage.commit();
+        return family;
     }
 
 }

@@ -18,9 +18,9 @@
                 <li#if($tab=="adresse") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=adresse"><i class="icon-home"></i> Adresse</a></li>
                 <li#if($tab=="epost") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=epost"><i class="icon-envelope"></i> E-post</a></li>
                 <li#if($tab=="mobil") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=mobil"><i class="icon-mobile-phone"></i> Mobiltelefon</a></li>
-                <li><a href="#family" data-toggle="tab"><i class="icon-group"></i> Familie</a></li>
-                <li><a href="#membership" data-toggle="tab"><i class="icon-list-alt"></i> Medlemskap</a></li>
-                <li><a href="#activity" data-toggle="tab"><i class="icon-ticket"></i> Arrangement</a></li>
+                <li#if($tab=="familie") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=familie"><i class="icon-group"></i> Familie</a></li>
+                <li#if($tab=="medlemskap") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=medlemskap"><i class="icon-list-alt"></i> Medlemskap</a></li>
+                <li#if($tab=="arrangement") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=arrangement"><i class="icon-ticket"></i> Arrangement</a></li>
             </ul>
         </div>
         <!--End Sidebar Menu-->
@@ -31,21 +31,23 @@
         <div class="col-md-9">
             <div class="row">
                 <div class="tab-content">
-#parse("templates/mypagetabs/profile.vm")
-#parse("templates/mypagetabs/address.vm")
-#parse("templates/mypagetabs/email.vm")
-#parse("templates/mypagetabs/mobile.vm")
 
-                    <div class="tab-pane" id="email">
-                        <h4>Heading Sample 3</h4>
-                        <p><img alt="" class="pull-right rgt-img-margin img-width-200" src="assets/img/main/6.jpg"> <strong>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id.</strong> Donec eget orci metus, Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, consectetur id. Donec eget orci metus, ac adipiscing nunc. <strong>Pellentesque fermentum</strong>, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper.</p>
-                    </div>
+#if($tab=="profil")
+    #parse("templates/mypagetabs/profile.vm")
+#elseif($tab=="adresse")
+    #parse("templates/mypagetabs/address.vm")
+#elseif($tab=="epost")
+    #parse("templates/mypagetabs/email.vm")
+#elseif($tab=="mobil")
+    #parse("templates/mypagetabs/mobile.vm")
+#elseif($tab=="familie")
+    #parse("templates/mypagetabs/family.vm")
+#elseif($tab=="medlemskap")
+    #parse("templates/mypagetabs/membership.vm")
+#elseif($tab=="arrangement")
+    #parse("templates/mypagetabs/activity.vm")
+#end
 
-                    <div class="tab-pane" id="mobile">
-                        <img alt="" class="pull-left lft-img-margin img-width-200" src="assets/img/main/7.jpg">                         
-                        <h4>Heading Sample 4</h4>
-                        <p>Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, <strong>ac adipiscing nunc.</strong> Vivamus imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac interdum ullamcorper. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum, ante ac <strong>interdum ullamcorper.</strong></p>
-                    </div>
                 </div>
             </div>
         </div>

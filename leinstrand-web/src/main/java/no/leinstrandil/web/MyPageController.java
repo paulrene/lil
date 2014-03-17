@@ -1,13 +1,14 @@
 package no.leinstrandil.web;
 
-import no.leinstrandil.database.model.person.MobileNumber;
-import no.leinstrandil.database.model.person.EmailAddress;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.person.Address;
+import no.leinstrandil.database.model.person.EmailAddress;
+import no.leinstrandil.database.model.person.Family;
+import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
@@ -57,6 +58,9 @@ public class MyPageController implements Controller {
                 data.put("mobile", mobile.getNumber());
                 context.put("data", data);
             }
+        } else if (tab.equals("familie")) {
+            Family family = userService.ensureFamilyForUser(user);
+            context.put("family", family);
         }
 
     }
@@ -75,7 +79,43 @@ public class MyPageController implements Controller {
             saveEmail(user, request, errorMap, infoList);
         } else if ("save-mobile".equals(action)) {
             saveMobile(user, request, errorMap, infoList);
+        } else if ("add-family-member".equals(action)) {
+            addFamilyMember(user, request, errorMap, infoList);
         }
+    }
+
+    private void addFamilyMember(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String name = request.queryParams("name");
+        String birthDateStr = request.queryParams("birthdate");
+        String gender = request.queryParams("gender");
+
+        if (name == null || name.isEmpty()) {
+            errorMap.put("name", "Du må oppgi navn på familiemedlemmet.");
+        }
+        if (name.split(" ").length <=1 ) {
+            errorMap.put("name", "Du må oppgi både fornavn og etternavn.");
+        }
+
+        if (birthDateStr == null || birthDateStr.isEmpty()) {
+            errorMap.put("birthdate", "Vi trenger fødselsdatoen for å kunne beregne riktig treningsavgift.");
+        }
+        Date birthDate = null;
+        try {
+            birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthDateStr);
+        } catch (ParseException e) {
+            errorMap.put("birthdate", "Vi trenger fødselsdatoen for å kunne beregne riktig treningsavgift.");
+        }
+
+        if (gender == null || gender.isEmpty()) {
+            errorMap.put("gender", "Vi trenger å vite kjønn for å vise de mest relevante treningstilbudene først.");
+        }
+
+        if (errorMap.isEmpty()) {
+            userService.addFamilyMember(user, name, birthDate, gender);
+            infoList.add("Nytt familiemedlem lagt til.");
+        }
+
+
     }
 
     private void saveMobile(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
@@ -137,6 +177,9 @@ public class MyPageController implements Controller {
 
     private void saveProfile(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
         String name = request.queryParams("name");
+        String birthDateStr = request.queryParams("birthdate");
+        String gender = request.queryParams("gender");
+
         if (name == null || name.isEmpty()) {
             errorMap.put("name", "Du må oppgi navnet ditt. Vi trenger det for å holde medlemsregistret oppdatert.");
         }
@@ -144,7 +187,6 @@ public class MyPageController implements Controller {
             errorMap.put("name", "Du må oppgi både fornavn og etternavn.");
         }
 
-        String birthDateStr = request.queryParams("birthdate");
         if (birthDateStr == null || birthDateStr.isEmpty()) {
             errorMap.put("birthdate", "Vi trenger fødselsdatoen din for å kunne beregne riktig treningsavgift.");
         }
@@ -155,7 +197,6 @@ public class MyPageController implements Controller {
             errorMap.put("birthdate", "Vi trenger fødselsdatoen din for å kunne beregne riktig treningsavgift.");
         }
 
-        String gender = request.queryParams("gender");
         if (gender == null || gender.isEmpty()) {
             errorMap.put("gender", "Vi trenger å vite ditt kjønn for å vise de mest relevante treningstilbudene først.");
         }

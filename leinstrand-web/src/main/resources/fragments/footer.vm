@@ -42,8 +42,12 @@
 
                 <!-- Stay Connected -->
                 <div class="headline"><h2>Følg oss i Sosiale Media</h2></div> 
-                <ul class="social-icons">
-                    <li><a href="https://www.facebook.com/LeinstrandIL" data-original-title="Facebook" class="social_facebook"></a></li>
+                <ul class="list-inline">
+                    <li><a href="https://www.facebook.com/LeinstrandIL" target="_blank">Hovedlaget</a></li>
+                    <li><a href="https://www.facebook.com/skoyter" target="_blank">Skøyter</a></li>
+                    <li><a href="https://www.facebook.com/pages/Leinstrand-IL-Fotball/1429965400580363" target="_blank">Fotball</a></li>
+                    <li><a href="https://www.facebook.com/pages/Leinstrand-Ski/152824058117224" target="_blank">Ski</a></li>
+                    <li><a href="https://www.facebook.com/pages/Leinstrand-IL-Trim-og-aktivitet/596842857074346" target="_blank">Trim og aktivitet</a></li>
                 </ul>
             </div><!--/col-md-4-->
         </div><!--/row-->

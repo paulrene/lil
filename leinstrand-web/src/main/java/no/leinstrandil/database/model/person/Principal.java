@@ -162,4 +162,28 @@ public class Principal {
         this.updated = updated;
     }
 
+    public List<ActivityParticipation> getActivityParticipations() {
+        return activityParticipations;
+    }
+
+    public void setActivityParticipations(List<ActivityParticipation> activityParticipations) {
+        this.activityParticipations = activityParticipations;
+    }
+
+    public Family getFamily() {
+        return family;
+    }
+
+    public void setFamily(Family family) {
+        this.family = family;
+    }
+
+    public List<TeamMembership> getTeamMemberships() {
+        return teamMemberships;
+    }
+
+    public void setTeamMemberships(List<TeamMembership> teamMemberships) {
+        this.teamMemberships = teamMemberships;
+    }
+
 }

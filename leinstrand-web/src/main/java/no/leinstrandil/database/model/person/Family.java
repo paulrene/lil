@@ -1,12 +1,14 @@
 package no.leinstrandil.database.model.person;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 @Entity
@@ -17,10 +19,11 @@ public class Family {
     private Long id;
     @ManyToOne @JoinColumn(name = "primaryPrincipalId")
     private Principal primaryPrincipal;
-    @OneToMany(mappedBy = "family")
-    private Set<Principal> members;
+    @OneToMany(mappedBy = "family") @OrderBy("birthdate")
+    private List<Principal> members;
 
     public Family() {
+        members = new ArrayList<>();
     }
 
     public Long getId() {
@@ -35,11 +38,11 @@ public class Family {
         this.primaryPrincipal = primaryPrincipal;
     }
 
-    public Set<Principal> getMembers() {
+    public List<Principal> getMembers() {
         return members;
     }
 
-    public void setMembers(Set<Principal> members) {
+    public void setMembers(List<Principal> members) {
         this.members = members;
     }
 
