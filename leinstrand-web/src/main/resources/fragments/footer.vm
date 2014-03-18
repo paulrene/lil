@@ -78,10 +78,10 @@
 <!-- JS Global Compulsory -->
 <script type="text/javascript" src="assets/plugins/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="assets/plugins/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="assets/plugins/jquery-ui-1.10.4.min.js"></script>
 <script type="text/javascript" src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="assets/plugins/hover-dropdown.min.js"></script>
 <script type="text/javascript" src="assets/plugins/back-to-top.js"></script>
-<script type="text/javascript" src="js/jquery.jeditable.mini.js"></script>
 <!-- JS Implementing Plugins -->
 <script type="text/javascript" src="redactor/redactor.js"></script>
 #if($thisPage.getTemplate() == "contact")
@@ -100,6 +100,14 @@
 //        App.initSliders();
 #if($thisPage.getTemplate() == "contact")
         Contact.initMap();
+#end
+#if($thisPage.getTemplate() == "mypage")
+        $('#datepicker').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd.mm.yy",
+            yearRange: "c-100:c"
+        });
 #end
 
         $('#redactor_save').hide();

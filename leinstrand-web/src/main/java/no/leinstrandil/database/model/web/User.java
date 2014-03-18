@@ -1,7 +1,6 @@
 package no.leinstrandil.database.model.web;
 
-import no.leinstrandil.database.model.person.Principal;
-
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -12,6 +11,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.person.Principal;
 
 @Entity
 @Table(name = "user")
@@ -28,6 +28,9 @@ public class User {
     private Set<Role> roles;
     private String username;
     private String passwordHash;
+    private Date passwordHashCreated;
+    private String resetPasswordCode;
+    private Date resetPasswordCodeCreated;
     private String facebookId;
     @OneToOne @JoinColumn(name = "principalId")
     private Principal principal;
@@ -96,6 +99,30 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getResetPasswordCode() {
+        return resetPasswordCode;
+    }
+
+    public void setResetPasswordCode(String resetPasswordCode) {
+        this.resetPasswordCode = resetPasswordCode;
+    }
+
+    public Date getResetPasswordCodeCreated() {
+        return resetPasswordCodeCreated;
+    }
+
+    public void setResetPasswordCodeCreated(Date resetPasswordCodeCreated) {
+        this.resetPasswordCodeCreated = resetPasswordCodeCreated;
+    }
+
+    public Date getPasswordHashCreated() {
+        return passwordHashCreated;
+    }
+
+    public void setPasswordHashCreated(Date passwordHashCreated) {
+        this.passwordHashCreated = passwordHashCreated;
     }
 
     @Override

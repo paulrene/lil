@@ -103,7 +103,7 @@ public class MyPageController implements Controller {
         }
         Date birthDate = null;
         try {
-            birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthDateStr);
+            birthDate = new SimpleDateFormat("dd.MM.yyyy").parse(birthDateStr);
         } catch (ParseException e) {
             errorMap.put("birthdate", "Vi trenger fødselsdatoen for å kunne beregne riktig treningsavgift.");
         }

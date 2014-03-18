@@ -1,8 +1,7 @@
 package no.leinstrandil;
 
-import no.leinstrandil.web.SignInController;
+import no.leinstrandil.service.MailService;
 
-import no.leinstrandil.web.MyPageController;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -36,7 +35,9 @@ import no.leinstrandil.web.ContactController;
 import no.leinstrandil.web.Controller;
 import no.leinstrandil.web.ControllerTemplate;
 import no.leinstrandil.web.FacebookController;
+import no.leinstrandil.web.MyPageController;
 import no.leinstrandil.web.SearchResultsController;
+import no.leinstrandil.web.SignInController;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -53,6 +54,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.masukomi.aspirin.Aspirin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
@@ -78,6 +80,7 @@ public class Main {
     private final SearchService searchService;
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
+    private final MailService mailService;
     private final VelocityEngine velocity;
     private final Config config;
 
@@ -95,6 +98,7 @@ public class Main {
         searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
+        mailService = new MailService(config);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -112,7 +116,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService));
-        controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
+        controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService, mailService));
 
         Spark.staticFileLocation("/static");
         Spark.setPort(config.getPort());
@@ -549,6 +553,13 @@ public class Main {
 
     public static void main(String[] args) throws MalformedURLException {
         Locale.setDefault(new Locale("nb", "no"));
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                Aspirin.shutdown();
+            }
+        });
 
         Config config = new Config();
         CmdLineParser parser = new CmdLineParser(config);

@@ -1,13 +1,14 @@
 package no.leinstrandil.service;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Address;
@@ -17,7 +18,9 @@ import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.Role;
 import no.leinstrandil.database.model.web.User;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.Minutes;
 import org.joda.time.Years;
 import org.slf4j.Logger;
 import spark.Request;
@@ -174,6 +177,57 @@ public class UserService {
 
     public boolean isPendingFamilyMember(Principal principal) {
         return false; // TODO
+    }
+
+    public String generateResetPasswordCode(User user) {
+        user.setResetPasswordCode(UUID.randomUUID().toString());
+        user.setResetPasswordCodeCreated(new Date());
+        storage.begin();
+        storage.persist(user);
+        storage.commit();
+        return user.getResetPasswordCode();
+    }
+
+    public User getUserByResetPasswordCodeAndClear(String code) {
+        try {
+            User user = storage.createSingleQuery("from User u where u.resetPasswordCode = '" + code + "'", User.class);
+            Date codeCreated = user.getResetPasswordCodeCreated();
+            if (codeCreated == null) {
+                log.warn("ResetPasswordCodeCreated is null for code " + code);
+                return null;
+            }
+            int age = Minutes.minutesBetween(new DateTime(codeCreated), new DateTime()).getMinutes();
+            if (age > 60) {
+                log.warn("ResetPasswordCode is too old (" + age + " minutes) for code " + code);
+                return null;
+            }
+            user.setResetPasswordCode(null);
+            user.setResetPasswordCodeCreated(null);
+            storage.begin();
+            storage.persist(user);
+            storage.commit();
+            log.info("Password reset for user " + user.getId() + " has been authorized with code " + code + " and age " + age + " minutes.");
+            return user;
+        } catch (NoResultException e) {
+            log.warn("Could not find any user for ResetPasswordCode " + code);
+            return null;
+        }
+    }
+
+    public boolean setPassword(User user, String password) {
+        try {
+            user.setPasswordHash(PasswordHash.createHash(password));
+            user.setPasswordHashCreated(new Date());
+            storage.begin();
+            storage.persist(user);
+            storage.commit();
+            return true;
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("Could not set password for user " + user.getId() + " due to: " + e.getMessage(), e);
+        } catch (InvalidKeySpecException e) {
+            log.warn("Could not set password for user " + user.getId() + " due to: " + e.getMessage(), e);
+        }
+        return false;
     }
 
     public void updateProfile(User user, String name, Date birthDate, String gender) {
