@@ -10,6 +10,6 @@ public interface Controller {
 
     public void handleGet(User user, Request request, VelocityContext context);
 
-    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList);
+    public String handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList);
 
 }

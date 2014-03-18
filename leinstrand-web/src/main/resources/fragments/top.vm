@@ -16,15 +16,23 @@
             <div class="col-md-6">
                 <ul class="list-unstyled top-v1-data">
                     <li><a href="/"><i class="icon-home"></i></a></li>
-#if($user)
-                    <li><a href="/page/minside"><img style="height:20px;vertical-align:top;" src="$user.getPrincipal().getPictureUrl()"> $user.getPrincipal().getName()</a></li>
-#else
-                    <li><a href="/signin">Logg inn med Facebook</a></li>
-#end
 #if($userService.hasEditorRole($user))
                     <li><a href="/page/${thisPage.getUrlName()}#" id="redactor_edit"><i class="icon-edit"></i></a>
                         <a href="/page/${thisPage.getUrlName()}#" id="redactor_save" style="display:none;"><i class="icon-save"></i></a>
                     </li>
+#end
+#if($user)
+                    <li><a href="/page/minside">
+#if($user.getPrincipal().getPictureUrl())
+                        <img style="height:20px;vertical-align:top;" src="$user.getPrincipal().getPictureUrl()">
+#else
+                        <i class="icon-user"></i>
+#end
+                        $user.getPrincipal().getName()
+                    </a></li>
+#else
+                    <li><a href="/page/signin"><i class="icon-user"></i> Logg inn</a></li>
+                    <li><a href="/fbsignin"><i class="icon-facebook"></i> Logg inn</a></li>
 #end
                 </ul>
             </div><!--/top-v1-data-->

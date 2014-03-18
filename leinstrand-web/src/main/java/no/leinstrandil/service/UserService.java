@@ -1,5 +1,7 @@
 package no.leinstrandil.service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import java.net.URL;
@@ -91,12 +93,32 @@ public class UserService {
         }
     }
 
+    public User getUserByUsername(String username) {
+        try {
+            return storage.createSingleQuery("from User u where u.username = '" + username + "'", User.class);
+        } catch (NoResultException e) {
+            log.debug("Could not find user with username: " + username);
+            return null;
+        }
+    }
+
+    public boolean isValidPassword(User thisUser, String password) {
+        try {
+            return PasswordHash.validatePassword(password, thisUser.getPasswordHash());
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Could not validate password", e);
+        } catch (InvalidKeySpecException e) {
+            log.error("Could not validate password", e);
+        }
+        return false;
+    }
+
     public boolean hasEditorRole(User user) {
         if (user == null) {
             return false;
         }
-        for(Role role : user.getRoles()) {
-            if("editor".equals(role.getIdentifier())) {
+        for (Role role : user.getRoles()) {
+            if ("editor".equals(role.getIdentifier())) {
                 return true;
             }
         }
@@ -132,6 +154,28 @@ public class UserService {
         return Years.yearsBetween(birthDate, now).getYears();
     }
 
+    public boolean isPrimaryContactCandidate(Principal principal) {
+        if (principal.getUser() == null) {
+            return false;
+        }
+        if (principal.getId().equals(principal.getFamily().getPrimaryPrincipal().getId())) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isOnlyPrincipal(Principal principal) {
+        return principal.getUser() == null;
+    }
+
+    public boolean isPrimaryContact(Principal principal) {
+        return principal.getId().equals(principal.getFamily().getPrimaryPrincipal().getId());
+    }
+
+    public boolean isPendingFamilyMember(Principal principal) {
+        return false; // TODO
+    }
+
     public void updateProfile(User user, String name, Date birthDate, String gender) {
         Principal principal = user.getPrincipal();
         setPrincipalName(name, principal);
@@ -149,7 +193,7 @@ public class UserService {
             principal.setFirstName(nameParts[0]);
             principal.setMiddleName(null);
             principal.setLastName(nameParts[1]);
-        } else if(nameParts.length == 3) {
+        } else if (nameParts.length == 3) {
             principal.setFirstName(nameParts[0]);
             principal.setMiddleName(nameParts[1]);
             principal.setLastName(nameParts[2]);

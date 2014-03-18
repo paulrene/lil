@@ -54,6 +54,8 @@
     <link rel="stylesheet" href="assets/css/pages/blog.css">
     <link rel="stylesheet" href="assets/css/pages/page_magazine.css"> 
     <link rel="stylesheet" href="assets/css/pages/page_search.css">
+#elseif($thisPage.getTemplate() == "signin")
+    <link rel="stylesheet" href="assets/css/pages/page_log_reg_v2.css">
 #end
     <!-- CSS Theme -->
     <link rel="stylesheet" href="assets/css/themes/red.css" id="style_color">

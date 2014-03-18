@@ -59,8 +59,8 @@ public class SearchResultsController implements Controller {
     }
 
     @Override
-    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
-
+    public String handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        return null;
     }
 
 }

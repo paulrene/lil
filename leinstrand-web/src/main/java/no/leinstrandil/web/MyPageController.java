@@ -66,9 +66,9 @@ public class MyPageController implements Controller {
     }
 
     @Override
-    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+    public String handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
         if (user == null) {
-            return;
+            return null;
         }
         String action = request.queryParams("action");
         if ("save-profile".equals(action)) {
@@ -82,6 +82,8 @@ public class MyPageController implements Controller {
         } else if ("add-family-member".equals(action)) {
             addFamilyMember(user, request, errorMap, infoList);
         }
+
+        return null;
     }
 
     private void addFamilyMember(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

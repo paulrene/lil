@@ -13,11 +13,30 @@
                             <tbody>
 #foreach($member in $family.getMembers())
                                 <tr>
-                                    <td>$member.getName() (${userService.getAge($member)} år) #if($member.getUser())<i class="icon-user"></i> #end</td>
+                                    <td>
+                                        $member.getName() (${userService.getAge($member)} år) 
+                                        #if($member.getUser())<i class="icon-user"></i> #end
+                                    </td>
                                     <td>$userService.formatBirthDate($member.getBirthDate())</td>
                                     <td><i class="icon-$member.getGender()"></i></td>
-                                    <td><span class="label label-success">#if($family.getPrimaryPrincipal()==$member)Primærkontakt#{else}Familiemedlem#end</span></td>
                                     <td>
+                                        #if($userService.isPrimaryContact($member))
+                                            <span class="label label-info"><i class="icon-trophy"></i> Primærkontakt</span>
+                                        #elseif($userService.isPendingFamilyMember($member))
+                                            <span class="label label-default">Invitert..</span>
+                                        #else
+                                            <span class="label label-success">Familiemedlem</span>
+                                        #end
+                                    </td>
+                                    <td>
+                                        #if($userService.isOnlyPrincipal($member))
+                                            <a href="/page/$thisPage.getUrlName()/?tab=$tab&action=edit-principal&id=$member.getId()">
+                                                <button class="btn btn-warning btn-xs"><i class="icon-pencil"></i></button>
+                                            </a>
+                                        #end
+                                        #if($userService.isPrimaryContactCandidate($member))
+                                            <button class="btn btn-info btn-xs"><i class="icon-trophy"></i></button>
+                                        #end
                                     </td>
                                 </tr>
 #end
@@ -27,7 +46,7 @@
                                     <td><i class="icon-female"></i></td>
                                     <td><span class="label label-success">Familiemedlem</span></td>
                                     <td>
-                                        <button class="btn btn-danger btn-xs""><i class="icon-trash"></i></button>
+                                        <button class="btn btn-danger btn-xs"><i class="icon-trash"></i></button>
                                         <button class="btn btn-warning btn-xs"><i class="icon-pencil"></i></button>
                                         <button class="btn btn-primary btn-xs"><i class="icon-magic"></i></button>
                                     </td>
@@ -76,7 +95,7 @@
 
                         <div class="margin-bottom-20"></div>
 
-                        <h4>Inviter en eksisterende bruker til din familie</h4>
+                        <h4>Inviter noen som bruker til din familie</h4>
                         <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
                             <input type="hidden" name="action" value="invite-family-member">
                             <div class="form-group#if($errors.opt("email")) has-error#end">

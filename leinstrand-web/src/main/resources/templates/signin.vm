@@ -1,0 +1,134 @@
+#parse("fragments/head.vm")
+
+<!--=== Content Part ===-->
+<div class="container">
+    <!--Reg Block-->
+    <div class="reg-block">
+
+#if($tab=="logginn")
+        <div class="reg-block-header">
+            <h2>Logg inn</h2>
+            <ul class="list-inline style-icons text-center">
+                <li><a href="/"><i class="icon-home icon-round icon-round-sm icon-color-grey"></i></a></li>
+                <li><a href="/fbsignin"><i class="icon-facebook icon-round icon-round-sm icon-color-grey"></i></a></li>
+            </ul>
+        </div>
+        <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=logginn">
+            <input type="hidden" name="action" value="signin">
+            <div class="input-group#if($errors.opt("username")) has-error#end margin-bottom-20">
+                <span class="input-group-addon"><i class="icon-user"></i></span>
+                <input type="text" class="form-control" name="username" placeholder="Brukernavn" value="$!data.opt("username")">
+            </div>
+            <div class="input-group#if($errors.opt("password")) has-error#end margin-bottom-20">
+                <span class="input-group-addon"><i class="icon-lock"></i></span>
+                <input type="password" class="form-control" name="password" placeholder="Passord">
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <button type="submit" class="btn-u btn-block">Logg inn</button>
+                </div>
+            </div>
+            #if($errors.opt("username") || $errors.opt("password"))
+            <hr>
+            <div class="alert alert-danger fade in">
+                #if($errors.opt("username"))$errors.opt("username")#end
+                #if($errors.opt("password"))$errors.opt("password")#end
+            </div>
+            #end
+            <hr>
+        </form>
+        <h4>Har du glemt passordet ?</h4>
+        <p>ikke noe problem, <a href="/page/$thisPage.getUrlName()?tab=resetpassord">klikk her</a> for å sette nytt passord.</p>
+        <hr>
+        <h4>Mangler du bruker ?</h4>
+        <p>da kan du <a href="/fbsignin">klikke her</a> for å logge inn med <i class="icon-facebook"></i> Facebook, eller registrer din egen bruker ved å <a href="/page/$thisPage.getUrlName()?tab=registrer">klikke her</a>.</p>
+
+#elseif($tab=="resetpassord")
+        <div class="reg-block-header">
+            <h2>Resett passord</h2>
+            <ul class="list-inline style-icons text-center">
+                <li><a href="/"><i class="icon-home icon-round icon-round-sm icon-color-grey"></i></a></li>
+                <li><a href="/fbsignin"><i class="icon-facebook icon-round icon-round-sm icon-color-grey"></i></a></li>
+            </ul>
+        </div>
+        <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=resetpassord">
+            <input type="hidden" name="action" value="resetpassword">
+            <div class="input-group#if($errors.opt("username")) has-error#end margin-bottom-20">
+                <span class="input-group-addon"><i class="icon-user"></i></span>
+                <input type="text" class="form-control" name="username" placeholder="Brukernavn" value="$!data.opt("username")">
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <button type="submit" class="btn-u btn-block">Resett passord</button>
+                </div>
+            </div>
+            #if($errors.opt("username"))
+            <hr>
+            <div class="alert alert-danger fade in">
+                $errors.opt("username")
+            </div>
+            #end
+            #if($info)
+            <hr>
+            <div class="alert alert-info fade in">
+                $info.get(0)
+            </div>
+            #end
+            <hr>
+        </form>
+        <p>Fyll ut ditt brukernavn ovenfor og klikk på knappen. Vi vil umiddelbart sende deg en e-post med informasjon om hvordan du kan sette nytt passord.</p>
+        <hr>
+        <h4>Mangler du bruker ?</h4>
+        <p>da kan du <a href="/fbsignin">klikke her</a> for å logge inn med <i class="icon-facebook"></i> Facebook, eller registrer din egen bruker ved å <a href="/page/$thisPage.getUrlName()?tab=registrer">klikke her</a>.</p>
+#elseif($tab=="settpassord")
+
+#elseif($tab=="registrer")
+        <div class="reg-block-header">
+            <h2>Registrer ny bruker</h2>
+            <ul class="list-inline style-icons text-center">
+                <li><a href="/"><i class="icon-home icon-round icon-round-sm icon-color-grey"></i></a></li>
+                <li><a href="/fbsignin"><i class="icon-facebook icon-round icon-round-sm icon-color-grey"></i></a></li>
+            </ul>
+        </div>
+#end
+    </div>
+    <!--End Reg Block-->
+</div><!--/container-->
+<!--=== End Content Part ===-->
+
+
+<!-- JS Global Compulsory -->
+<script type="text/javascript" src="assets/plugins/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="assets/plugins/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="assets/plugins/bootstrap/js/bootstrap.min.js"></script> 
+<script type="text/javascript" src="assets/plugins/hover-dropdown.min.js"></script> 
+<script type="text/javascript" src="assets/plugins/back-to-top.js"></script>
+<!-- JS Implementing Plugins -->
+<script type="text/javascript" src="assets/plugins/countdown/jquery.countdown.js"></script>
+<script type="text/javascript" src="assets/plugins/backstretch/jquery.backstretch.min.js"></script>
+<script type="text/javascript">
+    $.backstretch([
+      "assets/img/bg/5.jpg",
+      "assets/img/bg/4.jpg",
+      ], {
+        fade: 1000,
+        duration: 7000
+    });
+</script>
+<!-- JS Page Level -->
+<script type="text/javascript" src="assets/js/app.js"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        App.init();
+    });
+</script>
+<!--[if lt IE 9]>
+    <script src="assets/plugins/respond.js"></script>
+<![endif]-->
+
+#parse("fragments/analytics.vm")
+
+</body>
+</html> 

@@ -14,7 +14,7 @@ public class ContactController implements Controller {
     }
 
     @Override
-    public void handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+    public String handlePost(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
         String action = request.queryParams("action");
         if ("sendmessage".equals(action)) {
             String name = checkNotNullOrEmpty(request, "name", errorMap, "Du må fortelle oss hva du heter.");
@@ -29,6 +29,7 @@ public class ContactController implements Controller {
                 }
             }
         }
+        return null;
     }
 
     private boolean sendMessage(String name, String email, String message) {

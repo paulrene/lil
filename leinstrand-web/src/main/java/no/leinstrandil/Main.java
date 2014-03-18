@@ -1,5 +1,7 @@
 package no.leinstrandil;
 
+import no.leinstrandil.web.SignInController;
+
 import no.leinstrandil.web.MyPageController;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -110,6 +112,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService));
+        controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
 
         Spark.staticFileLocation("/static");
         Spark.setPort(config.getPort());
@@ -218,12 +221,18 @@ public class Main {
                 List<String> infoList = new ArrayList<>();
                 Map<String, String> errorMap = new HashMap<>();
                 Controller controller = controllers.get(page.getTemplate());
+                String redirectTo = null;
                 if (controller != null) {
-                    controller.handlePost(user, request, errorMap, infoList);
+                    redirectTo = controller.handlePost(user, request, errorMap, infoList);
                 }
 
                 boolean haveQuery = false;
-                StringBuilder pathBuilder = new StringBuilder("/page/").append(urlName);
+                StringBuilder pathBuilder = null;
+                if (redirectTo != null) {
+                    pathBuilder = new StringBuilder(redirectTo);
+                } else {
+                    pathBuilder = new StringBuilder("/page/").append(urlName);
+                }
                 if (!errorMap.isEmpty()) {
                     pathBuilder.append("?errors=" + urlEncode(encodeMap(errorMap)));
                     pathBuilder.append("&data=" + urlEncode(encodeMapArray(request.queryMap().toMap())));
@@ -376,7 +385,7 @@ public class Main {
             }
         });
 
-        Spark.get(new Route("/signin") {
+        Spark.get(new Route("/fbsignin") {
             @Override
             public Object handle(Request request, Response response) {
                 Facebook facebook = new FacebookFactory().getInstance();
@@ -399,7 +408,7 @@ public class Main {
                     facebook.getOAuthAccessToken(oAuthCode);
                     User user = userService.ensureFacebookUser(facebook);
                     request.session().attribute("userId", user.getId());
-                    log.info("User with id:username " + user.getId() + ":" + user.getUsername() + " logged in.");
+                    log.info("User with id:username " + user.getId() + ":" + user.getUsername() + " logged in with Facebook.");
                 } catch (FacebookException e) {
                     log.info("Failed while attempting to retrieve access token or user from Facebook: " + e.getMessage());
                     halt(503, e.getErrorMessage());
