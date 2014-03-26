@@ -62,7 +62,7 @@ public class FacebookService {
 
     public String getTitle(FacebookPost post) {
         String[] stopWords = new String[] { "i", "på", "mellom", "over", "under", "av", "bak", "før", "etter", "hos",
-                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som", "fra", "da", "når" };
+                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som", "fra", "da", "når", "opp" };
         String message = getBody(post);
         if (message.length() < 6) {
             return message;
