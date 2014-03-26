@@ -18,6 +18,7 @@ public class FacebookPost {
     private Long id;
     @ManyToOne @JoinColumn(name = "facebookPageId")
     private FacebookPage facebookPage;
+    private String facebookPostId;
     private String pictureUrl;
     private String linkUrl;
     private String caption;
@@ -37,6 +38,14 @@ public class FacebookPost {
 
     public Long getId() {
         return id;
+    }
+
+    public String getFacebookPostId() {
+        return facebookPostId;
+    }
+
+    public void setFacebookPostId(String facebookPostId) {
+        this.facebookPostId = facebookPostId;
     }
 
     public String getCaption() {
