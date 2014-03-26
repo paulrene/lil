@@ -2,7 +2,7 @@ package no.leinstrandil.service;
 
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
-import java.net.URL;
+import facebook4j.PictureSize;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
@@ -36,17 +36,27 @@ public class UserService {
 
     public User ensureFacebookUser(Facebook facebook) throws FacebookException {
         facebook4j.User fbUser = facebook.getMe();
+        String fbPictureUrl = facebook.getPictureURL(PictureSize.square).toString();
         User user = getUserByFacebookId(fbUser.getId());
         if (user != null) {
+            // Update Facebook profile picture if it has changed.
+            Principal principal = user.getPrincipal();
+            if (!principal.getPictureUrl().equals(fbPictureUrl)) {
+                principal.setPictureUrl(fbPictureUrl);
+                storage.begin();
+                storage.persist(principal);
+                storage.commit();
+                log.info("Found new Facebook profile picture for user: " + user.getUsername());
+            }
             // TODO: Update user object?
             log.info("Known user " + user.getId() + ":" + user.getUsername() + " found.");
             return user;
         }
         log.info("Creating new facebook user named: " + fbUser.getName());
-        return createFacebookUser(fbUser, facebook.getPictureURL());
+        return createFacebookUser(fbUser, fbPictureUrl);
     }
 
-    private User createFacebookUser(facebook4j.User fbUser, URL facebookPictureUrl) {
+    private User createFacebookUser(facebook4j.User fbUser, String facebookPictureUrl) {
         User newUser = new User();
         newUser.setFacebookId(fbUser.getId());
         newUser.setUsername(fbUser.getUsername());
@@ -56,7 +66,7 @@ public class UserService {
         principal.setMiddleName(fbUser.getMiddleName());
         principal.setLastName(fbUser.getLastName());
         principal.setGender(fbUser.getGender());
-        principal.setPictureUrl(facebookPictureUrl.toString());
+        principal.setPictureUrl(facebookPictureUrl);
         principal.setCreated(new Date());
         principal.setUpdated(new Date());
         String birthDateStr = fbUser.getBirthday();
