@@ -90,7 +90,10 @@
                         #inputerror( "birthdate" )
                         #inputerror( "gender" )
 #if($info)
-    <span class="label label-success">$info.get(0)</span>
+    <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
+#if($errors.opt("save"))
+    <span class="label label-danger"><i class="icon-warning-sign"></i> $errors.opt("save")</span>
 #end
 
                         <div class="margin-bottom-20"></div>

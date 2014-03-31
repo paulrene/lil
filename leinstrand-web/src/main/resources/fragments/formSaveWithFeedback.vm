@@ -1,0 +1,11 @@
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button type="submit" class="btn-u btn-u-green">Lagre</button>
+#if($info)
+                            <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
+#if($errors.opt("save"))
+                            <span class="label label-danger"><i class="icon-warning-sign"></i> $errors.opt("save")</span>
+#end
+                                </div>
+                            </div>

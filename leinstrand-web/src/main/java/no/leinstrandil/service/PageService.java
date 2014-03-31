@@ -2,12 +2,14 @@ package no.leinstrandil.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Principal;
+import no.leinstrandil.database.model.web.MenuEntry;
 import no.leinstrandil.database.model.web.Node;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.TextNode;
@@ -140,6 +142,26 @@ public class PageService {
             }
         }
         return favList;
+    }
+
+    public List<Page> getBreadCrumbs(Page thisPage) {
+        List<Page> list = new ArrayList<>();
+
+        Set<MenuEntry> menuEntriesForThisPage = thisPage.getMenuEntries();
+        if(menuEntriesForThisPage == null || menuEntriesForThisPage.isEmpty()) {
+            list.add(thisPage);
+            return list;
+        }
+
+        MenuEntry menuEntry = thisPage.getMenuEntries().iterator().next();
+        while(menuEntry != null) {
+            if (menuEntry.getPage() != null) {
+                list.add(menuEntry.getPage());
+            }
+            menuEntry  = menuEntry.getParent();
+        }
+        Collections.reverse(list);
+        return list;
     }
 
 }

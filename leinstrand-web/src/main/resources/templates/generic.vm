@@ -8,7 +8,14 @@
         <h1 class="pull-left">#redactor( "generictitle" true)</h1>
         <ul class="pull-right breadcrumb">
             <li><a href="/">Forsiden</a></li>
-            <li class="active">$thisPage.getTitle()</li>
+#set($breadcrumbList = $pageService.getBreadCrumbs($thisPage))
+#foreach($bc in $breadcrumbList)
+#if($bc.getId().equals($thisPage.getId()))
+            <li class="active">$bc.getTitle()</li>
+#else
+            <li><a href="/page/$bc.getUrlName()">$bc.getTitle()</a></li>
+#end
+#end
         </ul>
     </div><!--/container-->
 </div><!--/breadcrumbs-->
@@ -36,17 +43,27 @@
 
         <!-- Right Sidebar -->
         <div class="col-md-3 magazine-page">
-            <!-- Search Bar -->
-            <div class="headline headline-md"><h2>Søk</h2></div>
-            <form method="GET" action="/page/sokeresultat">
-            <div class="input-group margin-bottom-40">
-                <input type="text" class="form-control" name="q" value="$!{q}" placeholder="Hva leter du etter?">
-                <span class="input-group-btn">
-                    <button class="btn-u" type="submit">Søk</button>
-                </span>
+
+#set($favList = $pageService.getFavoritesForPage($thisPage))
+#if(!$favList.isEmpty())
+            <!-- Quick Links -->
+            <div class="magazine-sb-categories">
+                <div class="headline headline-md"><h2>Hurtiglenker</h2></div>
+                <div class="row">
+#set($half = $favList.size() / 2)
+                    <ul class="list-unstyled col-xs-6">
+#foreach($fav in $favList)
+                        <li><a href="/page/$fav.getUrlName()">$fav.getTitle()</a></li>
+    #if($velocityCount == $half)
+                    </ul>
+                    <ul class="list-unstyled col-xs-6">
+    #end
+#end
+                    </ul>
+                </div>
             </div>
-            </form>
-            <!-- End Search Bar -->
+            <!-- End Quick Links -->
+#end
 
             <!-- Posts -->
             <div class="posts margin-bottom-40">

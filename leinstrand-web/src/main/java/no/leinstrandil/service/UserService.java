@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.person.EmailAddress;
@@ -240,14 +241,20 @@ public class UserService {
         return false;
     }
 
-    public void updateProfile(User user, String name, Date birthDate, String gender) {
+    public ServiceResponse updateProfile(User user, String name, Date birthDate, String gender) {
         Principal principal = user.getPrincipal();
         setPrincipalName(name, principal);
         principal.setBirthDate(birthDate);
         principal.setGender(gender);
         storage.begin();
-        storage.persist(principal);
-        storage.commit();
+        try {
+            storage.persist(principal);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
+        }
+        return new ServiceResponse(true, "Din profil ble lagret.");
     }
 
     private void setPrincipalName(String name, Principal principal) {
@@ -268,7 +275,8 @@ public class UserService {
         }
     }
 
-    public void updateAddress(User user, String address1, String address2, String zip, String city, String country) {
+    public ServiceResponse updateAddress(
+            User user, String address1, String address2, String zip, String city, String country) {
         Address address = new Address();
         address.setAddress1(address1);
         address.setAddress2(address2);
@@ -280,11 +288,23 @@ public class UserService {
         address.setPrincipal(user.getPrincipal());
         user.getPrincipal().getAddressList().add(address);
         storage.begin();
-        storage.persist(address);
-        storage.commit();
+        try {
+            storage.persist(address);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
+        }
+        return new ServiceResponse(true, "Din postadresse ble lagret.");
     }
 
-    public void updateMobile(User user, String mobile) {
+    public ServiceResponse updateMobile(User user, String mobile) {
+        TypedQuery<MobileNumber> query = storage.createQuery("from MobileNumber m where number = '" + mobile
+                + "' and m.principal.id != " + user.getPrincipal().getId(), MobileNumber.class);
+        if (!query.getResultList().isEmpty()) {
+            return new ServiceResponse(false, "Mobilnummeret er allerede i bruk.");
+        }
+
         MobileNumber mobileNumber = new MobileNumber();
         mobileNumber.setNumber(mobile);
         mobileNumber.setVerified(null);
@@ -293,11 +313,23 @@ public class UserService {
         mobileNumber.setPrincipal(user.getPrincipal());
         user.getPrincipal().getMobileNumberList().add(mobileNumber);
         storage.begin();
-        storage.persist(mobileNumber);
-        storage.commit();
+        try {
+            storage.persist(mobileNumber);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
+        }
+        return new ServiceResponse(true, "Ditt mobilnummer ble lagret.");
     }
 
-    public void updateEmail(User user, String email) {
+    public ServiceResponse updateEmail(User user, String email) {
+        TypedQuery<EmailAddress> query = storage.createQuery("from EmailAddress m where email = '" + email
+                + "' and m.principal.id != " + user.getPrincipal().getId(), EmailAddress.class);
+        if (!query.getResultList().isEmpty()) {
+            return new ServiceResponse(false, "E-postadressen er allerede i bruk.");
+        }
+
         EmailAddress emailAddress = new EmailAddress();
         emailAddress.setEmail(email);
         emailAddress.setVerified(null);
@@ -306,11 +338,17 @@ public class UserService {
         emailAddress.setPrincipal(user.getPrincipal());
         user.getPrincipal().getEmailAddressList().add(emailAddress);
         storage.begin();
-        storage.persist(emailAddress);
-        storage.commit();
+        try {
+            storage.persist(emailAddress);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
+        }
+        return new ServiceResponse(true, "Din e-postadresse ble lagret.");
     }
 
-    public void addFamilyMember(User user, String name, Date birthDate, String gender) {
+    public ServiceResponse addFamilyMember(User user, String name, Date birthDate, String gender) {
         Family family = user.getPrincipal().getFamily();
         Principal principal = new Principal();
         setPrincipalName(name, principal);
@@ -321,9 +359,15 @@ public class UserService {
         principal.setFamily(family);
         family.getMembers().add(principal);
         storage.begin();
-        storage.persist(principal);
-        storage.persist(family);
-        storage.commit();
+        try {
+            storage.persist(principal);
+            storage.persist(family);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
+        }
+        return new ServiceResponse(true, "Det nye familiemedlemmet ble lagret.");
     }
 
     public Family ensureFamilyForUser(User user) {

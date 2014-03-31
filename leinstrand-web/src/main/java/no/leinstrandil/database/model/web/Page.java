@@ -172,4 +172,9 @@ public class Page {
         this.updated = updated;
     }
 
+    @Override
+    public String toString() {
+        return "[" + getId() + ":" + getTitle() + "]";
+    }
+
 }

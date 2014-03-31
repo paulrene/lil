@@ -10,6 +10,7 @@ import no.leinstrandil.database.model.person.EmailAddress;
 import no.leinstrandil.database.model.person.Family;
 import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.service.ServiceResponse;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
 import org.json.JSONObject;
@@ -113,8 +114,7 @@ public class MyPageController implements Controller {
         }
 
         if (errorMap.isEmpty()) {
-            userService.addFamilyMember(user, name, birthDate, gender);
-            infoList.add("Nytt familiemedlem lagt til.");
+            popuplateResponse(errorMap, infoList, userService.addFamilyMember(user, name, birthDate, gender));
         }
 
 
@@ -133,8 +133,7 @@ public class MyPageController implements Controller {
         }
 
         if (errorMap.isEmpty()) {
-            userService.updateMobile(user, mobile);
-            infoList.add("Ditt mobilnummer ble lagret.");
+            popuplateResponse(errorMap, infoList, userService.updateMobile(user, mobile));
         }
     }
 
@@ -147,8 +146,7 @@ public class MyPageController implements Controller {
         }
 
         if (errorMap.isEmpty()) {
-            userService.updateEmail(user, email);
-            infoList.add("Din e-postadresse ble lagret.");
+            popuplateResponse(errorMap, infoList, userService.updateEmail(user, email));
         }
     }
 
@@ -172,8 +170,7 @@ public class MyPageController implements Controller {
         }
 
         if (errorMap.isEmpty()) {
-            userService.updateAddress(user, address1, "", zip, city, country);
-            infoList.add("Din adresse ble lagret.");
+            popuplateResponse(errorMap, infoList, userService.updateAddress(user, address1, "", zip, city, country));
         }
     }
 
@@ -204,8 +201,15 @@ public class MyPageController implements Controller {
         }
 
         if (errorMap.isEmpty()) {
-            userService.updateProfile(user, name, birthDate, gender);
-            infoList.add("Din profil ble lagret.");
+            popuplateResponse(errorMap, infoList, userService.updateProfile(user, name, birthDate, gender));
+        }
+    }
+
+    private void popuplateResponse(Map<String, String> errorMap, List<String> infoList, ServiceResponse response) {
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("save", response.getMessage());
         }
     }
 
