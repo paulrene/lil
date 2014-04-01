@@ -83,13 +83,29 @@ public class FacebookService {
 
         String titleStr = title.toString();
         char lastChar = titleStr.charAt(titleStr.length() - 1);
-        if (lastChar == '-' || lastChar == ',' || lastChar == '.') {
+        if (lastChar == '-' || lastChar == ',' || lastChar == '.' || lastChar == ':') {
             titleStr = titleStr.substring(0, titleStr.length() - 1);
         }
 
         int index = titleStr.indexOf('!');
         if (index > 0) {
             titleStr = titleStr.substring(0, index + 1);
+        }
+        index = titleStr.indexOf('?');
+        if (index > 0) {
+            titleStr = titleStr.substring(0, index + 1);
+        }
+        index = titleStr.indexOf('.');
+        if (index > 0) {
+            titleStr = titleStr.substring(0, index);
+        }
+        index = titleStr.indexOf(',');
+        if (index > 0) {
+            titleStr = titleStr.substring(0, index);
+        }
+        index = titleStr.indexOf(':');
+        if (index > 0) {
+            titleStr = titleStr.substring(0, index);
         }
 
         return titleStr;

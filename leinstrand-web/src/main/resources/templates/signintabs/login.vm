@@ -1,0 +1,37 @@
+        <div class="reg-block-header">
+            <h2>Logg inn</h2>
+            <ul class="list-inline style-icons text-center">
+                <li><a href="/"><i class="icon-home icon-round icon-round-sm icon-color-grey"></i></a></li>
+                <li><a href="/fbsignin"><i class="icon-facebook icon-round icon-round-sm icon-color-grey"></i></a></li>
+            </ul>
+        </div>
+        <form class="form-horizontal" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=logginn">
+            <input type="hidden" name="action" value="signin">
+            <div class="input-group#if($errors.opt("username")) has-error#end margin-bottom-20">
+                <span class="input-group-addon"><i class="icon-user"></i></span>
+                <input type="text" class="form-control" name="username" placeholder="Brukernavn" value="$!data.opt("username")">
+            </div>
+            <div class="input-group#if($errors.opt("password")) has-error#end margin-bottom-20">
+                <span class="input-group-addon"><i class="icon-lock"></i></span>
+                <input type="password" class="form-control" name="password" placeholder="Passord">
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <button type="submit" class="btn-u btn-block">Logg inn</button>
+                </div>
+            </div>
+            #if($errors.opt("username") || $errors.opt("password"))
+            <hr>
+            <div class="alert alert-danger fade in">
+                #if($errors.opt("username"))$errors.opt("username")#end
+                #if($errors.opt("password"))$errors.opt("password")#end
+            </div>
+            #end
+            <hr>
+        </form>
+        <h4>Har du glemt passordet ?</h4>
+        <p>ikke noe problem, <a href="/page/$thisPage.getUrlName()?tab=resetpassord">klikk her</a> for å sette nytt passord.</p>
+        <hr>
+        <h4>Mangler du bruker ?</h4>
+        <p>da kan du <a href="/fbsignin">klikke her</a> for å logge inn med <i class="icon-facebook"></i> Facebook, eller registrer din egen bruker ved å <a href="/page/$thisPage.getUrlName()?tab=registrer">klikke her</a>.</p>
