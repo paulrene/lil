@@ -9,11 +9,11 @@
             <input type="hidden" name="action" value="signin">
             <div class="input-group#if($errors.opt("username")) has-error#end margin-bottom-20">
                 <span class="input-group-addon"><i class="icon-user"></i></span>
-                <input type="text" class="form-control" name="username" placeholder="Brukernavn" value="$!data.opt("username")">
+                <input type="text" class="form-control" name="username" placeholder="Brukernavn" value="$!data.opt("username")"#if(!$data.opt("username")) autofocus#end>
             </div>
             <div class="input-group#if($errors.opt("password")) has-error#end margin-bottom-20">
                 <span class="input-group-addon"><i class="icon-lock"></i></span>
-                <input type="password" class="form-control" name="password" placeholder="Passord">
+                <input type="password" class="form-control" name="password" placeholder="Passord"#if($data.opt("username")) autofocus#end>
             </div>
             <hr>
             <div class="row">

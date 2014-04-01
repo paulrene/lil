@@ -237,6 +237,9 @@ public class Main {
                 StringBuilder pathBuilder = null;
                 if (redirectTo != null) {
                     pathBuilder = new StringBuilder(redirectTo);
+                    if (pathBuilder.indexOf("?") != -1) {
+                        haveQuery = true;
+                    }
                 } else {
                     pathBuilder = new StringBuilder("/page/").append(urlName);
                 }
@@ -249,7 +252,7 @@ public class Main {
                     haveQuery = true;
                 }
                 String tab = request.queryParams("tab");
-                if (tab != null) {
+                if (tab != null && pathBuilder.indexOf("tab=") == -1) {
                     pathBuilder.append(haveQuery?"&":"?").append("tab=").append(urlEncode(tab));
                 }
 

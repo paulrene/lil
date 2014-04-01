@@ -52,6 +52,10 @@ public class Storage {
         getManager().persist(obj);
     }
 
+    public void delete(Object obj) {
+        getManager().remove(obj);
+    }
+
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
         TypedQuery<T> query = getManager().createQuery(qlString, resultClass);
         return query;

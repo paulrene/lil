@@ -89,6 +89,45 @@ public class UserService {
         return newUser;
     }
 
+    public ServiceResponse createUser(String username, String name, String email, Date birthDate, String gender, String password) {
+        User user = new User();
+        user.setUsername(username);
+        try {
+            user.setPasswordHash(PasswordHash.createHash(password));
+            user.setPasswordHashCreated(new Date());
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("Could not set password for NEW user due to: " + e.getMessage(), e);
+            return new ServiceResponse(false, "Det oppstod en feil da vi skulle sette passord på din nye bruker. Prøv igjen eller kontakt oss om feilen vedvarer.");
+        } catch (InvalidKeySpecException e) {
+            log.warn("Could not set password for NEW user due to: " + e.getMessage(), e);
+            return new ServiceResponse(false, "Det oppstod en feil da vi skulle sette passord på din nye bruker. Prøv igjen eller kontakt oss om feilen vedvarer.");
+        }
+        Principal principal = new Principal();
+        principal.setName(name);
+        setPrincipalName(name, principal);
+        principal.setGender(gender);
+        principal.setPictureUrl(null);
+        principal.setCreated(new Date());
+        principal.setUpdated(new Date());
+        principal.setBirthDate(birthDate);
+        user.setPrincipal(principal);
+
+        storage.begin();
+        storage.persist(user);
+        storage.persist(principal);
+        storage.commit();
+
+        if (!updateEmail(user, email).isSuccess()) {
+            storage.begin();
+            storage.delete(user);
+            storage.delete(principal);
+            storage.commit();
+            return new ServiceResponse(false, "E-postadressen er allerede i bruk. Vennligt bruk en annen.");
+        }
+
+        return new ServiceResponse(true, "Din bruker ble opprettet!");
+    }
+
     private User getUserByFacebookId(String facebookId) {
         try {
             return storage.createSingleQuery("from User where facebookId = '" + facebookId + "'", User.class);

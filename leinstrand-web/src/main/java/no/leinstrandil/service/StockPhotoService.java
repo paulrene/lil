@@ -14,7 +14,7 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_01.jpg", "køllebøller", "innebandy", "bygdarom", "bygdarommet"));
         photoList.add(new StockPhoto("lil_stock_02.jpg", "rønningen", "marka", "påske", "ski", "langrenn"));
         photoList.add(new StockPhoto("lil_stock_03.jpg", "målsetning"));
-        photoList.add(new StockPhoto("lil_stock_04.jpg", "langrenn", "ski", "turrenn", "poengrenn", "marka", "løyper", "skiføret", "skiføre", "granåsen"));
+        photoList.add(new StockPhoto("lil_stock_04.jpg", "langrenn", "ski", "turrenn", "poengrenn", "marka", "løyper", "skiføret", "skiføre"));
         photoList.add(new StockPhoto("lil_stock_05.jpg", "sol"));
         photoList.add(new StockPhoto("lil_stock_06.jpg", "aking", "skileik"));
         photoList.add(new StockPhoto("lil_stock_07.jpg", "allidrett"));
@@ -35,6 +35,7 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_24.jpg", "loppemarked", "loppis", "lopper"));
         photoList.add(new StockPhoto("lil_stock_25.jpg", "treningstider", "treningstid", "treningstiden"));
         photoList.add(new StockPhoto("lil_stock_26.jpg", "kurs", "klubbdommerkurs", "aktivitetslederkurs"));
+        photoList.add(new StockPhoto("lil_stock_27.jpg", "granåsen", "olympiatoppen"));
 
         defaultPhoto = new StockPhoto("lil_stock_19.jpg");
     }

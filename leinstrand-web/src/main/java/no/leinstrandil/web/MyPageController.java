@@ -140,9 +140,9 @@ public class MyPageController implements Controller {
     private void saveEmail(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
         String email = request.queryParams("email");
         if (email == null || email.isEmpty()) {
-            if (!email.contains("@")) {
-                errorMap.put("email", "E-postadressen må inneholde en krøllalfa.");
-            }
+            errorMap.put("email", "Du må oppgi en e-postadresse.");
+        } else if (!email.contains("@")) {
+            errorMap.put("email", "E-postadressen må inneholde en krøllalfa.");
         }
 
         if (errorMap.isEmpty()) {
