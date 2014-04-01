@@ -32,6 +32,7 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_20.jpg", "ringvål", "skistadion", "ballbinge", "lysløypa", "lysløype", "skogly"));
         photoList.add(new StockPhoto("lil_stock_21.jpg", "diplom", "ferdighetsmerke", "merkeprøver", "klubbkveld"));
         photoList.add(new StockPhoto("lil_stock_23.jpg", "årsmøte", "styremøte"));
+        photoList.add(new StockPhoto("lil_stock_24.jpg", "loppemarked", "loppis", "lopper"));
 
         defaultPhoto = new StockPhoto("lil_stock_19.jpg");
     }

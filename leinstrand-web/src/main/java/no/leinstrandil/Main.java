@@ -1,7 +1,5 @@
 package no.leinstrandil;
 
-import no.leinstrandil.service.MailService;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -26,6 +24,7 @@ import no.leinstrandil.database.model.web.Resource;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
+import no.leinstrandil.service.MailService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
 import no.leinstrandil.service.SearchService;
@@ -91,9 +90,9 @@ public class Main {
         this.config = config;
 
         storage = new Storage();
-        menuService = new MenuService(storage);
-        pageService = new PageService(storage);
         userService = new UserService(storage);
+        menuService = new MenuService(storage, userService);
+        pageService = new PageService(storage);
         fileService = new FileService(storage);
         searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
@@ -154,7 +153,11 @@ public class Main {
                     if (page.isUserRequired() && user == null) {
                         page = create401Page();
                     }
-                    // TODO: Handle page roles!
+                    if (page.getRequireRole() != null) {
+                        if (!userService.hasRole(user, page.getRequireRole().getIdentifier())) {
+                            page = create401Page();
+                        }
+                    }
                 }
 
                 if (page.getRedirectToUrl() != null) {

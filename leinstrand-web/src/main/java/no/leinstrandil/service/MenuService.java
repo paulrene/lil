@@ -1,7 +1,5 @@
 package no.leinstrandil.service;
 
-import no.leinstrandil.database.model.web.Role;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,9 +15,11 @@ import no.leinstrandil.database.model.web.User;
 public class MenuService {
 
     private Storage storage;
+    private UserService userService;
 
-    public MenuService(Storage storage) {
+    public MenuService(Storage storage, UserService userService) {
         this.storage = storage;
+        this.userService = userService;
     }
 
     public List<MenuEntry> getRootEntries() {
@@ -60,7 +60,7 @@ public class MenuService {
                 return true;
             }
         }
-        // Check if we are in any of the child menues
+        // Check if we are in any of the child menus
         for(MenuEntry childMenu : topMenu.getSubMenuEntries()) {
             Page childMenuPage = childMenu.getPage();
             if(childMenuPage != null) {
@@ -96,15 +96,7 @@ public class MenuService {
             return false;
         }
         if (menu.getRequireRole() != null) {
-            if (user == null) {
-                return false;
-            }
-            for(Role role : user.getRoles()) {
-                if(role.getIdentifier().equals(menu.getRequireRole().getIdentifier())) {
-                    return true;
-                }
-            }
-            return false;
+            return userService.hasRole(user, menu.getRequireRole().getIdentifier());
         }
         return true;
     }

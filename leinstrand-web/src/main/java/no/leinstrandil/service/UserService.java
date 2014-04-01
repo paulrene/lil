@@ -127,16 +127,23 @@ public class UserService {
         return false;
     }
 
-    public boolean hasEditorRole(User user) {
+    public boolean hasRole(User user, String roleIdentifier) {
         if (user == null) {
             return false;
         }
+        if (roleIdentifier == null) {
+            return false;
+        }
         for (Role role : user.getRoles()) {
-            if ("editor".equals(role.getIdentifier())) {
+            if (roleIdentifier.equals(role.getIdentifier())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean hasEditorRole(User user) {
+        return hasRole(user, "editor");
     }
 
     public User getLoggedInUserFromSession(Request request) {
