@@ -1,14 +1,12 @@
 package no.leinstrandil.web;
 
-import no.leinstrandil.service.ServiceResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import no.leinstrandil.database.model.person.EmailAddress;
 import no.leinstrandil.database.model.web.User;
-import no.leinstrandil.service.MailService;
+import no.leinstrandil.service.ServiceResponse;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
 import org.json.JSONObject;
@@ -20,22 +18,32 @@ public class SignInController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(SignInController.class);
 
     private UserService userService;
-    private MailService mailService;
 
-    public SignInController(UserService userService, MailService mailService) {
+    public SignInController(UserService userService) {
         this.userService = userService;
-        this.mailService = mailService;
     }
 
     @Override
     public void handleGet(User user, Request request, VelocityContext context) {
+        String title = null;
         String tab = request.queryParams("tab");
         if (tab == null) {
             tab = "logginn";
+            title = "Logg inn";
+        } else if ("resetpassord".equals(tab)) {
+            title = "Reset passord";
+        } else if ("settpassord".equals(tab)) {
+            title = "Sett passord";
+        } else if ("registrer".equals(tab)) {
+            title = "Registrer";
+        } else if ("verifiserepost".equals(tab)) {
+            title = "Verifiser e-post";
+            verifyEmail(request, context);
         }
         context.put("tab", tab);
+        context.put("pageTitle", title);
 
-        // Reset password code
+        // Reset password or verify email code
         String code = request.queryParams("code");
         if (code != null) {
             JSONObject data = new JSONObject();
@@ -70,6 +78,14 @@ public class SignInController implements Controller {
         }
 
         return null;
+    }
+
+    private void verifyEmail(Request request, VelocityContext context) {
+        String code = request.queryParams("code");
+        if (code == null) {
+            context.put("verified", false);
+        }
+        context.put("verified", userService.verifyEmailAddressByCode(code));
     }
 
     private String register(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
@@ -242,34 +258,11 @@ public class SignInController implements Controller {
             infoList.add("<strong>Åpne e-posten din og se etter en melding fra oss.</strong> Den inneholder informasjon om hvordan du kan sette et nytt passord.");
             User thisUser = userService.getUserByUsername(username);
             if (thisUser != null) {
-                sendResetPasswordEmail(thisUser);
+                userService.sendResetPasswordEmail(thisUser);
             }
         }
 
         return null;
-    }
-
-    private void sendResetPasswordEmail(User user) {
-        List<EmailAddress> emailList = user.getPrincipal().getEmailAddressList();
-        if (emailList.isEmpty()) {
-            log.warn("Could not send password reset email because user " + user.getId()
-                    + " does not have any email addresses stored!");
-            return;
-        }
-
-        String code = userService.generateResetPasswordCode(user);
-
-        StringBuilder text = new StringBuilder();
-        text.append("Hei, ").append(user.getPrincipal().getName()).append("!<br><br>");
-        text.append("Vi mottok en forespørsel om passordtilbakestilling for Leinstrand IL-kontoen din. ");
-        text.append("Bruk lenken nedenfor for å tilbakestille passordet:<br><br>");
-        text.append("<strong>Tilbakestill passordet ditt ved hjelp av en nettleser:</strong> ");
-        text.append("<a href=\"%baseUrl%page/signin?tab=settpassord&code=").append(code);
-        text.append("\">%baseUrl%page/signin?tab=settpassord&code=").append(code).append("</a><br><br>");
-        text.append("Om det ikke var deg som bestillte tilbakestilling av ditt passord kan du se bort fra denne e-posten.<br><br>");
-        text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
-
-        mailService.sendNoReplyHtml(emailList.get(0).getEmail(), "Passordtilbakestilling for Leinstrand IL", text.toString());
     }
 
     private String signin(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

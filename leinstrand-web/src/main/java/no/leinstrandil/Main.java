@@ -90,14 +90,14 @@ public class Main {
         this.config = config;
 
         storage = new Storage();
-        userService = new UserService(storage);
+        mailService = new MailService(config);
+        userService = new UserService(storage, mailService);
         menuService = new MenuService(storage, userService);
         pageService = new PageService(storage);
         fileService = new FileService(storage);
         searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
-        mailService = new MailService(config);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -115,7 +115,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService));
-        controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService, mailService));
+        controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
 
         Spark.staticFileLocation("/static");
         Spark.setPort(config.getPort());

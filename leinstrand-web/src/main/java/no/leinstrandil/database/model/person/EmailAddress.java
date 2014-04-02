@@ -17,7 +17,7 @@ public class EmailAddress {
     @ManyToOne @JoinColumn(name = "principalId")
     private Principal principal;
     private String email;
-    private String code;
+    private String verificationCode;
     private Date verified;
     private Date prime;
     private Date created;
@@ -29,12 +29,12 @@ public class EmailAddress {
         return id;
     }
 
-    public String getCode() {
-        return code;
+    public String getVerificationCode() {
+        return verificationCode;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 
     public Date getCreated() {

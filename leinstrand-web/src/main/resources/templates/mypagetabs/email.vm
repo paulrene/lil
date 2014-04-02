@@ -7,6 +7,12 @@
                                 <label for="inputEmail" class="col-lg-2 control-label">E-post</label>
                                 <div class="col-lg-10">
                                     <input type="text" name="email" class="form-control" id="inputEmail" placeholder="E-post" value="$!data.opt("email")">
+                                    #if(!$data.opt("verified"))
+                                    <p class="text-warning">
+                                        <span class="label label-warning"><i class="icon-warning-sign"></i></span> 
+                                        <strong>Husk å bekrefte e-postadressen ved å klikke lenken du har mottatt på e-post.</strong>
+                                    </p>
+                                    #end
                                     #inputerror( "email" )
                                 </div>
                             </div>

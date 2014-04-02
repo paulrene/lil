@@ -3,7 +3,7 @@
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
 <!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->  
 <head>
-    <title>#if($thisPage)$thisPage.getTitle()#{else}404: Ukjent Side#end</title>
+    <title>#if($pageTitle)${pageTitle}#elseif($thisPage)$thisPage.getTitle()#{else}404: Ukjent Side#end</title>
 
     <base href="${baseHref}">
 

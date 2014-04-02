@@ -49,6 +49,7 @@ public class MyPageController implements Controller {
                 EmailAddress email = emailList.get(0);
                 JSONObject data = new JSONObject();
                 data.put("email", email.getEmail());
+                data.put("verified", email.getVerified() != null);
                 context.put("data", data);
             }
         } else if (tab.equals("mobil")) {

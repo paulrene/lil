@@ -13,6 +13,8 @@
     #parse("templates/signintabs/setpassword.vm")
 #elseif($tab=="registrer")
     #parse("templates/signintabs/register.vm")
+#elseif($tab=="verifiserepost")
+    #parse("templates/signintabs/verifyemail.vm")
 #end
     </div>
     <!--End Reg Block-->

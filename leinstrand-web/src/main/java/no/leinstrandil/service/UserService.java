@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -30,9 +31,11 @@ public class UserService {
     private final Logger log = org.slf4j.LoggerFactory.getLogger(UserService.class);
 
     private Storage storage;
+    private MailService mailService;
 
-    public UserService(Storage storage) {
+    public UserService(Storage storage, MailService mailService) {
         this.storage = storage;
+        this.mailService = mailService;
     }
 
     public User ensureFacebookUser(Facebook facebook) throws FacebookException {
@@ -236,6 +239,29 @@ public class UserService {
         return false; // TODO
     }
 
+    public void sendResetPasswordEmail(User user) {
+        List<EmailAddress> emailList = user.getPrincipal().getEmailAddressList();
+        if (emailList.isEmpty()) {
+            log.warn("Could not send password reset email because user " + user.getId()
+                    + " does not have any email addresses stored!");
+            return;
+        }
+
+        String code = generateResetPasswordCode(user);
+
+        StringBuilder text = new StringBuilder();
+        text.append("Hei, ").append(user.getPrincipal().getName()).append("!<br><br>");
+        text.append("Vi mottok en forespørsel om passordtilbakestilling for Leinstrand IL-kontoen din. ");
+        text.append("Bruk lenken nedenfor for å tilbakestille passordet:<br><br>");
+        text.append("<strong>Tilbakestill passordet ditt ved hjelp av en nettleser:</strong> ");
+        text.append("<a href=\"%baseUrl%page/signin?tab=settpassord&code=").append(code);
+        text.append("\">%baseUrl%page/signin?tab=settpassord&code=").append(code).append("</a><br><br>");
+        text.append("Om det ikke var deg som bestillte tilbakestilling av ditt passord kan du se bort fra denne e-posten.<br><br>");
+        text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
+
+        mailService.sendNoReplyHtml(emailList.get(0).getEmail(), "Passordtilbakestilling for Leinstrand IL", text.toString());
+    }
+
     public String generateResetPasswordCode(User user) {
         user.setResetPasswordCode(UUID.randomUUID().toString());
         user.setResetPasswordCodeCreated(new Date());
@@ -370,19 +396,39 @@ public class UserService {
     }
 
     public ServiceResponse updateEmail(User user, String email) {
+        // Has this email address been used and verified previously by a different user?
         TypedQuery<EmailAddress> query = storage.createQuery("from EmailAddress m where email = '" + email
                 + "' and m.principal.id != " + user.getPrincipal().getId(), EmailAddress.class);
-        if (!query.getResultList().isEmpty()) {
-            return new ServiceResponse(false, "E-postadressen er allerede i bruk.");
+        for (EmailAddress prevAddress : query.getResultList()) {
+            if (prevAddress.getVerified() != null) {
+                return new ServiceResponse(false, "E-postadressen er allerede i bruk.");
+            }
         }
 
         EmailAddress emailAddress = new EmailAddress();
         emailAddress.setEmail(email);
         emailAddress.setVerified(null);
+        emailAddress.setVerificationCode(UUID.randomUUID().toString());
         emailAddress.setCreated(new Date());
         emailAddress.setPrime(new Date());
         emailAddress.setPrincipal(user.getPrincipal());
         user.getPrincipal().getEmailAddressList().add(emailAddress);
+
+        // Has this email address been used by this user previously?
+        TypedQuery<EmailAddress> previouslyUsedBySameUserQuery = storage.createQuery(
+                "from EmailAddress m where email = '" + email + "' and m.principal.id = "
+                        + user.getPrincipal().getId(), EmailAddress.class);
+        // Is this email address already used and verified?
+        List<EmailAddress> previouslyUsedBySameUser = previouslyUsedBySameUserQuery.getResultList();
+        for (EmailAddress previousAddress : previouslyUsedBySameUser) {
+            if (email.equals(previousAddress.getEmail())) {
+                if (previousAddress.getVerified() != null) {
+                    // Pass on the verification to the new instance of the same email address.
+                    emailAddress.setVerified(previousAddress.getVerified());
+                }
+            }
+        }
+
         storage.begin();
         try {
             storage.persist(emailAddress);
@@ -391,7 +437,28 @@ public class UserService {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
         }
+
+        if (emailAddress.getVerified() == null) {
+            sendEmailVerification(emailAddress);
+        }
         return new ServiceResponse(true, "Din e-postadresse ble lagret.");
+    }
+
+    private void sendEmailVerification(EmailAddress emailAddress) {
+        if (emailAddress == null) {
+            return;
+        }
+
+        StringBuilder text = new StringBuilder();
+        text.append("Hei, ").append(emailAddress.getPrincipal().getName()).append("!<br><br>");
+        text.append("Vi mottok en forespørsel om å endre e-postadressen din på nettsiden til Leinstrand IL. ");
+        text.append("Bruk lenken nedenfor for å bekrefte den nye e-postadressen:<br><br>");
+        text.append("<strong>Bekreft e-postadressen:</strong> ");
+        text.append("<a href=\"%baseUrl%page/signin?tab=verifiserepost&code=").append(emailAddress.getVerificationCode());
+        text.append("\">%baseUrl%page/signin?tab=verifiserepost&code=").append(emailAddress.getVerificationCode()).append("</a><br><br>");
+        text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
+
+        mailService.sendNoReplyHtml(emailAddress.getEmail(), "Bekreft ny e-postadresse for Leinstrand IL", text.toString());
     }
 
     public ServiceResponse addFamilyMember(User user, String name, Date birthDate, String gender) {
@@ -429,6 +496,23 @@ public class UserService {
         storage.persist(family);
         storage.commit();
         return family;
+    }
+
+    public boolean verifyEmailAddressByCode(String code) {
+        TypedQuery<EmailAddress> query = storage.createQuery("from EmailAddress m where m.verificationCode = '"
+                + code + "'", EmailAddress.class);
+        List<EmailAddress> emailAddressList = query.getResultList();
+        if (emailAddressList.isEmpty()) {
+            return false;
+        }
+        for (EmailAddress emailAddress : emailAddressList) {
+            emailAddress.setVerified(new Date());
+            emailAddress.setVerificationCode(null);
+            storage.begin();
+            storage.persist(emailAddress);
+            storage.commit();
+        }
+        return true;
     }
 
 }
