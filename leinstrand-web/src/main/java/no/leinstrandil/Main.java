@@ -293,12 +293,18 @@ public class Main {
 
                 String idStr = request.params("id");
                 String[] idArray = idStr.split("-");
-                String urlName = idArray[0];
-                String identifier = idArray[1];
-                String textNodeIdEditOn = idArray[2];
+                StringBuilder urlName = new StringBuilder();
+                for (int n=0;n<(idArray.length - 2); n++) {
+                    urlName.append(idArray[n]);
+                    if ((n+1) < (idArray.length - 2)) {
+                        urlName.append("-");
+                    }
+                }
+                String identifier = idArray[idArray.length - 2];
+                String textNodeIdEditOn = idArray[idArray.length - 1];
 
                 String sourceCode = urlDecode(request.body());
-                Page page = pageService.getPageByUrlName(urlName);
+                Page page = pageService.getPageByUrlName(urlName.toString());
 
                 if (!pageService.editTextNode(page, identifier, textNodeIdEditOn, user, sourceCode)) {
                     halt(409, "You are attempting save a change to an old version.");
