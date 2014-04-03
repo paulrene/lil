@@ -5,11 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.person.EmailAddress;
 import no.leinstrandil.database.model.person.Family;
 import no.leinstrandil.database.model.person.MobileNumber;
+import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.ServiceResponse;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
@@ -19,9 +22,11 @@ import spark.Request;
 public class MyPageController implements Controller {
 
     private UserService userService;
+    private ClubService clubService;
 
-    public MyPageController(UserService userService) {
+    public MyPageController(UserService userService, ClubService clubService) {
         this.userService = userService;
+        this.clubService = clubService;
     }
 
     @Override
@@ -63,6 +68,11 @@ public class MyPageController implements Controller {
         } else if (tab.equals("familie")) {
             Family family = userService.ensureFamilyForUser(user);
             context.put("family", family);
+        } else if (tab.equals("medlemskap")) {
+            Family family = userService.ensureFamilyForUser(user);
+            context.put("family", family);
+            ClubMembership membership = clubService.ensureClubMembership(user, false);
+            context.put("membership", membership);
         }
 
     }
@@ -83,9 +93,70 @@ public class MyPageController implements Controller {
             saveMobile(user, request, errorMap, infoList);
         } else if ("add-family-member".equals(action)) {
             addFamilyMember(user, request, errorMap, infoList);
+        } else if ("enroll-club".equals(action)) {
+            updateClubMembership(user, request, errorMap, infoList, true);
+        } else if ("disenroll-club".equals(action)) {
+            updateClubMembership(user, request, errorMap, infoList, false);
+        } else if ("invite-family-member".equals(action)) {
+            inviteFamilyMember(user, request, errorMap, infoList);
+        } else if ("delete-principal".equals(action)) {
+            deletePrincipal(user, request, errorMap, infoList);
+        } else if ("make-primary-contact".equals(action)) {
+            makePrimaryContact(user, request, errorMap, infoList);
         }
 
         return null;
+    }
+
+    private void makePrimaryContact(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+    }
+
+    private void inviteFamilyMember(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+    }
+
+    private void deletePrincipal(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String principalIdStr = request.queryParams("principalid");
+        if (principalIdStr == null) {
+            return;
+        }
+        Long principalId = null;
+        try {
+            principalId = Long.parseLong(principalIdStr);
+        } catch(NumberFormatException e) {
+            return;
+        }
+        Family family = user.getPrincipal().getFamily();
+        List<Principal> list = family.getMembers();
+        for (Principal principal : list) {
+            if (principal.getId() == principalId) {
+                if (clubService.isDeletable(principal)) {
+                    ServiceResponse response = userService.destroyPrincipal(principal);
+                    if (response.isSuccess()) {
+                        infoList.add(response.getMessage());
+                    } else {
+                        errorMap.put("save", response.getMessage());
+                    }
+                } else {
+                    errorMap.put("save", "Personen kan ikke slettes på nåværende tidspunkt.");
+                }
+                break;
+            }
+        }
+    }
+
+    private void updateClubMembership(User user, Request request, Map<String, String> errorMap, List<String> infoList,
+            boolean wantToEnroll) {
+        Boolean confirm = Boolean.parseBoolean(request.queryParams("confirm"));
+        if (!confirm) {
+            errorMap.put("save", "Du må bekrefte handlingen ved å hake av i avkryssningsboksen.");
+            return;
+        }
+        ServiceResponse response = clubService.updateClubMembership(user, wantToEnroll);
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("save", response.getMessage());
+        }
     }
 
     private void addFamilyMember(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

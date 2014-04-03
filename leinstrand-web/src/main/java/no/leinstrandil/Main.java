@@ -22,6 +22,7 @@ import no.leinstrandil.database.model.web.FacebookPage;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.Resource;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
 import no.leinstrandil.service.MailService;
@@ -76,6 +77,7 @@ public class Main {
     private final PageService pageService;
     private final UserService userService;
     private final FileService fileService;
+    private final ClubService clubService;
     private final SearchService searchService;
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
@@ -93,6 +95,7 @@ public class Main {
         mailService = new MailService(config);
         userService = new UserService(storage, mailService);
         menuService = new MenuService(storage, userService);
+        clubService = new ClubService(storage, userService, mailService);
         pageService = new PageService(storage);
         fileService = new FileService(storage);
         searchService = new SearchService(storage);
@@ -114,7 +117,7 @@ public class Main {
         controllers.put(ControllerTemplate.CONTACT.getId(), new ContactController());
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
-        controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService));
+        controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService, clubService));
         controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
 
         Spark.staticFileLocation("/static");
@@ -182,6 +185,7 @@ public class Main {
                 context.put("menuService", menuService);
                 context.put("pageService", pageService);
                 context.put("userService", userService);
+                context.put("clubService", clubService);
                 context.put("facebookService", facebookService);
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());

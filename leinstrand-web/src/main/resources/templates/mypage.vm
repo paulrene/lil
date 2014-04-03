@@ -26,6 +26,7 @@
                 <li#if($tab=="mobil") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=mobil"><i class="icon-mobile-phone"></i> Mobiltelefon</a></li>
                 <li#if($tab=="familie") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=familie"><i class="icon-group"></i> Familie</a></li>
                 <li#if($tab=="medlemskap") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=medlemskap"><i class="icon-list-alt"></i> Medlemskap</a></li>
+                <li#if($tab=="aktiviteter") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=aktiviteter"><i class="icon-trophy"></i> Aktiviteter</a></li>
                 <li#if($tab=="arrangement") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=arrangement"><i class="icon-ticket"></i> Arrangement</a></li>
             </ul>
         </div>
@@ -51,6 +52,8 @@
 #elseif($tab=="medlemskap")
     #parse("templates/mypagetabs/membership.vm")
 #elseif($tab=="arrangement")
+    #parse("templates/mypagetabs/events.vm")
+#elseif($tab=="aktiviteter")
     #parse("templates/mypagetabs/activity.vm")
 #end
 

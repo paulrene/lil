@@ -1,0 +1,91 @@
+#if($info.get(0))
+<div class="alert alert-success">
+    $info.get(0)
+</div>
+#end
+#if($errors.opt("save"))
+<div class="alert alert-danger fade in">
+    $errors.opt("save")
+</div>
+#end
+
+<div class="row tag-box tag-box-v5">
+    <div class="col-md-12 margin-bottom-20">
+        <span>Status: #if($membership.isEnrolled())<strong style="color:green">Medlem</strong>#{else}<strong style="color:red">Ikke Medlem</strong>#end</span>
+#if($membership.isEnrolled())
+        <p>Medlem siden: $pageService.formatDate($membership.getCreated())
+#end
+    </div>
+#if(!$membership.isEnrolled())
+    <div class="col-md-12">
+    #if($clubService.hasChangeClubMembershipRights($user))
+        <form method="POST" action="/page/$thisPage.getUrlName()?tab=medlemskap">
+            <input type="hidden" name="action" value="enroll-club">
+            <p><button class="btn-u btn-u-lg btn-u-green margin-bottom-10"><i class="icon-heart"></i> Bli Medlem</button></p>
+            <input name="confirm" value="true" type="checkbox"> Jeg bekrefter medlemskapet <strong>*</strong>
+        </form>
+    #else
+        <p><strong>Du må ha status som primærkontakt for å kunne endre medlemsstatus.</strong></p>
+    #end
+    </div>
+#else
+    <div class="col-md-12">
+        <form method="POST" action="/page/$thisPage.getUrlName()?tab=medlemskap">
+            <input type="hidden" name="action" value="disenroll-club">
+            <p><button class="btn-u btn-u-lg btn-u-default margin-bottom-10"><i class="icon-heart-empty"></i> Avslutt</button></p>
+            <input name="confirm" value="true" type="checkbox"> Jeg bekrefter utmeldingen.
+        </form>
+    </div>
+#end
+</div>
+
+#if($clubService.hasChangeClubMembershipRights($user) && !$membership.isEnrolled())
+<p>
+    <i>* Ved å klikke boksen ovenfor bekrefter jeg at personene jeg har registrert under min familie og meg selv skal
+    være medlemmer av Leinstrand idrettslag. Jeg forstår at jeg vil bli fakturert for medlemsavgiften årlig.</i>
+</p>
+#end
+
+<div class="alert alert-info">
+    <i class="icon-info-sign"></i>
+    <strong>Mer informasjon om pris på medlemskap og treningsavgift kan leses <a target="_blank" href="/page/treningsavgift"><u>her</u></a> (åpner i nytt vindu).</strong>
+</div>
+
+#if($clubService.getActiveTeamMembershipCountForFamily($family) > 0)
+<div class="panel panel-orange margin-bottom-20" style="margin-top:20px;">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="icon-trophy"></i> Påmeldte aktiviteter</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th>Aktivitet / Lag</th>
+                    <th>Avdeling</th>
+                    <th>Påmeldt</th>
+                </tr>
+            </thead>
+            <tbody>
+#foreach($p in $family.getMembers())
+    #set($status = $clubService.getTeamMembershipStatusForPrincipal($p))
+    #foreach($tm in $status.values())
+        #if($tm.isEnrolled())
+                <tr>
+                    <td>$p.getName()</td>
+                    <td>$tm.getTeam().getName()</td>
+                    <td>$tm.getTeam().getSport().getName()</td>
+                    <td>$pageService.formatDate($tm.getCreated())</td>
+                </tr>
+        #end
+    #end
+#end
+            </tbody>
+        </table>
+    </div>
+</div>
+<p class="text-warning">
+    <span class="label label-warning"><i class="icon-warning-sign"></i></span> 
+    <strong>Så lenge personer som er inkludert i medlemskapet er påmeldt en eller flere aktiviteter kan man ikke avslutte medlemskapet i idrettslaget.</strong>
+</p>
+#end

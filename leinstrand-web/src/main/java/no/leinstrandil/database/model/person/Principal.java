@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import no.leinstrandil.database.model.club.ActivityParticipation;
+import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.web.User;
 
@@ -42,16 +42,18 @@ public class Principal {
     @OneToMany(mappedBy = "principal") @OrderBy("created DESC")
     private List<TeamMembership> teamMemberships;
     @OneToMany(mappedBy = "principal") @OrderBy("created DESC")
-    private List<ActivityParticipation> activityParticipations;
+    private List<EventParticipation> eventParticipations;
     private Date created;
     private Date updated;
+
+    // TODO: Cascade delete when deleting principal!
 
     public Principal() {
         addressList = new ArrayList<>();
         emailAddressList = new ArrayList<>();
         mobileNumberList = new ArrayList<>();
         teamMemberships = new ArrayList<>();
-        activityParticipations = new ArrayList<>();
+        eventParticipations = new ArrayList<>();
     }
 
     public Long getId() {
@@ -162,12 +164,12 @@ public class Principal {
         this.updated = updated;
     }
 
-    public List<ActivityParticipation> getActivityParticipations() {
-        return activityParticipations;
+    public List<EventParticipation> getEventParticipations() {
+        return eventParticipations;
     }
 
-    public void setActivityParticipations(List<ActivityParticipation> activityParticipations) {
-        this.activityParticipations = activityParticipations;
+    public void setEventParticipations(List<EventParticipation> eventParticipations) {
+        this.eventParticipations = eventParticipations;
     }
 
     public Family getFamily() {

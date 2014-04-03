@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "activityparticipation")
-public class ActivityParticipation {
+public class EventParticipation {
 
     @Id @GeneratedValue
     private Long id;
@@ -20,10 +20,10 @@ public class ActivityParticipation {
     private Boolean enrolled;
     @ManyToOne @JoinColumn(name = "principalId")
     private Principal principal;
-    @ManyToOne @JoinColumn(name = "activityId")
-    private Activity activity;
+    @ManyToOne @JoinColumn(name = "eventId")
+    private Event event;
 
-    public ActivityParticipation() {
+    public EventParticipation() {
     }
 
     public Long getId() {
@@ -54,12 +54,12 @@ public class ActivityParticipation {
         this.principal = principal;
     }
 
-    public Activity getActivity() {
-        return activity;
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
-    public void setActivity(Activity activity) {
-        this.activity = activity;
+    public Event getEvent() {
+        return event;
     }
 
 }

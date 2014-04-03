@@ -1,11 +1,17 @@
                     <div class="tab-pane#if($tab=="familie") active#end" id="family">
                         <h4>Din familie</h4>
+                        <p>
+                            Her kan du registrere barn og ektefelle slik at dere kan dekkes av et familiemedlemskap.
+                            Om du står oppført alene vil du bli registrert som enkeltmedlem. Den som står oppført som primærkontakt vil motta
+                            faktura for medlemskapet og treningsavgiften for de av medlemmene som er under 18 år.
+                        </p>
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Navn</th>
                                     <th>Fødselsdato</th>
                                     <th>Kjønn</th>
+                                    <th>Aktiviteter</th>
                                     <th>Status</th>
                                     <th>Endre</th>
                                 </tr>
@@ -19,52 +25,45 @@
                                     </td>
                                     <td>$userService.formatBirthDate($member.getBirthDate())</td>
                                     <td><i class="icon-$member.getGender()"></i></td>
+                                    <td>$clubService.getActiveTeamMembershipCountForPrincipal($member)</td>
                                     <td>
                                         #if($userService.isPrimaryContact($member))
-                                            <span class="label label-info"><i class="icon-trophy"></i> Primærkontakt</span>
+                                            <span class="label label-info"><i class="icon-trophy"></i> 
+                                                Primærkontakt#if(!$clubService.isEnrolledAsClubMember($family)) (ikke medlem)#end</span>
                                         #elseif($userService.isPendingFamilyMember($member))
-                                            <span class="label label-default">Invitert..</span>
-                                        #else
+                                            <span class="label label-default">Invitert til familien..</span>
+                                        #elseif($clubService.isEnrolledAsClubMember($family))
                                             <span class="label label-success">Familiemedlem</span>
+                                        #else
+                                            <span class="label label-warning">Ikke medlem</span>
                                         #end
                                     </td>
                                     <td>
-                                        #if($userService.isOnlyPrincipal($member))
-                                            <a href="/page/$thisPage.getUrlName()/?tab=$tab&action=edit-principal&id=$member.getId()">
-                                                <button class="btn btn-warning btn-xs"><i class="icon-pencil"></i></button>
-                                            </a>
-                                        #end
+                                    #if($userService.isOfAge($user.getPrincipal()))
                                         #if($userService.isPrimaryContactCandidate($member))
-                                            <button class="btn btn-info btn-xs"><i class="icon-trophy"></i></button>
+                                            <form class="form-inline" method="post" action="/page/$thisPage.getUrlName()?tab=familie">
+                                                <input type="hidden" name="action" value="make-primary-contact">
+                                                <input type="hidden" name="principalid" value="$member.getId()">
+                                                <button class="btn btn-info btn-xs" title="Gjør til primærkontakt"><i class="icon-trophy"></i></button>
+                                            </form>
                                         #end
+                                        #if($userService.isOnlyPrincipal($member) && $clubService.isDeletable($member))
+                                            <form class="form-inline" method="post" action="/page/$thisPage.getUrlName()?tab=familie">
+                                                <input type="hidden" name="action" value="delete-principal">
+                                                <input type="hidden" name="principalid" value="$member.getId()">
+                                                <button class="btn btn-danger btn-xs" title="Slett person"><i class="icon-remove"></i></button>
+                                            </form>
+                                        #end
+                                    #end
                                     </td>
                                 </tr>
 #end
-<!--                                <tr>
-                                    <td>$user.getPrincipal().getName()</td>
-                                    <td>$userService.formatBirthDate($user.getPrincipal().getBirthDate())</td>
-                                    <td><i class="icon-female"></i></td>
-                                    <td><span class="label label-success">Familiemedlem</span></td>
-                                    <td>
-                                        <button class="btn btn-danger btn-xs"><i class="icon-trash"></i></button>
-                                        <button class="btn btn-warning btn-xs"><i class="icon-pencil"></i></button>
-                                        <button class="btn btn-primary btn-xs"><i class="icon-magic"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><i class="icon-user"></i> $user.getPrincipal().getName()</td>
-                                    <td>$userService.formatBirthDate($user.getPrincipal().getBirthDate())</td>
-                                    <td><i class="icon-female"></i></td>
-                                    <td><span class="label label-info">Invitert..</span></td>
-                                    <td>
-                                        <button class="btn btn-info btn-xs"><i class="icon-envelope"></i></button>
-                                    </td>
-                                </tr> -->
                             </tbody>
                         </table>
 
                         <div class="margin-bottom-20"></div>
 
+#if($userService.isOfAge($user.getPrincipal()))
                         <h4>Legg til et familiemedlem</h4>
                         <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
                             <input type="hidden" name="action" value="add-family-member">
@@ -98,7 +97,7 @@
 
                         <div class="margin-bottom-20"></div>
 
-                        <h4>Inviter noen som bruker til din familie</h4>
+                        <h4>Inviter en annen bruker som medlem av din familie</h4>
                         <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
                             <input type="hidden" name="action" value="invite-family-member">
                             <div class="form-group#if($errors.opt("email")) has-error#end">
@@ -108,4 +107,5 @@
                             <button type="submit" class="btn-u btn-u-default">Inviter</button>
                         </form>
                         #inputerror( "email" )
+#end
                     </div>

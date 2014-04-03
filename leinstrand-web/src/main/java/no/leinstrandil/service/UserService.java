@@ -227,6 +227,10 @@ public class UserService {
         return true;
     }
 
+    public boolean isOfAge(Principal principal) {
+        return getAge(principal) >= 18;
+    }
+
     public boolean isOnlyPrincipal(Principal principal) {
         return principal.getUser() == null;
     }
@@ -513,6 +517,30 @@ public class UserService {
             storage.commit();
         }
         return true;
+    }
+
+    public boolean hasValidEmail(User user) {
+        return !user.getPrincipal().getEmailAddressList().isEmpty();
+    }
+
+    public boolean hasValidMobile(User user) {
+        return !user.getPrincipal().getMobileNumberList().isEmpty();
+    }
+
+    public boolean hasValidAddress(User user) {
+        return !user.getPrincipal().getAddressList().isEmpty();
+    }
+
+    public ServiceResponse destroyPrincipal(Principal principal) {
+        storage.begin();
+        try {
+            storage.delete(principal);
+            storage.commit();
+            return new ServiceResponse(true, "Personen ble slettet.");
+        } catch(RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Personen kunne ikke slettes på nåværende tidspunkt.");
+        }
     }
 
 }

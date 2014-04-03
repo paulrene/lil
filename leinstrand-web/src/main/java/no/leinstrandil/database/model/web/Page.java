@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import no.leinstrandil.database.model.club.Activity;
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Team;
 
 @Entity
@@ -31,7 +31,7 @@ public class Page {
     @OneToMany(mappedBy = "page")
     private Set<Team> teams;
     @OneToMany(mappedBy = "page")
-    private Set<Activity> activities;
+    private Set<Event> events;
     @ManyToOne @JoinColumn(name = "requiredRoleId")
     private Role requireRole;
     @ManyToOne @JoinColumn(name = "lastAuthorId")
@@ -43,7 +43,7 @@ public class Page {
 
     public Page() {
         menuEntries = new HashSet<>();
-        activities = new HashSet<>();
+        events = new HashSet<>();
         teams = new HashSet<>();
         nodes = new HashSet<>();
     }
@@ -52,12 +52,12 @@ public class Page {
         return id;
     }
 
-    public Set<Activity> getActivities() {
-        return activities;
+    public Set<Event> getEvents() {
+        return events;
     }
 
-    public void setActivities(Set<Activity> activities) {
-        this.activities = activities;
+    public void setEvents(Set<Event> events) {
+        this.events = events;
     }
 
     public Set<Team> getTeams() {

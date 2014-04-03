@@ -19,11 +19,11 @@ public class Sport {
     @OneToMany(mappedBy = "sport")
     private Set<Team> teams;
     @OneToMany(mappedBy = "sport")
-    private Set<Activity> activities;
+    private Set<Event> events;
 
     public Sport() {
         teams = new HashSet<>();
-        activities = new HashSet<>();
+        events = new HashSet<>();
     }
 
     public Long getId() {
@@ -38,12 +38,12 @@ public class Sport {
         this.name = name;
     }
 
-    public Set<Activity> getActivities() {
-        return activities;
+    public Set<Event> getEvents() {
+        return events;
     }
 
-    public void setActivities(Set<Activity> activities) {
-        this.activities = activities;
+    public void setEvents(Set<Event> events) {
+        this.events = events;
     }
 
     public String getDescription() {

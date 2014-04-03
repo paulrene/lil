@@ -14,7 +14,7 @@ import no.leinstrandil.database.model.web.Page;
 
 @Entity
 @Table(name = "activity")
-public class Activity {
+public class Event {
 
     @Id @GeneratedValue
     private Long id;
@@ -27,10 +27,10 @@ public class Activity {
     private Page page;
     @ManyToOne @JoinColumn(name = "sportId")
     private Sport sport;
-    @OneToMany(mappedBy = "activity") @OrderBy("created DESC")
-    private List<ActivityParticipation> activityParticipations;
+    @OneToMany(mappedBy = "event") @OrderBy("created DESC")
+    private List<EventParticipation> eventParticipations;
 
-    public Activity() {
+    public Event() {
     }
 
     public Long getId() {
@@ -93,12 +93,11 @@ public class Activity {
         this.vacancies = vacancies;
     }
 
-    public List<ActivityParticipation> getActivityParticipations() {
-        return activityParticipations;
+    public List<EventParticipation> getEventParticipations() {
+        return eventParticipations;
     }
 
-    public void setActivityParticipations(List<ActivityParticipation> activityParticipations) {
-        this.activityParticipations = activityParticipations;
+    public void setEventParticipations(List<EventParticipation> eventParticipations) {
+        this.eventParticipations = eventParticipations;
     }
-
 }

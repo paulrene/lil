@@ -19,7 +19,7 @@
     <class>no.leinstrandil.database.model.person.Principal</class>
     <class>no.leinstrandil.database.model.club.Sport</class>
     <class>no.leinstrandil.database.model.club.Team</class>
-    <class>no.leinstrandil.database.model.club.Activity</class>
+    <class>no.leinstrandil.database.model.club.Event</class>
 
     <!-- <shared-cache-mode>NONE</shared-cache-mode> -->
 

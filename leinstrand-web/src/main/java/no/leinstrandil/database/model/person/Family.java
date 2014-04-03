@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.club.ClubMembership;
 
 @Entity
 @Table(name = "family")
@@ -21,6 +22,8 @@ public class Family {
     private Principal primaryPrincipal;
     @OneToMany(mappedBy = "family") @OrderBy("birthdate")
     private List<Principal> members;
+    @OneToMany(mappedBy = "family") @OrderBy("created DESC")
+    private List<ClubMembership> clubMemberships;
 
     public Family() {
         members = new ArrayList<>();
@@ -44,6 +47,14 @@ public class Family {
 
     public void setMembers(List<Principal> members) {
         this.members = members;
+    }
+
+    public List<ClubMembership> getClubMemberships() {
+        return clubMemberships;
+    }
+
+    public void setClubMemberships(List<ClubMembership> clubMemberships) {
+        this.clubMemberships = clubMemberships;
     }
 
 }
