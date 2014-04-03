@@ -39,6 +39,9 @@ public class SignInController implements Controller {
         } else if ("verifiserepost".equals(tab)) {
             title = "Verifiser e-post";
             verifyEmail(request, context);
+        } else if ("takkjatilmedlemskap".equals(tab)) {
+            title = "Invitasjon til familiemedlemskap";
+            acceptFamilyInvitation(request, context);
         }
         context.put("tab", tab);
         context.put("pageTitle", title);
@@ -78,6 +81,16 @@ public class SignInController implements Controller {
         }
 
         return null;
+    }
+
+    private void acceptFamilyInvitation(Request request, VelocityContext context) {
+        String code = request.queryParams("code");
+        if (code == null) {
+            context.put("success", false);
+        }
+        ServiceResponse response = userService.acceptFamilyInvitation(code);
+        context.put("success", response.isSuccess());
+        context.put("message", response.getMessage());
     }
 
     private void verifyEmail(Request request, VelocityContext context) {

@@ -30,11 +30,15 @@
     </div>
 #else
     <div class="col-md-12">
+    #if($clubService.hasChangeClubMembershipRights($user))
         <form method="POST" action="/page/$thisPage.getUrlName()?tab=medlemskap">
             <input type="hidden" name="action" value="disenroll-club">
-            <p><button class="btn-u btn-u-lg btn-u-default margin-bottom-10"><i class="icon-heart-empty"></i> Avslutt</button></p>
+            <p><button class="btn btn-link margin-bottom-10"><i class="icon-heart-empty"></i> Avslutt medlemskapet</button></p>
             <input name="confirm" value="true" type="checkbox"> Jeg bekrefter utmeldingen.
         </form>
+    #else
+        <p><strong>Du må ha status som primærkontakt for å kunne endre medlemsstatus.</strong></p>
+    #end
     </div>
 #end
 </div>

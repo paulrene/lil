@@ -1,0 +1,18 @@
+
+#if($success)
+
+<div class="alert alert-success">
+    <h4>Supert!</h4>
+    <p>$message</p>
+    <p><a class="btn-u btn-u-sea" href="/">Gå til forsiden</a></p>
+</div>
+
+#else
+
+<div class="alert alert-block alert-danger fade in">
+    <h4>Å nei! Noe gikk veldig galt..</h4>
+    <p>$message</p>
+    <p><a class="btn-u btn-u-red" href="/">Gå til forsiden</a></p>
+</div>
+
+#end

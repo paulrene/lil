@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import no.leinstrandil.database.Storage;
@@ -14,7 +15,9 @@ import no.leinstrandil.database.model.web.Node;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.TextNode;
 import no.leinstrandil.database.model.web.User;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
+import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +87,11 @@ public class PageService {
 
     public String formatDate(Date date) {
         return new SimpleDateFormat("d. MMMM, yyyy").format(date);
+    }
+
+    public String prettyTimeForInvitationExpiry(Date created) {
+        Date expiryDate = new DateTime(created).plusDays(UserService.FAMILY_INVITAION_EXPIRY_DAYS).toDate();
+        return new PrettyTime(new Date(), Locale.forLanguageTag("no")).format(expiryDate);
     }
 
     public String getAuthors(Page page) {

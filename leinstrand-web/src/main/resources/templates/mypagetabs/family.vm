@@ -30,8 +30,6 @@
                                         #if($userService.isPrimaryContact($member))
                                             <span class="label label-info"><i class="icon-trophy"></i> 
                                                 Primærkontakt#if(!$clubService.isEnrolledAsClubMember($family)) (ikke medlem)#end</span>
-                                        #elseif($userService.isPendingFamilyMember($member))
-                                            <span class="label label-default">Invitert til familien..</span>
                                         #elseif($clubService.isEnrolledAsClubMember($family))
                                             <span class="label label-success">Familiemedlem</span>
                                         #else
@@ -58,10 +56,48 @@
                                     </td>
                                 </tr>
 #end
+
+#set($invitationList = $userService.getFamilyInvitations($family))
+#foreach($invitation in $invitationList)
+    #if(!$userService.isFamilyInvitationExpired($invitation))
+        #set($member = $invitation.getPrincipal())
+                                <tr>
+                                    <td>
+                                        $member.getName() 
+                                        #if($member.getUser())<i class="icon-user"></i> #end
+                                    </td>
+                                    <td colspan="3">Invitasjonen utløper $pageService.prettyTimeForInvitationExpiry($invitation.getCreated())</td>
+                                    <td><span class="label label-default">Invitert til familien</span></td>
+                                    <td></td>
+                                </tr>
+    #end
+#end
                             </tbody>
                         </table>
 
                         <div class="margin-bottom-20"></div>
+
+#set($myInvitations = $userService.getInvitationsForPrincipal($user.getPrincipal()))
+#if(!$myInvitations.isEmpty())
+    #foreach($invitation in $myInvitations)
+    <div class="alert alert-info">
+        <strong>Invitasjon!</strong><br>
+        Du har mottatt en invitasjon om medlemskap i familien til $invitation.getFamily().getPrimaryPrincipal().getName(). <i>(Invitasjonen utløper $pageService.prettyTimeForInvitationExpiry($invitation.getCreated()))</i><br>
+        <a class="btn-u btn-u-sea" href="$baseHref/page/signin?tab=takkjatilmedlemskap&code=$invitation.getCode()">
+            Klikk her for å akseptere invitasjonen
+        </a>
+    </div>
+    #end
+                        <div class="margin-bottom-20"></div>
+#end
+
+#if($info)
+    <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+#end
+#if($errors.opt("save"))
+    <span class="label label-danger"><i class="icon-warning-sign"></i> $errors.opt("save")</span>
+#end
+
 
 #if($userService.isOfAge($user.getPrincipal()))
                         <h4>Legg til et familiemedlem</h4>
@@ -88,12 +124,6 @@
                         #inputerror( "name" )
                         #inputerror( "birthdate" )
                         #inputerror( "gender" )
-#if($info)
-    <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
-#end
-#if($errors.opt("save"))
-    <span class="label label-danger"><i class="icon-warning-sign"></i> $errors.opt("save")</span>
-#end
 
                         <div class="margin-bottom-20"></div>
 
@@ -102,7 +132,7 @@
                             <input type="hidden" name="action" value="invite-family-member">
                             <div class="form-group#if($errors.opt("email")) has-error#end">
                                 <label for="inputEmail" class="sr-only">E-post</label>
-                                <input type="text" name="email" class="form-control" id="inputEmail" placeholder="E-post" value="">
+                                <input type="email" name="email" class="form-control" id="inputEmail" placeholder="E-post" value="">
                             </div>
                             <button type="submit" class="btn-u btn-u-default">Inviter</button>
                         </form>

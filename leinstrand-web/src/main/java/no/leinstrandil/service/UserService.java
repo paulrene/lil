@@ -16,6 +16,7 @@ import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.person.EmailAddress;
 import no.leinstrandil.database.model.person.Family;
+import no.leinstrandil.database.model.person.FamilyInvitation;
 import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.Role;
@@ -29,6 +30,7 @@ import spark.Request;
 
 public class UserService {
     private final Logger log = org.slf4j.LoggerFactory.getLogger(UserService.class);
+    public static final int FAMILY_INVITAION_EXPIRY_DAYS = 3;
 
     private Storage storage;
     private MailService mailService;
@@ -158,6 +160,19 @@ public class UserService {
         }
     }
 
+    public Principal getPrincipalByEmail(String email) {
+        if (email == null) {
+            return null;
+        }
+        TypedQuery<EmailAddress> query = storage.createQuery("from EmailAddress where email = '" + email.trim() + "' order by created desc", EmailAddress.class);
+        List<EmailAddress> emailList = query.getResultList();
+        if (emailList.isEmpty()) {
+            return null;
+        }
+        EmailAddress address = emailList.get(0);
+        return address.getPrincipal();
+    }
+
     public boolean isValidPassword(User thisUser, String password) {
         try {
             return PasswordHash.validatePassword(password, thisUser.getPasswordHash());
@@ -224,6 +239,9 @@ public class UserService {
         if (principal.getId().equals(principal.getFamily().getPrimaryPrincipal().getId())) {
             return false;
         }
+        if (!isOfAge(principal)) {
+            return false;
+        }
         return true;
     }
 
@@ -237,10 +255,6 @@ public class UserService {
 
     public boolean isPrimaryContact(Principal principal) {
         return principal.getId().equals(principal.getFamily().getPrimaryPrincipal().getId());
-    }
-
-    public boolean isPendingFamilyMember(Principal principal) {
-        return false; // TODO
     }
 
     public void sendResetPasswordEmail(User user) {
@@ -540,6 +554,139 @@ public class UserService {
         } catch(RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Personen kunne ikke slettes på nåværende tidspunkt.");
+        }
+    }
+
+    public ServiceResponse setPrimaryPrincipal(Principal principal, Family family) {
+        if (isPrimaryContactCandidate(principal)) {
+            if (isFamilyMember(family, principal)) {
+                family.setPrimaryPrincipal(principal);
+                storage.begin();
+                try {
+                    storage.persist(family);
+                    storage.commit();
+                    return new ServiceResponse(true, "Ny primærkontakt er satt.");
+                } catch(RuntimeException e) {
+                    storage.rollback();
+                    return new ServiceResponse(false, "Primærkontakt kunne ikke endres på nåværende tidspunkt.");
+                }
+            } else {
+                return new ServiceResponse(false, "Personen er ikke medlem av familien.");
+            }
+        } else {
+            return new ServiceResponse(false, "Personen kan ikke settes som primærkontakt.");
+        }
+
+    }
+
+    public boolean isFamilyMember(Family family, Principal principal) {
+        for (Principal member : family.getMembers()) {
+            if (member.getId().equals(principal.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isPendingFamilyMember(Family family, Principal principal) {
+        TypedQuery<FamilyInvitation> query = storage.createQuery("from FamilyInvitation where family.id = " + family.getId() + " and principal.id = " + principal.getId(), FamilyInvitation.class);
+        List<FamilyInvitation> list = query.getResultList();
+        if (list.isEmpty()) {
+            return false;
+        }
+        for (FamilyInvitation familyInvitation : list) {
+            if (!isFamilyInvitationExpired(familyInvitation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFamilyInvitationExpired(FamilyInvitation familyInvitation) {
+        DateTime expiry = DateTime.now().plusDays(FAMILY_INVITAION_EXPIRY_DAYS);
+        return expiry.isBefore(new DateTime(familyInvitation.getCreated()));
+    }
+
+    public ServiceResponse inviteFamilyMember(Principal principal, Family family) {
+        if (isOnlyPrincipal(principal)) {
+            return new ServiceResponse(false, "Personen med denne e-postadresse har ingen bruker.");
+        }
+        if (isFamilyMember(family, principal)) {
+            return new ServiceResponse(false, "Brukeren med denne e-postadressen er allerede medlem av din familie.");
+        }
+        if (isPendingFamilyMember(family, principal)) {
+            return new ServiceResponse(false, "Brukeren med denne e-postadressen er allerede blitt invitert til din familie.");
+        }
+
+        FamilyInvitation invitation = new FamilyInvitation();
+        invitation.setCreated(new Date());
+        invitation.setFamily(family);
+        invitation.setPrincipal(principal);
+        invitation.setCode(UUID.randomUUID().toString());
+        storage.begin();
+        try {
+            storage.persist(invitation);
+            storage.commit();
+
+            StringBuilder text = new StringBuilder();
+            text.append("Hei, ").append(principal.getName()).append("!<br><br>");
+            text.append("Dette er en invitasjon fra ");
+            text.append(family.getPrimaryPrincipal().getName() + " ");
+            text.append("om å bli medlem av hans familiemedlemskap på Leinstrand IL.<br><br>");
+            text.append("Bruk lenken nedenfor hvis du ønsker å takke ja til denne invitasjonen:<br><br>");
+            text.append("<strong>Takk ja til invitasjonen:</strong> ");
+            text.append("<a href=\"%baseUrl%page/signin?tab=takkjatilmedlemskap&code=").append(invitation.getCode());
+            text.append("\">%baseUrl%page/signin?tab=takkjatilmedlemskap&code=").append(invitation.getCode());
+            text.append("</a><br><br>");
+            text.append("Om du ikke ønsker å takke ja trenger du ikke gjøre noe. Denne invitasjonen er kun gyldig i ");
+            text.append(FAMILY_INVITAION_EXPIRY_DAYS + " dager.<br><br>");
+            text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
+            mailService.sendNoReplyHtml(principal.getEmailAddressList().get(0).getEmail(),
+                    "Invitasjon til familiemedlemskap i Leinstrand IL", text.toString());
+
+            return new ServiceResponse(true, "Brukeren er blitt invitert til din familie.");
+        } catch(RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Kunne ikke invitere brukeren på nåværende tidspunkt.");
+        }
+    }
+
+    public List<FamilyInvitation> getFamilyInvitations(Family family) {
+        TypedQuery<FamilyInvitation> query = storage.createQuery("from FamilyInvitation where family.id = " + family.getId(), FamilyInvitation.class);
+        List<FamilyInvitation> list = query.getResultList();
+        return list;
+    }
+
+    public List<FamilyInvitation> getInvitationsForPrincipal(Principal principal) {
+        TypedQuery<FamilyInvitation> query = storage.createQuery("from FamilyInvitation where principal.id = " + principal.getId(), FamilyInvitation.class);
+        List<FamilyInvitation> list = query.getResultList();
+        return list;
+    }
+
+    public ServiceResponse acceptFamilyInvitation(String code) {
+        if (code == null) {
+            return new ServiceResponse(false, "Forespørselen kan ikke behandles siden den mangler den nødvendige koden.");
+        }
+        FamilyInvitation invitation = storage.createSingleQuery("from FamilyInvitation where code = '" + code + "'", FamilyInvitation.class);
+        if (invitation == null) {
+            return new ServiceResponse(false, "Invitasjonskoden er ukjent.");
+        }
+        if (isFamilyInvitationExpired(invitation)) {
+            return new ServiceResponse(false, "Beklager, men invitasjonen har utløpt. Den var bare gyldig i " + FAMILY_INVITAION_EXPIRY_DAYS + " dager.");
+        }
+        Principal principal = invitation.getPrincipal();
+        Family family = invitation.getFamily();
+        principal.setFamily(family);
+        family.getMembers().add(principal);
+        storage.begin();
+        try {
+            storage.persist(principal);
+            storage.delete(invitation);
+            storage.commit();
+            return new ServiceResponse(true, "Du har akseptert invitasjonen og er nå medlem av familien til " + family.getPrimaryPrincipal().getName() + ".");
+        } catch(RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Invitasjonen kunne ikke behandles på nåværende tidspunkt.");
         }
     }
 

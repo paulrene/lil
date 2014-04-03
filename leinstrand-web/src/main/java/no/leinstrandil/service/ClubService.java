@@ -179,10 +179,10 @@ public class ClubService {
         }
         for (int n=0;n<elements.size();n++) {
             message.append(elements.get(n));
-            if ((n+1)<elements.size()) {
-                message.append(", ");
-            } else {
+            if ((n+1) < elements.size() && (n+2) == elements.size()) {
                 message.append(" og ");
+            } else if ((n+1) < elements.size()) {
+                message.append(", ");
             }
         }
     }

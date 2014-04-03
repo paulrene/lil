@@ -109,39 +109,70 @@ public class MyPageController implements Controller {
     }
 
     private void makePrimaryContact(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        Principal principal = getPrincipalFromUsersFamilyByIdStr(user, request.queryParams("principalid"));
+        if (principal == null) {
+            errorMap.put("save", "Personen er ukjent.");
+            return;
+        }
+        ServiceResponse response = userService.setPrimaryPrincipal(principal, user.getPrincipal().getFamily());
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("save", response.getMessage());
+        }
     }
 
     private void inviteFamilyMember(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String email = request.queryParams("email");
+        Principal principal = userService.getPrincipalByEmail(email.trim());
+        if (principal == null) {
+            errorMap.put("email", "Vi har ingen brukere som er registrert med den e-postadressen.");
+            return;
+        }
+        ServiceResponse response = userService.inviteFamilyMember(principal, user.getPrincipal().getFamily());
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("save", response.getMessage());
+        }
     }
 
     private void deletePrincipal(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
-        String principalIdStr = request.queryParams("principalid");
-        if (principalIdStr == null) {
+        Principal principal = getPrincipalFromUsersFamilyByIdStr(user, request.queryParams("principalid"));
+        if (principal == null) {
+            errorMap.put("save", "Personen er ukjent.");
             return;
+        }
+        if (clubService.isDeletable(principal)) {
+            ServiceResponse response = userService.destroyPrincipal(principal);
+            if (response.isSuccess()) {
+                infoList.add(response.getMessage());
+            } else {
+                errorMap.put("save", response.getMessage());
+            }
+        } else {
+            errorMap.put("save", "Personen kan ikke slettes på nåværende tidspunkt.");
+        }
+    }
+
+    private Principal getPrincipalFromUsersFamilyByIdStr(User user, String principalIdStr) {
+        if (principalIdStr == null) {
+            return null;
         }
         Long principalId = null;
         try {
             principalId = Long.parseLong(principalIdStr);
         } catch(NumberFormatException e) {
-            return;
+            return null;
         }
         Family family = user.getPrincipal().getFamily();
         List<Principal> list = family.getMembers();
         for (Principal principal : list) {
             if (principal.getId() == principalId) {
-                if (clubService.isDeletable(principal)) {
-                    ServiceResponse response = userService.destroyPrincipal(principal);
-                    if (response.isSuccess()) {
-                        infoList.add(response.getMessage());
-                    } else {
-                        errorMap.put("save", response.getMessage());
-                    }
-                } else {
-                    errorMap.put("save", "Personen kan ikke slettes på nåværende tidspunkt.");
-                }
-                break;
+                return principal;
             }
         }
+        return null;
     }
 
     private void updateClubMembership(User user, Request request, Map<String, String> errorMap, List<String> infoList,
