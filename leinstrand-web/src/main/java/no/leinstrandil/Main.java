@@ -191,6 +191,13 @@ public class Main {
                 context.put("redactorAirIdList", new ArrayList<String>());
                 context.put("lilNewsList", facebookService.getFacebookNews(lilPage, 5));
                 context.put("thisPage", page);
+
+                context.put("usedUrlName", urlName);
+                if (request.queryParams("tab") != null) {
+                    context.put("usedTab", request.queryParams("tab"));
+                }
+
+
                 String errorsJson = request.queryParams("errors");
                 if (errorsJson != null) {
                     context.put("errors", decodeMap(errorsJson));
@@ -412,7 +419,12 @@ public class Main {
                 facebook.setOAuthAppId(config.getAppId(), config.getAppSecret());
                 facebook.setOAuthPermissions("basic_info,email,user_birthday");
                 request.session().attribute("facebook", facebook);
-                response.redirect(facebook.getOAuthAuthorizationURL(config.getBaseUrl() + "callback"));
+                String to = request.queryParams("to");
+                if (to == null) {
+                    response.redirect(facebook.getOAuthAuthorizationURL(config.getBaseUrl() + "callback"));
+                } else {
+                    response.redirect(facebook.getOAuthAuthorizationURL(config.getBaseUrl() + "callback", to));
+                }
                 log.info("Logging in user. Redirecting to Facebook.");
                 return new String();
             }
@@ -424,6 +436,7 @@ public class Main {
                 log.info("Callback from Facebook. Attempting to get access token.");
                 Facebook facebook = (Facebook) request.session().attribute("facebook");
                 String oAuthCode = request.queryParams("code");
+                String to = request.queryParams("state");
                 try {
                     facebook.getOAuthAccessToken(oAuthCode);
                     User user = userService.ensureFacebookUser(facebook);
@@ -433,7 +446,11 @@ public class Main {
                     log.info("Failed while attempting to retrieve access token or user from Facebook: " + e.getMessage());
                     halt(503, e.getErrorMessage());
                 }
-                response.redirect(config.getBaseUrl());
+                if (to == null) {
+                    response.redirect(config.getBaseUrl());
+                } else {
+                    response.redirect(config.getBaseUrl() + to);
+                }
                 return new String();
             }
         });

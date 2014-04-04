@@ -15,19 +15,19 @@
 <!--=== End Breadcrumbs ===-->
 
 <!--=== Content Part ===-->
-<div class="container">     
+<div class="container">
     <!--Error Block-->
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="error-v1">
                 <span class="error-v1-title">401</span>
-                <span>Ingen tilgang!</span>
-                <p>Du må logge inn for å se denne siden.</p>
+                <span>Ingen tilgang, men..</span>
+                <p>fortvil ikke, <i class="icon-link"></i> <a href="/fbsignin?to=/page/$usedUrlName#if($usedTab)?tab=$usedTab#end"><u>klikk her for å logge inn</u></a>.</p>
             </div>
         </div>
     </div>
     <!--End Error Block-->
-</div>  
+</div>
 <!--=== End Content Part ===-->
 
 #parse("fragments/footer.vm")
