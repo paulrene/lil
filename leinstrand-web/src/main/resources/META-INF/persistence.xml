@@ -13,13 +13,20 @@
     <class>no.leinstrandil.database.model.web.Resource</class>
     <class>no.leinstrandil.database.model.web.FacebookPage</class>
     <class>no.leinstrandil.database.model.web.FacebookPost</class>
+    <class>no.leinstrandil.database.model.web.FacebookEvent</class>
     <class>no.leinstrandil.database.model.person.Address</class>
     <class>no.leinstrandil.database.model.person.EmailAddress</class>
     <class>no.leinstrandil.database.model.person.MobileNumber</class>
     <class>no.leinstrandil.database.model.person.Principal</class>
+    <class>no.leinstrandil.database.model.person.Family</class>
+    <class>no.leinstrandil.database.model.person.FamilyInvitation</class>
     <class>no.leinstrandil.database.model.club.Sport</class>
     <class>no.leinstrandil.database.model.club.Team</class>
     <class>no.leinstrandil.database.model.club.Event</class>
+    <class>no.leinstrandil.database.model.club.EventParticipation</class>
+    <class>no.leinstrandil.database.model.club.ClubMembership</class>
+    <class>no.leinstrandil.database.model.club.TeamMembership</class>
+
 
     <!-- <shared-cache-mode>NONE</shared-cache-mode> -->
 
