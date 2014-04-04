@@ -5,8 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.club.ClubMembership;
+import no.leinstrandil.database.model.club.Sport;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Family;
@@ -184,6 +187,64 @@ public class ClubService {
             } else if ((n+1) < elements.size()) {
                 message.append(", ");
             }
+        }
+    }
+
+    public List<Sport> getSports() {
+        TypedQuery<Sport> query = storage.createQuery("from Sport order by name", Sport.class);
+        return query.getResultList();
+    }
+
+    public TeamMembership getTeamMembershipById(Long id) {
+        try {
+            return storage.createSingleQuery("from TeamMembership where id = " + id, TeamMembership.class);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Team getTeamById(Long id) {
+        try {
+            return storage.createSingleQuery("from Team where id = " + id, Team.class);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public ServiceResponse deleteTeamMembership(TeamMembership teamMembership) {
+        TeamMembership membership = new TeamMembership();
+        membership.setCreated(new Date());
+        membership.setEnrolled(false);
+        membership.setPrincipal(teamMembership.getPrincipal());
+        membership.setTeam(teamMembership.getTeam());
+        storage.begin();
+        try {
+            storage.persist(membership);
+            storage.commit();
+            return new ServiceResponse(true, "Du er nå meldt av denne aktiviteten.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Påmeldingen kunne ikke endres på nåværende tidspunkt.");
+        }
+    }
+
+    public ServiceResponse createTeamMembership(Principal principal, Team team) {
+        if (team == null || principal == null) {
+            return new ServiceResponse(false, "Påmelding krever en gyldig person og en gyldig aktivitet.");
+        }
+        TeamMembership membership = new TeamMembership();
+        membership.setCreated(new Date());
+        membership.setEnrolled(true);
+        membership.setPrincipal(principal);
+        membership.setTeam(team);
+        storage.begin();
+        try {
+            storage.persist(membership);
+            storage.commit();
+            return new ServiceResponse(true, "Du er nå påmeldt denne aktiviteten.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
         }
     }
 }

@@ -65,8 +65,8 @@
             <thead>
                 <tr>
                     <th>Navn</th>
-                    <th>Aktivitet / Lag</th>
                     <th>Avdeling</th>
+                    <th>Aktivitet / Lag</th>
                     <th>Påmeldt</th>
                 </tr>
             </thead>
@@ -77,9 +77,15 @@
         #if($tm.isEnrolled())
                 <tr>
                     <td>$p.getName()</td>
-                    <td>$tm.getTeam().getName()</td>
                     <td>$tm.getTeam().getSport().getName()</td>
-                    <td>$pageService.formatDate($tm.getCreated())</td>
+                    <td>
+                        #if($tm.getTeam().getPage())
+                        <a href="/page/$tm.getTeam().getPage().getUrlName()"><i class="icon-link"></i> $tm.getTeam().getName()</a>
+                        #else
+                        $tm.getTeam().getName()
+                        #end
+                    </td>
+                    <td>#if($tm.getTeam().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($tm.getCreated())</td>
                 </tr>
         #end
     #end

@@ -1,14 +1,13 @@
 package no.leinstrandil.database.model.club;
 
 import java.util.List;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.web.Page;
 
@@ -20,6 +19,8 @@ public class Team {
     private Long id;
     private String name;
     private String description;
+    private Boolean closed;
+    private Boolean locked;
     @ManyToOne @JoinColumn(name = "pageId")
     private Page page;
     @ManyToOne @JoinColumn(name = "sportId")
@@ -32,6 +33,22 @@ public class Team {
 
     public Long getId() {
         return id;
+    }
+
+    public Boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(Boolean closed) {
+        this.closed = closed;
+    }
+
+    public Boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 
     public Sport getSport() {

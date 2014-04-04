@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.club.ClubMembership;
+import no.leinstrandil.database.model.club.Team;
+import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Address;
 import no.leinstrandil.database.model.person.EmailAddress;
 import no.leinstrandil.database.model.person.Family;
@@ -73,6 +75,11 @@ public class MyPageController implements Controller {
             context.put("family", family);
             ClubMembership membership = clubService.ensureClubMembership(user, false);
             context.put("membership", membership);
+        } else if (tab.equals("aktiviteter")) {
+            Family family = userService.ensureFamilyForUser(user);
+            context.put("family", family);
+            ClubMembership membership = clubService.ensureClubMembership(user, false);
+            context.put("membership", membership);
         }
 
     }
@@ -103,9 +110,84 @@ public class MyPageController implements Controller {
             deletePrincipal(user, request, errorMap, infoList);
         } else if ("make-primary-contact".equals(action)) {
             makePrimaryContact(user, request, errorMap, infoList);
+        } else if ("remove-principal-from-team".equals(action)) {
+            removePrincipalFromTeam(user, request, errorMap, infoList);
+        } else if ("add-principal-to-team".equals(action)) {
+            addPrincipalToTeam(user, request, errorMap, infoList);
         }
 
         return null;
+    }
+
+    private void addPrincipalToTeam(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String principalIdStr = request.queryParams("principalid");
+        String teamIdStr = request.queryParams("teamid");
+        if (principalIdStr == null || teamIdStr == null) {
+            errorMap.put("add", "Mangler identifikatorer.");
+        }
+        Long principalId = null;
+        Long teamId = null;
+        try {
+            principalId = Long.parseLong(principalIdStr);
+            teamId = Long.parseLong(teamIdStr);
+        } catch(NumberFormatException e) {
+            errorMap.put("remove", "Identifikatorene er ikke gyldig.");
+            return;
+        }
+        Principal principal = userService.getPrincipalById(principalId);
+        Team team = clubService.getTeamById(teamId);
+        if (!userService.isFamilyMember(user.getPrincipal().getFamily(), principal)) {
+            errorMap.put("add", "Du kan ikke melde på noen som ikke er i din familie.");
+            return;
+        }
+        if (team.isClosed()) {
+            errorMap.put("add", "Påmeldingen kan ikke opprettes fordi den er lukket av administrator.");
+            return;
+        }
+        ServiceResponse response = clubService.createTeamMembership(principal, team);
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("add", response.getMessage());
+        }
+    }
+
+    private void removePrincipalFromTeam(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String teamMembershipIdStr = request.queryParams("teammembershipid");
+        if (teamMembershipIdStr == null) {
+            errorMap.put("remove", "Ingen påmeldingsidentifikator oppgitt");
+            return;
+        }
+        Long teamMembershipId = null;
+        try {
+            teamMembershipId = Long.parseLong(teamMembershipIdStr);
+        } catch(NumberFormatException e) {
+            errorMap.put("remove", "Påmeldingsindikatoren er ikke gyldig.");
+            return;
+        }
+        TeamMembership teamMembership = clubService.getTeamMembershipById(teamMembershipId);
+        if (teamMembership == null) {
+            errorMap.put("remove", "Ingen påmelding funnet.");
+            return;
+        }
+        if (!userService.isOfAge(user.getPrincipal())) {
+            errorMap.put("remove", "Du har ikke rettigheter til å slette denne påmeldingen.");
+            return;
+        }
+        if (!userService.isFamilyMember(user.getPrincipal().getFamily(), teamMembership.getPrincipal())) {
+            errorMap.put("remove", "Du kan ikke slette påmeldingen til noen som ikke er i din familie.");
+            return;
+        }
+        if (teamMembership.getTeam().isLocked()) {
+            errorMap.put("remove", "Du kan ikke slette denne påmeldingen fordi den er låst av administrator.");
+            return;
+        }
+        ServiceResponse response = clubService.deleteTeamMembership(teamMembership);
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("remove", response.getMessage());
+        }
     }
 
     private void makePrimaryContact(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

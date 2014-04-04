@@ -690,4 +690,12 @@ public class UserService {
         }
     }
 
+    public Principal getPrincipalById(Long id) {
+        try {
+            return storage.createSingleQuery("from Principal where id = " + id, Principal.class);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
 }

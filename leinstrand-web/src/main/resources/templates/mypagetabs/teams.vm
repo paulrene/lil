@@ -1,0 +1,105 @@
+#if($membership.isEnrolled())
+
+    <div class="heading">
+        <h2>Påmelding til lag og aktiviteter</h2>
+    </div>
+
+    <form class="form-inline" role="form" method="post" action="/page/$thisPage.getUrlName()?tab=aktiviteter">
+        <input type="hidden" name="action" value="add-principal-to-team">
+        <div class="form-group">
+            <select class="form-control" name="principalid" required>
+                <option>-- Velg person --</option>
+    #foreach($p in $family.getMembers())
+                <option value="$p.getId()">$p.getName() (${userService.getAge($p)} år)</option>
+    #end
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="teamid" required>
+                <option>-- Velg lag eller aktivitet --</option>
+    #set($sportList = $clubService.getSports())
+    #foreach($sport in $sportList)
+                <optgroup label="$sport.getName()">
+        #set($teamList = $sport.getTeams())
+        #foreach($team in $teamList)
+            #if($team.isClosed())
+                    <option value="$team.getId()" disabled>$team.getName() (Ikke åpen for påmelding)</option>
+            #else
+                    <option value="$team.getId()">$team.getName() -- $team.getDescription()</option>
+            #end
+        #end
+                </optgroup>
+    #end
+            </select>
+        </div>
+        <button type="submit" class="btn btn-mini btn-primary">Meld på!</button>
+    </form>
+
+    #fielderror( "add" )
+
+    <div class="panel panel-green margin-bottom-20" style="margin-top:20px;">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="icon-trophy"></i> Påmeldte aktiviteter og lag</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Avdeling</th>
+                        <th>Aktivitet / Lag</th>
+                        <th>Påmeldt</th>
+                        <th>Endre</th>
+                    </tr>
+                </thead>
+                <tbody>
+    #if($clubService.getActiveTeamMembershipCountForFamily($family) > 0)
+        #foreach($p in $family.getMembers())
+            #set($status = $clubService.getTeamMembershipStatusForPrincipal($p))
+            #foreach($tm in $status.values())
+                #if($tm.isEnrolled())
+                    <tr>
+                        <td>$p.getName()</td>
+                        <td>$tm.getTeam().getSport().getName()</td>
+                        <td>
+                            #if($tm.getTeam().getPage())
+                            <a href="/page/$tm.getTeam().getPage().getUrlName()"><i class="icon-link"></i> $tm.getTeam().getName()</a>
+                            #else
+                            $tm.getTeam().getName()
+                            #end
+                        </td>
+                        <td>#if($tm.getTeam().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($tm.getCreated())</td>
+                        <td>
+                    #if($userService.isOfAge($user.getPrincipal()) && !$tm.getTeam().isLocked())
+                            <form class="form-inline" method="post" action="/page/$thisPage.getUrlName()?tab=aktiviteter">
+                                <input type="hidden" name="action" value="remove-principal-from-team">
+                                <input type="hidden" name="teammembershipid" value="$tm.getId()">
+                                <button class="btn btn-danger btn-xs" title="Slett påmelding"><i class="icon-remove"></i></button>
+                            </form>
+                    #end
+                        </td>
+                    </tr>
+                #end
+            #end
+        #end
+    #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    #if($info)
+    <div class="alert alert-info">
+        <i class="icon-trash"></i> $info.opt(0)
+    </div>
+    #end
+    #fielderror( "remove" )
+
+#else
+
+<div class="alert alert-danger fade in">
+    <strong>Mangler medlemskap!</strong> Du må være medlem av idrettslaget for å kunne melde på deg selv eller noen
+     i din familie på lag og aktiviteter. Gå til medlemskap i menyen til venstre og meld deg inn i dag!
+</div>
+
+#end

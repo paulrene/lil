@@ -6,8 +6,11 @@
 <!--=== Content Part ===-->
 <div class="container">
     <div class="row magazine-page">
+
         <!-- Begin Content -->
         <div class="col-md-9">
+
+            <div class="headline"><h2>$thisPage.getTitle()</h2></div>
 
             <!--Magazine News-->
             <div class="magazine-news">
@@ -64,6 +67,8 @@
 
         <!-- Begin Sidebar -->
         <div class="col-md-3">
+
+            <div class="margin-bottom-40"></div>
 
 #set($subMenues = $menuService.getSubMenues($thisPage))
     #if($subMenues.size() > 1)

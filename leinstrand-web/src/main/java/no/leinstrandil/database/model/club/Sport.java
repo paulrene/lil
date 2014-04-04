@@ -1,7 +1,9 @@
 package no.leinstrandil.database.model.club;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.OrderBy;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,14 +18,14 @@ public class Sport {
     private Long id;
     private String name;
     private String description;
-    @OneToMany(mappedBy = "sport")
-    private Set<Team> teams;
-    @OneToMany(mappedBy = "sport")
-    private Set<Event> events;
+    @OneToMany(mappedBy = "sport") @OrderBy("name")
+    private List<Team> teams;
+    @OneToMany(mappedBy = "sport") @OrderBy("name")
+    private List<Event> events;
 
     public Sport() {
-        teams = new HashSet<>();
-        events = new HashSet<>();
+        teams = new ArrayList<>();
+        events = new ArrayList<>();
     }
 
     public Long getId() {
@@ -38,14 +40,6 @@ public class Sport {
         this.name = name;
     }
 
-    public Set<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(Set<Event> events) {
-        this.events = events;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -54,11 +48,19 @@ public class Sport {
         this.description = description;
     }
 
-    public Set<Team> getTeams() {
+    public List<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events = events;
+    }
+
+    public List<Team> getTeams() {
         return teams;
     }
 
-    public void setTeams(Set<Team> teams) {
+    public void setTeams(List<Team> teams) {
         this.teams = teams;
     }
 

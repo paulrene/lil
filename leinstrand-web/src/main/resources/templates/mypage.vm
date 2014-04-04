@@ -54,7 +54,7 @@
 #elseif($tab=="arrangement")
     #parse("templates/mypagetabs/events.vm")
 #elseif($tab=="aktiviteter")
-    #parse("templates/mypagetabs/activity.vm")
+    #parse("templates/mypagetabs/teams.vm")
 #end
 
                 </div>
