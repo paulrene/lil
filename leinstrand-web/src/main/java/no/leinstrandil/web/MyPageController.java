@@ -131,7 +131,7 @@ public class MyPageController implements Controller {
             principalId = Long.parseLong(principalIdStr);
             teamId = Long.parseLong(teamIdStr);
         } catch(NumberFormatException e) {
-            errorMap.put("remove", "Identifikatorene er ikke gyldig.");
+            errorMap.put("remove", "Tøysekopp, du må velge en person og en aktivitet i listen ovenfor for å registrere en påmelding.");
             return;
         }
         Principal principal = userService.getPrincipalById(principalId);
@@ -141,7 +141,7 @@ public class MyPageController implements Controller {
             return;
         }
         if (team.isClosed()) {
-            errorMap.put("add", "Påmeldingen kan ikke opprettes fordi den er lukket av administrator.");
+            errorMap.put("add", "Påmeldingen kan ikke opprettes fordi aktiviteten er lukket av administrator.");
             return;
         }
         ServiceResponse response = clubService.createTeamMembership(principal, team);

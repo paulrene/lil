@@ -89,9 +89,29 @@ public class PageService {
         return new SimpleDateFormat("d. MMMM, yyyy").format(date);
     }
 
+    public String formatDateTime(Date date) {
+        return new SimpleDateFormat("dd.MM.yyyy, HH:mm:ss").format(date);
+    }
+
+    public String formatYear(Date date) {
+        return new SimpleDateFormat("yyyy").format(date);
+    }
+
     public String prettyTimeForInvitationExpiry(Date created) {
         Date expiryDate = new DateTime(created).plusDays(UserService.FAMILY_INVITAION_EXPIRY_DAYS).toDate();
         return new PrettyTime(new Date(), Locale.forLanguageTag("no")).format(expiryDate);
+    }
+
+    public String prettyTime(Date reference, Date then) {
+        String str = new PrettyTime(reference, Locale.forLanguageTag("no")).format(then);
+        if (str.endsWith(" siden")) {
+            return str.substring(0, str.length() - " siden".length());
+        }
+        return str;
+    }
+
+    public String prettyTime(Date then) {
+        return new PrettyTime(new Date(), Locale.forLanguageTag("no")).format(then);
     }
 
     public String getAuthors(Page page) {

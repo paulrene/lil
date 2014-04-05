@@ -58,7 +58,7 @@
 #if($clubService.getActiveTeamMembershipCountForFamily($family) > 0)
 <div class="panel panel-orange margin-bottom-20" style="margin-top:20px;">
     <div class="panel-heading">
-        <h3 class="panel-title"><i class="icon-trophy"></i> Påmeldte aktiviteter</h3>
+        <h3 class="panel-title"><i class="icon-trophy"></i> Påmeldte aktiviteter og lag</h3>
     </div>
     <div class="panel-body">
         <table class="table table-striped">

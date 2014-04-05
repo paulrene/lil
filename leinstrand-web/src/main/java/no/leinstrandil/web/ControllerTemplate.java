@@ -7,7 +7,8 @@ public enum ControllerTemplate {
     FACEBOOK("facebook"),
     SEARCHRESULTS("searchresults"),
     MYPAGE("mypage"),
-    SIGNIN("signin");
+    SIGNIN("signin"),
+    TEAMLEAD("teamlead");
 
     private String id;
 

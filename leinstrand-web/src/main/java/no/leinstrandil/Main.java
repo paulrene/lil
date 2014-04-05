@@ -1,5 +1,7 @@
 package no.leinstrandil;
 
+import no.leinstrandil.web.TeamLeadController;
+
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -118,6 +120,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService, clubService));
+        controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(userService, clubService));
         controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
 
         Spark.staticFileLocation("/static");

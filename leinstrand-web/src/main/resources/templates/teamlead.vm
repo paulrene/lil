@@ -1,0 +1,41 @@
+#parse("fragments/head.vm")
+#parse("fragments/top.vm")
+#parse("fragments/nav.vm")
+
+<div class="container">
+    <div class="row tab-v3">
+
+        <div class="headline">
+            <h2>Lagleder $user.getPrincipal().getName()</h2>
+        </div>
+
+        <!--Begin Sidebar Menu-->
+        <div class="col-md-3">
+            <ul class="list-group sidebar-nav-v1">
+                <li class="list-group-item#if($tab=="lagliste") active#end"><a href="/page/$thisPage.getUrlName()?tab=lagliste"><i class="icon-group"></i> Laglister</a></li>
+                <li class="list-group-item#if($tab=="melding") active#end"><a href="/page/$thisPage.getUrlName()?tab=melding"><i class="icon-envelope"></i> Send melding</a></li>
+                <li class="list-group-item#if($tab=="sok") active#end"><a href="/page/$thisPage.getUrlName()?tab=sok"><i class="icon-search"></i> Søk etter person</a></li>
+            </ul>
+        </div>
+        <!--End Sidebar Menu-->
+
+        <!--Begin Content-->
+        <div class="col-md-9">
+            <div class="row">
+
+#if($tab=="lagliste")
+    #parse("templates/teamleadtabs/lists.vm")
+#elseif($tab=="medling")
+    #parse("templates/teamleadtabs/message.vm")
+#elseif($tab=="sok")
+    #parse("templates/teamleadtabs/search.vm")
+#end
+
+            </div>
+        </div>
+        <!--End Content-->
+
+    </div>
+</div>
+
+#parse("fragments/footer.vm")

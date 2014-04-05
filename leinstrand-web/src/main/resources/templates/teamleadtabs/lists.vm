@@ -1,0 +1,109 @@
+
+    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()?tab=lagliste">
+        <input type="hidden" name="action" value="list-team-members">
+        <input type="hidden" name="tab" value="lagliste">
+        <div class="form-group">
+            <select class="form-control" name="teamid" required>
+                <option value="">-- Velg lag eller aktivitet --</option>
+    #set($sportList = $clubService.getSports())
+    #foreach($sport in $sportList)
+                <optgroup label="$sport.getName()">
+        #set($teamList = $sport.getTeams())
+        #foreach($team in $teamList)
+            #if($team.isClosed())
+                    <option#if($selectedTeam.getId()==$team.getId()) selected#end value="$team.getId()" disabled>$team.getName() (Ikke åpen for påmelding)</option>
+            #else
+                    <option#if($selectedTeam.getId()==$team.getId()) selected#end value="$team.getId()">$team.getName()#if($team.getDescription()) -- $team.getDescription()#end</option>
+            #end
+        #end
+                </optgroup>
+    #end
+            </select>
+        </div>
+        <button type="submit" class="btn btn-mini btn-primary">Vis lagliste</button>
+    </form>
+
+#if($error)
+    <div class="margin-bottom-20"></div>
+    <div class="alert alert-danger fade in">
+        $error
+    </div>
+#end
+
+#if($selectedTeam)
+    #set($members = $clubService.sortSetOfPrincipalsByLastName($selectedTeamMembershipMap.keySet()))
+
+    <div class="margin-bottom-40"></div>
+    <div class="panel panel-green margin-bottom-20">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="icon-group"></i> $selectedTeam.getSport().getName() -- $selectedTeam.getName()</h3>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Navn</th>
+                    <th>Alder</th>
+                    <th>Fødselsår</th>
+                    <th>Påmeldt</th>
+                    <th>Varighet</th>
+                </tr>
+            </thead>
+            <tbody>
+    #foreach($member in $members)
+        #set($membership = $selectedTeamMembershipMap.get($member))
+        #if($membership.isEnrolled())
+                <tr>
+                    <td><i class="icon-$member.getGender()"></i></td>
+                    <td>$member.getName()</td>
+                    <td>$userService.getAge($member)</td>
+                    <td>$pageService.formatYear($member.getBirthDate())</td>
+                    <td>$pageService.formatDateTime($membership.getCreated())</td>
+                    <td>$pageService.prettyTime($membership.getCreated())</td>
+                </tr>
+        #end
+    #end
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="margin-bottom-40"></div>
+    <div class="panel panel-orange margin-bottom-20">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="icon-trash"></i> $selectedTeam.getSport().getName() -- $selectedTeam.getName() (Tidligere påmeldte)</h3>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Navn</th>
+                    <th>Alder</th>
+                    <th>Fødselsår</th>
+                    <th>Påmeldt</th>
+                    <th>Utmeldt</th>
+                    <th>Varighet</th>
+                </tr>
+            </thead>
+            <tbody>
+    #foreach($member in $members)
+        #set($membership = $selectedTeamMembershipMap.get($member))
+        #if(!$membership.isEnrolled())
+            #set($enrollment = $clubService.getLastEnrollmentToTeamForPrincipal($membership.getTeam(), $membership.getPrincipal()))
+                <tr>
+                    <td><i class="icon-$member.getGender()"></i></td>
+                    <td>$member.getName()</td>
+                    <td>$userService.getAge($member)</td>
+                    <td>$pageService.formatYear($member.getBirthDate())</td>
+                    <td>$pageService.formatDateTime($enrollment.getCreated())</td>
+                    <td>$pageService.formatDateTime($membership.getCreated())</td>
+                    <td>$pageService.prettyTime($membership.getCreated(), $enrollment.getCreated())</td>
+                </tr>
+        #end
+    #end
+            </tbody>
+        </table>
+    </div>
+
+#end
+

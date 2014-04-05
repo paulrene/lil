@@ -25,7 +25,7 @@
             #if($team.isClosed())
                     <option value="$team.getId()" disabled>$team.getName() (Ikke åpen for påmelding)</option>
             #else
-                    <option value="$team.getId()">$team.getName() -- $team.getDescription()</option>
+                    <option value="$team.getId()">$team.getName()#if($team.getDescription()) -- $team.getDescription()#end</option>
             #end
         #end
                 </optgroup>
@@ -98,7 +98,7 @@
 #else
 
 <div class="alert alert-danger fade in">
-    <strong>Mangler medlemskap!</strong> Du må være medlem av idrettslaget for å kunne melde på deg selv eller noen
+    <strong>Mangler medlemskap!</strong> Du må være medlem av idrettslaget for å melde deg selv eller noen
      i din familie på lag og aktiviteter. Gå til medlemskap i menyen til venstre og meld deg inn i dag!
 </div>
 

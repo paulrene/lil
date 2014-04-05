@@ -2,12 +2,10 @@
 #parse("fragments/top.vm")
 #parse("fragments/nav.vm")
 
-
-
-
 <!--=== Content Part ===-->
 <div class="container">
     <div class="row tab-v3">
+
         <!--Begin Sidebar Menu-->
         <div class="col-md-3">
             <div class="headline">
@@ -65,10 +63,6 @@
     </div>
 </div><!--/container-->
 <!--=== End Content Part ===-->
-
-
-
-
 
 
 #parse("fragments/footer.vm")

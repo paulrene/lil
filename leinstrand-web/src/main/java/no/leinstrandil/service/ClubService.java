@@ -1,10 +1,13 @@
 package no.leinstrandil.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
@@ -246,5 +249,44 @@ public class ClubService {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
         }
+    }
+
+    public Map<Principal, TeamMembership> getTeamMembershipsForTeam(Team team) {
+        // Assume the list is in descending order (newest first)
+        List<TeamMembership> teamMemberships = team.getTeamMemberships();
+        Map<Principal, TeamMembership> map = new HashMap<>();
+        for (TeamMembership teamMembership : teamMemberships) {
+            if(!map.containsKey(teamMembership.getPrincipal())) {
+                map.put(teamMembership.getPrincipal(), teamMembership);
+            }
+        }
+        return map;
+    }
+
+    public List<Principal> sortSetOfPrincipalsByLastName(Set<Principal> principalSet) {
+        List<Principal> list = new ArrayList<>(principalSet);
+        Collections.sort(list, new Comparator<Principal>() {
+            @Override
+            public int compare(Principal o1, Principal o2) {
+                int value = o1.getLastName().compareTo(o2.getLastName());
+                if (value == 0) {
+                    value = o1.getFirstName().compareTo(o2.getFirstName());
+                }
+                return value;
+            }
+        });
+        return list;
+    }
+
+    public TeamMembership getLastEnrollmentToTeamForPrincipal(Team team, Principal principal) {
+        List<TeamMembership> list = team.getTeamMemberships();
+        for (TeamMembership teamMembership : list) {
+            if (teamMembership.getPrincipal().getId().equals(principal.getId())) {
+                if (teamMembership.isEnrolled()) {
+                    return teamMembership;
+                }
+            }
+        }
+        return null;
     }
 }
