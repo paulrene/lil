@@ -2,28 +2,27 @@
 #parse("fragments/top.vm")
 #parse("fragments/nav.vm")
 
+
 <div class="container">
-    <div class="row tab-v3">
+    <div class="row tab-v2">
 
         <div class="headline">
             <h2>Lagleder $user.getPrincipal().getName()</h2>
         </div>
 
-        <!--Begin Sidebar Menu-->
-        <div class="col-md-3">
-            <ul class="list-group sidebar-nav-v1">
-                <li class="list-group-item#if($tab=="lagliste") active#end"><a href="/page/$thisPage.getUrlName()?tab=lagliste"><i class="icon-group"></i> Laglister</a></li>
-                <li class="list-group-item#if($tab=="melding") active#end"><a href="/page/$thisPage.getUrlName()?tab=melding"><i class="icon-envelope"></i> Send melding</a></li>
-                <li class="list-group-item#if($tab=="sok") active#end"><a href="/page/$thisPage.getUrlName()?tab=sok"><i class="icon-search"></i> Søk etter person</a></li>
+
+        <div class="tab-v2">
+            <ul class="nav nav-tabs">
+                <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-info-sign"></i> Oversikt</a></li>
+                <li class="#if($tab=="lagliste")active#end"><a href="/page/$thisPage.getUrlName()?tab=lagliste"><i class="icon-group"></i> Lister</a></li>
+                <li class="#if($tab=="melding")active#end"><a href="/page/$thisPage.getUrlName()?tab=melding"><i class="icon-envelope"></i> Meldinger</a></li>
+                <li class="#if($tab=="sok")active#end"><a href="/page/$thisPage.getUrlName()?tab=sok"><i class="icon-search"></i> Søk</a></li>
             </ul>
-        </div>
-        <!--End Sidebar Menu-->
+            <div class="tab-content">
 
-        <!--Begin Content-->
-        <div class="col-md-9">
-            <div class="row">
-
-#if($tab=="lagliste")
+#if($tab=="oversikt")
+    #parse("templates/teamleadtabs/overview.vm")
+#elseif($tab=="lagliste")
     #parse("templates/teamleadtabs/lists.vm")
 #elseif($tab=="medling")
     #parse("templates/teamleadtabs/message.vm")
@@ -33,9 +32,10 @@
 
             </div>
         </div>
-        <!--End Content-->
 
     </div>
 </div>
+
+
 
 #parse("fragments/footer.vm")

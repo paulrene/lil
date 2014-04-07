@@ -1,0 +1,42 @@
+
+#set($colors = ["green", "blue", "red", "orange", "yellow"])
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Avdeling</th>
+            <th>Lag</th>
+            <th class="hidden-sm">Beskrivelse</th>
+            <th style="text-align:right;">Påmeldte</th>
+            <th style="text-align:right;"></th>
+        </tr>
+    </thead>
+    <tbody>
+#set($count = 0)
+#set($enrolled = 0)
+#set($sportList = $clubService.getSports())
+#foreach($sport in $sportList)
+    #set($teamList = $sport.getTeams())
+    #foreach($team in $teamList)
+        <tr>
+            <td>$sport.getName()</td>
+            <td>$team.getName()</td>
+            <td class="hidden-sm">$team.getDescription()</td>
+        #set($enrolledInTeam = $clubService.getEnrolledCountForTeam($team))
+        #set($enrolled = $enrolled + $enrolledInTeam)
+            <td style="text-align:right;">$enrolledInTeam</td>
+        #set($index = $count % 5)
+            <td style="text-align:right;">
+                <a href="/page/$thisPage.getUrlName()?action=list-team-members&tab=lagliste&teamid=$team.getId()" class="btn-u btn-u-small btn-u-$colors.get($index)">Lagliste</a>
+            </td>
+        </tr>
+        #set($count = $count + 1)
+    #end
+#end
+        <tr>
+            <td colspan="3" style="text-align:right"><strong>Antall påmeldte :</strong></td>
+            <td style="text-align:right;"><strong>$enrolled</strong></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>

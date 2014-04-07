@@ -20,6 +20,15 @@
     #end
             </select>
         </div>
+
+        <label class="checkbox-inline">
+            <input type="checkbox" name="showcontactinfo" value="true"#if($showContactInfo) checked#end> Vis kontaktinfo
+        </label>
+
+        <label class="checkbox-inline">
+            <input type="checkbox" name="showdisenrolled" value="true"#if($showDisenrolled) checked#end> Vis avmeldte
+        </label>
+
         <button type="submit" class="btn btn-mini btn-primary">Vis lagliste</button>
     </form>
 
@@ -31,7 +40,10 @@
 #end
 
 #if($selectedTeam)
+
     #set($members = $clubService.sortSetOfPrincipalsByLastName($selectedTeamMembershipMap.keySet()))
+
+    #if(!$showDisenrolled)
 
     <div class="margin-bottom-40"></div>
     <div class="panel panel-green margin-bottom-20">
@@ -43,10 +55,16 @@
                 <tr>
                     <th></th>
                     <th>Navn</th>
-                    <th>Alder</th>
+                    <th class="hidden-sm">Alder</th>
                     <th>Fødselsår</th>
-                    <th>Påmeldt</th>
-                    <th>Varighet</th>
+#if($showContactInfo)
+                    <th>Telefon</th>
+                    <th>E-post</th>
+#end
+#if(!$showContactInfo)
+                    <th class="hidden-sm">Påmeldt</th>
+                    <th class="hidden-sm">Varighet</th>
+#end
                 </tr>
             </thead>
             <tbody>
@@ -55,11 +73,54 @@
         #if($membership.isEnrolled())
                 <tr>
                     <td><i class="icon-$member.getGender()"></i></td>
-                    <td>$member.getName()</td>
-                    <td>$userService.getAge($member)</td>
+                    <td>
+                        #if(!$userService.isOnlyPrincipal($member))<i class="icon-user"></i> #end
+                        $member.getName()
+                    </td>
+                    <td class="hidden-sm">$userService.getAge($member)</td>
                     <td>$pageService.formatYear($member.getBirthDate())</td>
-                    <td>$pageService.formatDateTime($membership.getCreated())</td>
-                    <td>$pageService.prettyTime($membership.getCreated())</td>
+#if($showContactInfo)
+                    <td>
+                        #if($userService.getAge($member) < 18)
+                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                            #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
+                        #end
+                        #if(!$userService.isOnlyPrincipal($member))
+                            #set($number = $member.getMobileNumberList().get(0).getNumber())
+                        #end
+                        #if($number) 
+                        <i class="icon-mobile-phone"></i> <a href="tel:$number">$number</a>
+                        #end
+                        #if($number && $gNumber)
+                        <br>
+                        #end
+                        #if($gNumber)
+                        <i class="icon-mobile-phone"></i> <a href="tel:$gNumber">$gNumber</a> ($guardian.getName())
+                        #end
+                    </td>
+                    <td>
+                        #if($userService.getAge($member) < 18)
+                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                            #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
+                        #end
+                        #if(!$userService.isOnlyPrincipal($member))
+                            #set($email = $member.getEmailAddressList().get(0).getEmail())
+                        #end
+                        #if($email) 
+                        <i class="icon-envelope"></i> <a href="mailto:$email">$email</a>
+                        #end
+                        #if($email && $gEmail)
+                        <br>
+                        #end
+                        #if($gEmail)
+                        <i class="icon-envelope"></i> <a href="mailto:$gEmail">$gEmail</a> ($guardian.getName())
+                        #end
+                    </td>
+#end
+#if(!$showContactInfo)
+                    <td class="hidden-sm">$pageService.formatDateTime($membership.getCreated())</td>
+                    <td class="hidden-sm">$pageService.prettyTime($membership.getCreated())</td>
+#end
                 </tr>
         #end
     #end
@@ -67,6 +128,7 @@
         </table>
     </div>
 
+    #else
 
     <div class="margin-bottom-40"></div>
     <div class="panel panel-orange margin-bottom-20">
@@ -78,11 +140,17 @@
                 <tr>
                     <th></th>
                     <th>Navn</th>
-                    <th>Alder</th>
-                    <th>Fødselsår</th>
-                    <th>Påmeldt</th>
+                    <th class="hidden-sm">Alder</th>
+                    <th class="hidden-sm">Fødselsår</th>
+#if($showContactInfo)
+                    <th>Telefon</th>
+                    <th>E-post</th>
+#end
+#if(!$showContactInfo)
+                    <th class="hidden-sm">Påmeldt</th>
                     <th>Utmeldt</th>
-                    <th>Varighet</th>
+                    <th class="hidden-sm">Varighet</th>
+#end
                 </tr>
             </thead>
             <tbody>
@@ -90,20 +158,64 @@
         #set($membership = $selectedTeamMembershipMap.get($member))
         #if(!$membership.isEnrolled())
             #set($enrollment = $clubService.getLastEnrollmentToTeamForPrincipal($membership.getTeam(), $membership.getPrincipal()))
+            #set($gNumber = false)
+            #set($gEmail = false)
                 <tr>
                     <td><i class="icon-$member.getGender()"></i></td>
                     <td>$member.getName()</td>
-                    <td>$userService.getAge($member)</td>
-                    <td>$pageService.formatYear($member.getBirthDate())</td>
-                    <td>$pageService.formatDateTime($enrollment.getCreated())</td>
+                    <td class="hidden-sm">$userService.getAge($member)</td>
+                    <td class="hidden-sm">$pageService.formatYear($member.getBirthDate())</td>
+#if($showContactInfo)
+                    <td>
+                        #if($userService.getAge($member) < 18)
+                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                            #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
+                        #end
+                        #if(!$userService.isOnlyPrincipal($member))
+                            #set($number = $member.getMobileNumberList().get(0).getNumber())
+                        #end
+                        #if($number) 
+                        <i class="icon-mobile-phone"></i> <a href="tel:$number">$number</a>
+                        #end
+                        #if($number && $gNumber)
+                        <br>
+                        #end
+                        #if($gNumber)
+                        <i class="icon-mobile-phone"></i> <a href="tel:$gNumber">$gNumber</a> ($guardian.getName())
+                        #end
+                    </td>
+                    <td>
+                        #if($userService.getAge($member) < 18)
+                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                            #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
+                        #end
+                        #if(!$userService.isOnlyPrincipal($member))
+                            #set($email = $member.getEmailAddressList().get(0).getEmail())
+                        #end
+                        #if($email) 
+                        <i class="icon-envelope"></i> <a href="mailto:$email">$email</a>
+                        #end
+                        #if($email && $gEmail)
+                        <br>
+                        #end
+                        #if($gEmail)
+                        <i class="icon-envelope"></i> <a href="mailto:$gEmail">$gEmail</a> ($guardian.getName())
+                        #end
+                    </td>
+#end
+#if(!$showContactInfo)
+                    <td class="hidden-sm">$pageService.formatDateTime($enrollment.getCreated())</td>
                     <td>$pageService.formatDateTime($membership.getCreated())</td>
-                    <td>$pageService.prettyTime($membership.getCreated(), $enrollment.getCreated())</td>
+                    <td class="hidden-sm">$pageService.prettyTime($membership.getCreated(), $enrollment.getCreated())</td>
+#end
                 </tr>
         #end
     #end
             </tbody>
         </table>
     </div>
+
+    #end
 
 #end
 

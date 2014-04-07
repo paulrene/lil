@@ -263,6 +263,17 @@ public class ClubService {
         return map;
     }
 
+    public int getEnrolledCountForTeam(Team team) {
+        int count = 0;
+        Map<Principal, TeamMembership> status = getTeamMembershipsForTeam(team);
+        for (TeamMembership membership : status.values()) {
+            if (membership.isEnrolled()) {
+                count ++;
+            }
+        }
+        return count;
+    }
+
     public List<Principal> sortSetOfPrincipalsByLastName(Set<Principal> principalSet) {
         List<Principal> list = new ArrayList<>(principalSet);
         Collections.sort(list, new Comparator<Principal>() {

@@ -53,6 +53,11 @@ public class TeamLeadController implements Controller {
         Map<Principal, TeamMembership> selectedTeamMembershipMap = clubService.getTeamMembershipsForTeam(team);
         context.put("selectedTeam", team);
         context.put("selectedTeamMembershipMap", selectedTeamMembershipMap);
+
+        Boolean showContactInfo = Boolean.parseBoolean(request.queryParams("showcontactinfo"));
+        Boolean showDisenrolled = Boolean.parseBoolean(request.queryParams("showdisenrolled"));
+        context.put("showContactInfo", showContactInfo);
+        context.put("showDisenrolled", showDisenrolled);
     }
 
     @Override
