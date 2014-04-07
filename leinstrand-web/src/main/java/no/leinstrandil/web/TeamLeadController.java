@@ -25,7 +25,7 @@ public class TeamLeadController implements Controller {
     public void handleGet(User user, Request request, VelocityContext context) {
         String tab = request.queryParams("tab");
         if (tab == null) {
-            tab = "lagliste";
+            tab = "oversikt";
         }
         context.put("tab", tab);
 
