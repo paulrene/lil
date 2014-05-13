@@ -35,7 +35,7 @@
                     </a></li>
 #else
                     <li><a href="/page/signin"><i class="icon-user"></i> Logg inn</a></li>
-                    <li><a href="/fbsignin"><i class="icon-facebook"></i> Logg inn</a></li>
+                    <li><a href="/fbsignin"><i class="icon-facebook"></i> Logg inn med Facebook</a></li>
 #end
                 </ul>
             </div><!--/top-v1-data-->

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.club.ClubMembership;
@@ -119,7 +120,7 @@ public class ClubService {
                     text.append("til <a href=\"mailto:kontakt@leinstrandil.no\">kontakt@leinstrandil.no</a>.");
                 }
                 text.append("<br><br>Med vennlig hilsen,<br>Leinstrand idrettslag.");
-                mailService.sendNoReplyHtml(
+                mailService.sendNoReplyHtmlMessage(
                         user.getPrincipal().getFamily().getPrimaryPrincipal().getEmailAddressList().get(0).getEmail(),
                         "Velkommen som medlem i Leinstrand idrettslag!", text.toString());
                 log.info("User " + user.getUsername() + " has been enrolled as club member.");
@@ -299,5 +300,11 @@ public class ClubService {
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Principal> queryPrincipal(String query) {
+        Query q = storage.createQuery("from Principal where name like '%" + query + "%' order by lastName, firstName", Principal.class);
+        return q.getResultList();
     }
 }

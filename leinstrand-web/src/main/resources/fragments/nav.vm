@@ -59,6 +59,22 @@
                 </div>
             </div><!-- /navbar-collapse -->
         </div>
-    </div>
+    </div> 
 </div><!--/header-->
 <!--=== End Header ===-->
+#if($user && $missingprofileelements)
+<div class="container">
+    <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <h4>Takk for at du registrerte deg som bruker på leinstrandil.no</h2>
+        <p>For å kunne melde deg selv og andre i din familie på våre treningsaktiviteter må du fullføre din profil ved
+        å gå til <a href="/page/minside" style="text-decoration:underline">Min Side</a> og registrere følgende:</p>
+        <ul>
+    #foreach($element in $missingprofileelements)<li style="color:darkgreen">$element</li>#end
+        </ul>
+    </div>
+</div>
+#end
+
+
+

@@ -74,8 +74,8 @@
                 <tr>
                     <td><i class="icon-$member.getGender()"></i></td>
                     <td>
-                        #if(!$userService.isOnlyPrincipal($member))<i class="icon-user"></i> #end
                         $member.getName()
+                        #if(!$userService.isOnlyPrincipal($member))<i class="icon-user"></i> #end
                     </td>
                     <td class="hidden-sm">$userService.getAge($member)</td>
                     <td>$pageService.formatYear($member.getBirthDate())</td>
@@ -85,7 +85,7 @@
                             #set($guardian = $member.getFamily().getPrimaryPrincipal())
                             #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member))
+                        #if(!$userService.isOnlyPrincipal($member) && !$member.getMobileNumberList().isEmpty())
                             #set($number = $member.getMobileNumberList().get(0).getNumber())
                         #end
                         #if($number) 
@@ -103,7 +103,7 @@
                             #set($guardian = $member.getFamily().getPrimaryPrincipal())
                             #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member))
+                        #if(!$userService.isOnlyPrincipal($member) && !$member.getEmailAddressList().isEmpty())
                             #set($email = $member.getEmailAddressList().get(0).getEmail())
                         #end
                         #if($email) 

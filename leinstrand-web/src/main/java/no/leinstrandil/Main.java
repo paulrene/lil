@@ -1,7 +1,5 @@
 package no.leinstrandil;
 
-import no.leinstrandil.web.TeamLeadController;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -40,6 +38,7 @@ import no.leinstrandil.web.FacebookController;
 import no.leinstrandil.web.MyPageController;
 import no.leinstrandil.web.SearchResultsController;
 import no.leinstrandil.web.SignInController;
+import no.leinstrandil.web.TeamLeadController;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -120,7 +119,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService, clubService));
-        controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(userService, clubService));
+        controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(mailService, userService, clubService));
         controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
 
         Spark.staticFileLocation("/static");
@@ -176,6 +175,15 @@ public class Main {
 
                 if (user != null) {
                     context.put("user", user);
+                    if (user.getCreated() != null) {
+                        Date endCheck = new Date(System.currentTimeMillis() - (1000 * 60 * 60 * 48));
+                        if (user.getCreated().after(endCheck)) {
+                            List<String> elements = userService.checkUserProfileCompleteness(user);
+                            if (!elements.isEmpty()) {
+                                context.put("missingprofileelements", elements);
+                            }
+                        }
+                    }
                 }
 
                 Controller controller = controllers.get(page.getTemplate());
@@ -216,7 +224,11 @@ public class Main {
 
                 Template template = velocity.getTemplate("templates/" + page.getTemplate() + ".vm", "UTF-8");
                 StringWriter writer = new StringWriter();
+                try {
                 template.merge(context, writer);
+                } catch (RuntimeException e) {
+                    log.error("Error rendering template: " + template.getName(), e);
+                }
                 return writer.toString();
             }
 

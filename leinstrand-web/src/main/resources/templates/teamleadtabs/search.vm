@@ -1,0 +1,95 @@
+
+<h4>Søk etter medlemmer</h4>
+
+<form class="margin-bottom-40" role="form" method="get" action="/page/$thisPage.getUrlName()">
+    <input type="hidden" name="action" value="search-name">
+    <input type="hidden" name="tab" value="sok">
+    <div class="input-group">
+        <input type="text" name="query" value="$!query" class="form-control">
+        <span class="input-group-btn">
+            <button class="btn btn-danger" type="submit">Søk</button>
+        </span>
+    </div>
+</form>
+
+#if($query)
+
+    #if($results.isEmpty())
+<div class="tag-box tag-box-v4">
+    <h4>Beklager, ingen treff!</h4>
+    <p>Endre søkeuttrykket og prøv igjen! ;)</p>
+</div>
+    #else
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Navn</th>
+            <th class="hidden-sm">Alder</th>
+            <th>Fødtselsår</th>
+            <th>Telefon</th>
+            <th>E-post</th>
+            <th>Aktiviteter</th>
+        </tr>
+    </thead>
+    <tbody>
+        #foreach($p in $results)
+            #set($guardian = false)
+            #set($gNumber = false)
+            #set($number = false)
+            #set($gEmail = false)
+            #set($email = false)
+        <tr>
+            <td><i class="icon-$p.getGender()"></i></td>
+            <td>
+                $p.getName()
+                #if(!$userService.isOnlyPrincipal($p))<i class="icon-user"></i> #end
+            </td>
+            <td class="hidden-sm">$userService.getAge($p)</td>
+            <td>$pageService.formatYear($p.getBirthDate())</td>
+            <td>
+                #if($userService.getAge($p) < 18)
+                    #set($guardian = $p.getFamily().getPrimaryPrincipal())
+                    #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
+                #end
+                #if(!$userService.isOnlyPrincipal($p) && !$p.getMobileNumberList().isEmpty())
+                    #set($number = $p.getMobileNumberList().get(0).getNumber())
+                #end
+                #if($number) 
+                <i class="icon-mobile-phone"></i> <a href="tel:$number">$number</a>
+                #end
+                #if($number && $gNumber)
+                <br>
+                #end
+                #if($gNumber)
+                <i class="icon-mobile-phone"></i> <a href="tel:$gNumber">$gNumber</a> ($guardian.getName())
+                #end
+            </td>
+            <td>
+                #if($userService.getAge($p) < 18)
+                    #set($guardian = $p.getFamily().getPrimaryPrincipal())
+                    #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
+                #end
+                #if(!$userService.isOnlyPrincipal($p) && !$p.getEmailAddressList().isEmpty())
+                    #set($email = $p.getEmailAddressList().get(0).getEmail())
+                #end
+                #if($email) 
+                <i class="icon-envelope"></i> <a href="mailto:$email">$email</a>
+                #end
+                #if($email && $gEmail)
+                <br>
+                #end
+                #if($gEmail)
+                <i class="icon-envelope"></i> <a href="mailto:$gEmail">$gEmail</a> ($guardian.getName())
+                #end
+            </td>
+            <td>$clubService.getActiveTeamMembershipCountForPrincipal($p)</td>
+        </tr>
+        #end
+    </tbody>
+</table>
+
+    #end
+
+#end

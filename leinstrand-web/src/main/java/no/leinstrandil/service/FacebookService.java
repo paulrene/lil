@@ -96,7 +96,7 @@ public class FacebookService {
             titleStr = titleStr.substring(0, index + 1);
         }
         index = titleStr.indexOf('.');
-        if (index > 0) {
+        if (index > 4) {
             titleStr = titleStr.substring(0, index);
         }
         index = titleStr.indexOf(',');

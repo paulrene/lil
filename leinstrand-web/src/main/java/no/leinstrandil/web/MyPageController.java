@@ -39,6 +39,9 @@ public class MyPageController implements Controller {
         }
         context.put("tab", tab);
 
+        Family family = userService.ensureFamilyForUser(user);
+        ClubMembership membership = clubService.ensureClubMembership(user, false);
+
         if (tab.equals("adresse")) {
             List<Address> addressList = user.getPrincipal().getAddressList();
             if (!addressList.isEmpty()) {
@@ -68,17 +71,12 @@ public class MyPageController implements Controller {
                 context.put("data", data);
             }
         } else if (tab.equals("familie")) {
-            Family family = userService.ensureFamilyForUser(user);
             context.put("family", family);
         } else if (tab.equals("medlemskap")) {
-            Family family = userService.ensureFamilyForUser(user);
             context.put("family", family);
-            ClubMembership membership = clubService.ensureClubMembership(user, false);
             context.put("membership", membership);
         } else if (tab.equals("aktiviteter")) {
-            Family family = userService.ensureFamilyForUser(user);
             context.put("family", family);
-            ClubMembership membership = clubService.ensureClubMembership(user, false);
             context.put("membership", membership);
         }
 
@@ -120,6 +118,9 @@ public class MyPageController implements Controller {
     }
 
     private void addPrincipalToTeam(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+
+        // TODO: Share to FACEBOOK!!
+
         String principalIdStr = request.queryParams("principalid");
         String teamIdStr = request.queryParams("teamid");
         if (principalIdStr == null || teamIdStr == null) {

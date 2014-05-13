@@ -21,7 +21,7 @@
         <tr>
             <td>$sport.getName()</td>
             <td>$team.getName()</td>
-            <td class="hidden-sm">$team.getDescription()</td>
+            <td class="hidden-sm">#if($team.getDescription())$team.getDescription()#end</td>
         #set($enrolledInTeam = $clubService.getEnrolledCountForTeam($team))
         #set($enrolled = $enrolled + $enrolledInTeam)
             <td style="text-align:right;">$enrolledInTeam</td>

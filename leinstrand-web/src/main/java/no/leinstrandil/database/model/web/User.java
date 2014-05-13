@@ -34,6 +34,7 @@ public class User {
     private String facebookId;
     @OneToOne @JoinColumn(name = "principalId")
     private Principal principal;
+    private Date created;
 
     public User() {
         textNodeSet = new HashSet<>();
@@ -43,6 +44,14 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public Set<Resource> getResourceSet() {

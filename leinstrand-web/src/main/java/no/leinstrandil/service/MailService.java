@@ -2,6 +2,8 @@ package no.leinstrandil.service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Map;
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -35,25 +37,56 @@ public class MailService implements AspirinListener {
                 + ", resultContent=" + resultContent);
     }
 
-    public void sendNoReplyHtml(String recipientEmail, String subject, String content) {
+    public boolean sendNoReplyHtmlMessage(String recipientEmail, String subject, String content) {
         content = content.replaceAll("%baseUrl%", config.getBaseUrl());
 
         MimeMessage message = Aspirin.createNewMimeMessage();
         try {
-            message.setFrom(new InternetAddress("no-reply@leinstrandil.no", "Leinstrand Idrettslag", "UTF-8"));
+            message.setFrom(new InternetAddress("no-reply@leinstrandil.no", "LeinstrandIL.no", "utf-8"));
             message.setRecipient(RecipientType.TO, new InternetAddress(recipientEmail));
-            message.setContent(content, "text/html");
+            message.setContent(content, "text/html; charset=utf-8");
+            message.setSubject(subject, "utf-8");
             message.setSentDate(new Date());
-            message.setSubject(subject);
             Aspirin.add(message);
 
+            return true;
         } catch (AddressException e) {
-            log.warn("Could not send reset password email to " + recipientEmail + " due to: " + e.getMessage(), e);
+            log.warn("Could not send email to " + recipientEmail + " due to: " + e.getMessage(), e);
         } catch (MessagingException e) {
-            log.warn("Could not send reset password email to " + recipientEmail + " due to: " + e.getMessage(), e);
+            log.warn("Could not send email to " + recipientEmail + " due to: " + e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
-            log.warn("Could not send reset password email to " + recipientEmail + " due to: " + e.getMessage(), e);
+            log.warn("Could not send email to " + recipientEmail + " due to: " + e.getMessage(), e);
         }
+        return false;
+    }
+
+    public boolean sendHtmlMessage(String fromName, String fromAddress, boolean copyMe, Map<String, String> toMap, String subject, String content) {
+        content = content.replaceAll("%baseUrl%", config.getBaseUrl());
+
+        MimeMessage message = Aspirin.createNewMimeMessage();
+        try {
+            message.setFrom(new InternetAddress("no-reply@leinstrandil.no", fromName + " via LeinstrandIL.no", "utf-8"));
+            InternetAddress from = new InternetAddress(fromAddress, fromName, "utf-8");
+            message.setReplyTo(new Address[] { from });
+            if (copyMe) {
+                message.addRecipient(RecipientType.CC, from);
+            }
+            for (String emailAddress : toMap.keySet()) {
+                message.addRecipient(RecipientType.TO, new InternetAddress(emailAddress, toMap.get(emailAddress), "utf-8"));
+            }
+            message.setContent(content, "text/html; charset=utf-8");
+            message.setSubject(subject, "utf-8");
+            message.setSentDate(new Date());
+            Aspirin.add(message);
+            return true;
+        } catch (AddressException e) {
+            log.warn("Could not send email to multiple recipients due to: " + e.getMessage(), e);
+        } catch (MessagingException e) {
+            log.warn("Could not send email to multiple recipients due to: " + e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            log.warn("Could not send email to multiple recipients due to: " + e.getMessage(), e);
+        }
+        return false;
 
     }
 }

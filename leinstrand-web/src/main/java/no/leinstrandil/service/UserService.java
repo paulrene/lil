@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +67,7 @@ public class UserService {
         User newUser = new User();
         newUser.setFacebookId(fbUser.getId());
         newUser.setUsername(fbUser.getUsername());
+        newUser.setCreated(new Date());
         Principal principal = new Principal();
         principal.setName(fbUser.getName());
         principal.setFirstName(fbUser.getFirstName());
@@ -91,12 +93,16 @@ public class UserService {
         storage.persist(newUser);
         storage.persist(principal);
         storage.commit();
+
+        ensureFamilyForUser(newUser);
+
         return newUser;
     }
 
     public ServiceResponse createUser(String username, String name, String email, Date birthDate, String gender, String password) {
         User user = new User();
         user.setUsername(username);
+        user.setCreated(new Date());
         try {
             user.setPasswordHash(PasswordHash.createHash(password));
             user.setPasswordHashCreated(new Date());
@@ -129,6 +135,8 @@ public class UserService {
             storage.commit();
             return new ServiceResponse(false, "E-postadressen er allerede i bruk. Vennligt bruk en annen.");
         }
+
+        ensureFamilyForUser(user);
 
         return new ServiceResponse(true, "Din bruker ble opprettet!");
     }
@@ -277,7 +285,7 @@ public class UserService {
         text.append("Om det ikke var deg som bestillte tilbakestilling av ditt passord kan du se bort fra denne e-posten.<br><br>");
         text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
 
-        mailService.sendNoReplyHtml(emailList.get(0).getEmail(), "Passordtilbakestilling for Leinstrand IL", text.toString());
+        mailService.sendNoReplyHtmlMessage(emailList.get(0).getEmail(), "Passordtilbakestilling for Leinstrand IL", text.toString());
     }
 
     public String generateResetPasswordCode(User user) {
@@ -476,7 +484,7 @@ public class UserService {
         text.append("\">%baseUrl%page/signin?tab=verifiserepost&code=").append(emailAddress.getVerificationCode()).append("</a><br><br>");
         text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
 
-        mailService.sendNoReplyHtml(emailAddress.getEmail(), "Bekreft ny e-postadresse for Leinstrand IL", text.toString());
+        mailService.sendNoReplyHtmlMessage(emailAddress.getEmail(), "Bekreft ny e-postadresse for Leinstrand IL", text.toString());
     }
 
     public ServiceResponse addFamilyMember(User user, String name, Date birthDate, String gender) {
@@ -641,7 +649,7 @@ public class UserService {
             text.append("Om du ikke ønsker å takke ja trenger du ikke gjøre noe. Denne invitasjonen er kun gyldig i ");
             text.append(FAMILY_INVITAION_EXPIRY_DAYS + " dager.<br><br>");
             text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
-            mailService.sendNoReplyHtml(principal.getEmailAddressList().get(0).getEmail(),
+            mailService.sendNoReplyHtmlMessage(principal.getEmailAddressList().get(0).getEmail(),
                     "Invitasjon til familiemedlemskap i Leinstrand IL", text.toString());
 
             return new ServiceResponse(true, "Brukeren er blitt invitert til din familie.");
@@ -696,6 +704,14 @@ public class UserService {
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    public List<String> checkUserProfileCompleteness(User user) {
+        List<String> errorList = new ArrayList<>();
+        if (!hasValidEmail(user)) errorList.add("<i class=\"icon-envelope\"></i> e-postadresse");
+        if (!hasValidAddress(user)) errorList.add("<i class=\"icon-home\"></i> postadresse");
+        if (!hasValidMobile(user)) errorList.add("<i class=\"icon-mobile-phone\"></i> mobilnummer");
+        return errorList;
     }
 
 }

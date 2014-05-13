@@ -24,7 +24,7 @@
     #parse("templates/teamleadtabs/overview.vm")
 #elseif($tab=="lagliste")
     #parse("templates/teamleadtabs/lists.vm")
-#elseif($tab=="medling")
+#elseif($tab=="melding")
     #parse("templates/teamleadtabs/message.vm")
 #elseif($tab=="sok")
     #parse("templates/teamleadtabs/search.vm")
