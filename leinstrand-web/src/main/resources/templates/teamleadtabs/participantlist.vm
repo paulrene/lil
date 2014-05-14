@@ -1,23 +1,18 @@
 
-    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()?tab=lagliste">
-        <input type="hidden" name="action" value="list-team-members">
-        <input type="hidden" name="tab" value="lagliste">
+    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()?tab=deltagerliste">
+        <input type="hidden" name="action" value="list-event-participants">
+        <input type="hidden" name="tab" value="deltagerliste">
         <div class="form-group">
-            <select class="form-control" name="teamid" required>
-                <option value="">-- Velg lag eller aktivitet --</option>
-    #set($sportList = $clubService.getSports())
-    #foreach($sport in $sportList)
-                <optgroup label="$sport.getName()">
-        #set($teamList = $sport.getTeams())
-        #foreach($team in $teamList)
-            #if($team.isClosed())
-                    <option#if($selectedTeam.getId()==$team.getId()) selected#end value="$team.getId()">$team.getName() (Ikke åpen for påmelding)</option>
+            <select class="form-control" name="eventid" required>
+                <option value="">-- Velg arrangement --</option>
+    #set($eventList = $clubService.getEvents())
+        #foreach($event in $eventList)
+            #if($event.isClosed())
+                <option#if($selectedEvent.getId()==$event.getId()) selected#end value="$event.getId()">$event.getName() (Ikke åpen for påmelding)</option>
             #else
-                    <option#if($selectedTeam.getId()==$team.getId()) selected#end value="$team.getId()">$team.getName()#if($team.getDescription()) -- $team.getDescription()#end</option>
+                <option#if($selectedEvent.getId()==$event.getId()) selected#end value="$event.getId()">$event.getName()#if($event.getDescription()) -- $event.getDescription()#end</option>
             #end
         #end
-                </optgroup>
-    #end
             </select>
         </div>
 
@@ -29,7 +24,7 @@
             <input type="checkbox" name="showdisenrolled" value="true"#if($showDisenrolled) checked#end> Vis avmeldte
         </label>
 
-        <button type="submit" class="btn btn-mini btn-primary">Vis lagliste</button>
+        <button type="submit" class="btn btn-mini btn-primary">Vis deltagerliste</button>
     </form>
 
 #if($error)
@@ -39,16 +34,16 @@
     </div>
 #end
 
-#if($selectedTeam)
+#if($selectedEvent)
 
-    #set($members = $clubService.sortSetOfPrincipalsByLastName($selectedTeamMembershipMap.keySet()))
+    #set($participants = $clubService.sortSetOfPrincipalsByLastName($selectedEventParticipationMap.keySet()))
 
     #if(!$showDisenrolled)
 
     <div class="margin-bottom-40"></div>
     <div class="panel panel-green margin-bottom-20">
         <div class="panel-heading">
-            <h3 class="panel-title"><i class="icon-group"></i> $selectedTeam.getSport().getName() -- $selectedTeam.getName()</h3>
+            <h3 class="panel-title"><i class="icon-group"></i> $selectedEvent.getName()</h3>
         </div>
         <table class="table table-striped">
             <thead>
@@ -63,30 +58,29 @@
 #end
 #if(!$showContactInfo)
                     <th class="hidden-sm">Påmeldt</th>
-                    <th class="hidden-sm">Varighet</th>
 #end
                 </tr>
             </thead>
             <tbody>
-    #foreach($member in $members)
-        #set($membership = $selectedTeamMembershipMap.get($member))
-        #if($membership.isEnrolled())
+    #foreach($participant in $participants)
+        #set($participation = $selectedEventParticipationMap.get($participant))
+        #if($participation.isEnrolled())
                 <tr>
-                    <td><i class="icon-$member.getGender()"></i></td>
+                    <td><i class="icon-$participant.getGender()"></i></td>
                     <td>
-                        $member.getName()
-                        #if(!$userService.isOnlyPrincipal($member))<i class="icon-user"></i> #end
+                        $participant.getName()
+                        #if(!$userService.isOnlyPrincipal($participant))<i class="icon-user"></i> #end
                     </td>
-                    <td class="hidden-sm">$userService.getAge($member)</td>
-                    <td>$pageService.formatYear($member.getBirthDate())</td>
+                    <td class="hidden-sm">$userService.getAge($participant)</td>
+                    <td>$pageService.formatYear($participant.getBirthDate())</td>
 #if($showContactInfo)
                     <td>
-                        #if($userService.getAge($member) < 18)
-                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                        #if($userService.getAge($participant) < 18)
+                            #set($guardian = $participant.getFamily().getPrimaryPrincipal())
                             #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member) && !$member.getMobileNumberList().isEmpty())
-                            #set($number = $member.getMobileNumberList().get(0).getNumber())
+                        #if(!$userService.isOnlyPrincipal($participant) && !$participant.getMobileNumberList().isEmpty())
+                            #set($number = $participant.getMobileNumberList().get(0).getNumber())
                         #end
                         #if($number) 
                         <i class="icon-mobile-phone"></i> <a href="tel:$number">$number</a>
@@ -99,12 +93,12 @@
                         #end
                     </td>
                     <td>
-                        #if($userService.getAge($member) < 18)
-                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                        #if($userService.getAge($participant) < 18)
+                            #set($guardian = $participant.getFamily().getPrimaryPrincipal())
                             #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member) && !$member.getEmailAddressList().isEmpty())
-                            #set($email = $member.getEmailAddressList().get(0).getEmail())
+                        #if(!$userService.isOnlyPrincipal($participant) && !$participant.getEmailAddressList().isEmpty())
+                            #set($email = $participant.getEmailAddressList().get(0).getEmail())
                         #end
                         #if($email) 
                         <i class="icon-envelope"></i> <a href="mailto:$email">$email</a>
@@ -118,8 +112,7 @@
                     </td>
 #end
 #if(!$showContactInfo)
-                    <td class="hidden-sm">$pageService.formatDateTime($membership.getCreated())</td>
-                    <td class="hidden-sm">$pageService.prettyTime($membership.getCreated())</td>
+                    <td class="hidden-sm">$pageService.formatDateTime($participation.getCreated())</td>
 #end
                 </tr>
         #end
@@ -133,7 +126,7 @@
     <div class="margin-bottom-40"></div>
     <div class="panel panel-orange margin-bottom-20">
         <div class="panel-heading">
-            <h3 class="panel-title"><i class="icon-trash"></i> $selectedTeam.getSport().getName() -- $selectedTeam.getName() (Tidligere påmeldte)</h3>
+            <h3 class="panel-title"><i class="icon-trash"></i> $selectedEvent.getName() (Tidligere påmeldte)</h3>
         </div>
         <table class="table table-striped">
             <thead>
@@ -154,25 +147,25 @@
                 </tr>
             </thead>
             <tbody>
-    #foreach($member in $members)
-        #set($membership = $selectedTeamMembershipMap.get($member))
-        #if(!$membership.isEnrolled())
-            #set($enrollment = $clubService.getLastEnrollmentToTeamForPrincipal($membership.getTeam(), $membership.getPrincipal()))
+    #foreach($participant in $participants)
+        #set($participation = $selectedEventParticipationMap.get($participant))
+        #if(!$participation.isEnrolled())
+            #set($enrollment = $clubService.getLastEnrollmentToEventForPrincipal($participation.getEvent(), $participation.getPrincipal()))
             #set($gNumber = false)
             #set($gEmail = false)
                 <tr>
-                    <td><i class="icon-$member.getGender()"></i></td>
-                    <td>$member.getName()</td>
-                    <td class="hidden-sm">$userService.getAge($member)</td>
-                    <td class="hidden-sm">$pageService.formatYear($member.getBirthDate())</td>
+                    <td><i class="icon-$participant.getGender()"></i></td>
+                    <td>$participant.getName()</td>
+                    <td class="hidden-sm">$userService.getAge($participant)</td>
+                    <td class="hidden-sm">$pageService.formatYear($participant.getBirthDate())</td>
 #if($showContactInfo)
                     <td>
-                        #if($userService.getAge($member) < 18)
-                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                        #if($userService.getAge($participant) < 18)
+                            #set($guardian = $participant.getFamily().getPrimaryPrincipal())
                             #set($gNumber = $guardian.getMobileNumberList().get(0).getNumber())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member))
-                            #set($number = $member.getMobileNumberList().get(0).getNumber())
+                        #if(!$userService.isOnlyPrincipal($participant))
+                            #set($number = $participant.getMobileNumberList().get(0).getNumber())
                         #end
                         #if($number) 
                         <i class="icon-mobile-phone"></i> <a href="tel:$number">$number</a>
@@ -185,12 +178,12 @@
                         #end
                     </td>
                     <td>
-                        #if($userService.getAge($member) < 18)
-                            #set($guardian = $member.getFamily().getPrimaryPrincipal())
+                        #if($userService.getAge($participant) < 18)
+                            #set($guardian = $participant.getFamily().getPrimaryPrincipal())
                             #set($gEmail = $guardian.getEmailAddressList().get(0).getEmail())
                         #end
-                        #if(!$userService.isOnlyPrincipal($member))
-                            #set($email = $member.getEmailAddressList().get(0).getEmail())
+                        #if(!$userService.isOnlyPrincipal($participant))
+                            #set($email = $participant.getEmailAddressList().get(0).getEmail())
                         #end
                         #if($email) 
                         <i class="icon-envelope"></i> <a href="mailto:$email">$email</a>
@@ -205,8 +198,8 @@
 #end
 #if(!$showContactInfo)
                     <td class="hidden-sm">$pageService.formatDateTime($enrollment.getCreated())</td>
-                    <td>$pageService.formatDateTime($membership.getCreated())</td>
-                    <td class="hidden-sm">$pageService.prettyTime($membership.getCreated(), $enrollment.getCreated())</td>
+                    <td>$pageService.formatDateTime($participation.getCreated())</td>
+                    <td class="hidden-sm">$pageService.prettyTime($participation.getCreated(), $enrollment.getCreated())</td>
 #end
                 </tr>
         #end

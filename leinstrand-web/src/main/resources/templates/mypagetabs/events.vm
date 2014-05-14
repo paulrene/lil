@@ -1,0 +1,171 @@
+
+    <div class="heading">
+        <h2>Påmelding til arrangement</h2>
+    </div>
+
+    <form class="form-inline" role="form" method="post" action="/page/$thisPage.getUrlName()?tab=arrangement">
+        <input type="hidden" name="action" value="add-principal-to-event">
+        <div class="form-group">
+            <select class="form-control" name="principalid" required>
+                <option>-- Velg person --</option>
+    #foreach($p in $family.getMembers())
+                <option value="$p.getId()">$p.getName() (${userService.getAge($p)} år)</option>
+    #end
+            </select>
+        </div>
+        <br>
+        <br>
+        <div class="form-group">
+            <select class="form-control" name="eventid" required>
+                <option>-- Velg arrangement --</option>
+    #set($eventList = $clubService.getFutureEvents())
+    #foreach($event in $eventList)
+        #set($available = ($event.requireMembership() && $membership.isEnrolled()) || !$event.requireMembership())
+
+        #if($event.isClosed())
+            <option value="$event.getId()" disabled>$event.getName() (Ikke åpen for påmelding)</option>
+        #else
+            #if($event.getVacancies())
+                #set($left = $event.getVacancies() - $clubService.getEnrolledCountForEvent($event))
+            <option value="$event.getId()"#if($left<=0) disabled#end>$event.getName()
+                #if($left<=0)
+            (Arrangementet er fulltegnet)
+                #else
+             -- $left pl. igjen
+                #end
+            #else
+            <option value="$event.getId()"#if(!$available) disabled#end>$event.getName()
+            #end
+
+            #if($event.getDescription())
+             -- $event.getDescription()
+            #end
+            #if($event.getMinimumAge() && !$event.getMaximumAge())
+             -- $event.getMinimumAge() år og oppover
+            #elseif(!$event.getMinimumAge() && $event.getMaximumAge())
+             -- Opptil $event.getMinimumAge() år
+            #elseif($event.getMinimumAge() && $event.getMaximumAge())
+             -- Alle fra $event.getMinimumAge() t.o.m. $event.getMaximumAge() år
+            #end
+            #if($event.requireMembership())
+             -- krever LIL medlemskap
+            #end
+            #if($event.requireMembership())
+                #if($event.getPriceMember())
+             -- kr. $event.getPriceMember(),-
+                #end
+            #else
+                #if($event.getPriceMember() && !$event.getPriceNonMember())
+             -- kr. $event.priceMember(),- (0,- for ikke LIL)
+                #elseif(!$event.getPriceMember() && $event.getPriceNonMember())
+             -- kr. 0,- ($event.priceNonMember(),- for ikke LIL)
+                #elseif($event.getPriceMember() && $event.getPriceNonMember())
+                    #if($event.getPriceMember() != $event.getPriceNonMember())
+             -- kr. $event.getPriceMember(),- ($event.getPriceNonMember(),- for ikke LIL)
+                    #else
+             -- kr. $event.getPriceMember(),-
+                    #end
+                #end
+            #end
+            </option>
+        #end
+    #end
+            </select>
+        </div>
+        <button type="submit" class="btn btn-mini btn-primary">Meld på!</button>
+    </form>
+
+    <p class="text-info" style="margin-top:10px;">
+        <span class="label label-info"><i class="icon-info-sign"></i></span> 
+        <strong>Enkelte arrangementer er kun åpen for medlemmer av LIL. Om pris ikke er oppgitt er det ingen deltageravgift.
+        Oppgitt pris gjelder for medlemmer, pris i parantes for andre.
+        Ved arrangement som har aldersbegrensning så beregnes alder ut fra personens alder ved slutten av året.</strong>
+    </p>
+
+    #fielderror( "add" )
+
+    <div class="panel panel-green margin-bottom-20" style="margin-top:20px;">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="icon-ticket"></i> Påmeldte arrangementer</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Arrangement</th>
+                        <th>Start</th>
+                        <th>Avdeling</th>
+                        <th>Påmeldt</th>
+                        <th>Deltageravgift</th>
+                        <th>Endre</th>
+                    </tr>
+                </thead>
+                <tbody>
+    #if($clubService.getActiveTeamMembershipCountForFamily($family) > 0)
+        #foreach($p in $family.getMembers())
+            #set($status = $clubService.getEventParticipationStatusForPrincipal($p))
+            #foreach($ep in $status.values())
+                #if($ep.isEnrolled())
+                    <tr>
+                        <td>$p.getName()</td>
+                        <td>
+                            #if($ep.getEvent().getPage())
+                            <a href="/page/$ep.getEvent().getPage().getUrlName()"><i class="icon-link"></i> $ep.getEvent().getName()</a>
+                            #else
+                            $ep.getEvent().getName()
+                            #end
+                        </td>
+                        <td>$pageService.formatDateTimeShort($ep.getEvent().getStartTime())</td>
+                        <td>
+                            #if($ep.getEvent().getSport())
+                            $ep.getEvent().getSport().getName()
+                            #else
+                            Hovedlaget
+                            #end
+                        </td>
+                        <td>#if($ep.getEvent().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($ep.getCreated())</td>
+                        <td>
+                            #if($membership.isEnrolled())
+                                #if($ep.getEvent().getPriceMember())
+                            $ep.getEvent().getPriceMember(),-
+                                #end
+                            #else
+                                #if($ep.getEvent().getPriceMember())
+                            $ep.getEvent().getPriceNonMember(),-
+                                #end
+                            #end
+                        </td>
+                        <td>
+                    #if($userService.isOfAge($user.getPrincipal()) && !$ep.getEvent().isLocked() && !$clubService.hasEventStarted($ep.getEvent()))
+                            <form class="form-inline" method="post" action="/page/$thisPage.getUrlName()?tab=arrangement">
+                                <input type="hidden" name="action" value="remove-principal-from-event">
+                                <input type="hidden" name="eventparticipationid" value="$ep.getId()">
+                                <button class="btn btn-danger btn-xs" title="Slett påmelding"><i class="icon-remove"></i></button>
+                            </form>
+                    #end
+                        </td>
+                    </tr>
+                #end
+            #end
+        #end
+    #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="text-warning" style="margin-top:10px;">
+        <span class="label label-warning"><i class="icon-warning-sign"></i></span> 
+        Melder du noen av et arrangement som har begrenset antall plasser vil plassen øyeblikkelig bli tildelt første person på ventelisten.
+        Om du så melder deg på igjen vil du stå sist på ventelisten.
+    </p>
+
+    #if($info)
+    <div class="alert alert-info">
+        <i class="icon-trash"></i> $info.opt(0)
+    </div>
+    #end
+
+    #fielderror( "remove" )
+

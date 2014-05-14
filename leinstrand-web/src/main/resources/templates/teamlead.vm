@@ -13,8 +13,9 @@
 
         <div class="tab-v2">
             <ul class="nav nav-tabs">
-                <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-info-sign"></i> Oversikt</a></li>
-                <li class="#if($tab=="lagliste")active#end"><a href="/page/$thisPage.getUrlName()?tab=lagliste"><i class="icon-group"></i> Lister</a></li>
+                <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-group"></i> Oversikt</a></li>
+                <li class="#if($tab=="lagliste")active#end"><a href="/page/$thisPage.getUrlName()?tab=lagliste"><i class="icon-trophy"></i> Lag</a></li>
+                <li class="#if($tab=="deltagerliste")active#end"><a href="/page/$thisPage.getUrlName()?tab=deltagerliste"><i class="icon-ticket"></i> Deltagere</a></li>
                 <li class="#if($tab=="melding")active#end"><a href="/page/$thisPage.getUrlName()?tab=melding"><i class="icon-envelope"></i> Meldinger</a></li>
                 <li class="#if($tab=="sok")active#end"><a href="/page/$thisPage.getUrlName()?tab=sok"><i class="icon-search"></i> Søk</a></li>
             </ul>
@@ -24,6 +25,8 @@
     #parse("templates/teamleadtabs/overview.vm")
 #elseif($tab=="lagliste")
     #parse("templates/teamleadtabs/lists.vm")
+#elseif($tab=="deltagerliste")
+    #parse("templates/teamleadtabs/participantlist.vm")
 #elseif($tab=="melding")
     #parse("templates/teamleadtabs/message.vm")
 #elseif($tab=="sok")

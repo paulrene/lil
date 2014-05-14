@@ -240,6 +240,11 @@ public class UserService {
         return Years.yearsBetween(birthDate, now).getYears();
     }
 
+    public int getAgeThatYearOnTime(Principal principal, Date startTime) {
+        LocalDate birthDate = new LocalDate(principal.getBirthDate());
+        return new LocalDate(startTime).getYear() - birthDate.getYear();
+    }
+
     public boolean isPrimaryContactCandidate(Principal principal) {
         if (principal.getUser() == null) {
             return false;

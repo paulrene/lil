@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "activityparticipation")
+@Table(name = "eventparticipation")
 public class EventParticipation {
 
     @Id @GeneratedValue

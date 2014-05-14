@@ -11,7 +11,8 @@
                                     <th>Navn</th>
                                     <th>Fødselsdato</th>
                                     <th>Kjønn</th>
-                                    <th>Aktiviteter</th>
+                                    <th><i class="icon-trophy"></i></th>
+                                    <th><i class="icon-ticket"></i></th>
                                     <th>Status</th>
                                     <th>Endre</th>
                                 </tr>
@@ -26,6 +27,7 @@
                                     <td>$userService.formatBirthDate($member.getBirthDate())</td>
                                     <td><i class="icon-$member.getGender()"></i></td>
                                     <td>$clubService.getActiveTeamMembershipCountForPrincipal($member)</td>
+                                    <td>$clubService.getActiveEventParticipationCountForPrincipal($member)</td>
                                     <td>
                                         #if($userService.isPrimaryContact($member))
                                             <span class="label label-info"><i class="icon-trophy"></i> 

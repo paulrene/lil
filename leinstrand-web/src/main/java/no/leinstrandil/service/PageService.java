@@ -93,6 +93,10 @@ public class PageService {
         return new SimpleDateFormat("dd.MM.yyyy, HH:mm:ss").format(date);
     }
 
+    public String formatDateTimeShort(Date date) {
+        return new SimpleDateFormat("d. MMM, HH:mm").format(date);
+    }
+
     public String formatYear(Date date) {
         return new SimpleDateFormat("yyyy").format(date);
     }

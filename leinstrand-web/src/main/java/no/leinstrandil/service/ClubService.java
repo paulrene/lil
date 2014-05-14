@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.club.ClubMembership;
+import no.leinstrandil.database.model.club.Event;
+import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.Sport;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
@@ -79,8 +80,19 @@ public class ClubService {
                 return new ServiceResponse(false, message.toString());
             }
         } else { // Utmelding
+            StringBuilder str = new StringBuilder();
             if (getActiveTeamMembershipCountForFamily(user.getPrincipal().getFamily()) > 0) {
-                return new ServiceResponse(false, "Du kan ikke melde deg ut av idrettslaget før du har meldt eventuelle familiemedlemmer og deg selv av alle aktiviteter.");
+                str.append("Du kan ikke melde deg ut av idrettslaget før du har meldt eventuelle familiemedlemmer og deg selv av alle aktiviteter");
+                if (getActiveEventParticipationCountForFamilyThatRequireMembership(user.getPrincipal().getFamily()) > 0) {
+                    str.append(" og arrangement som krever medlemskap.");
+                } else {
+                    str.append(".");
+                }
+            } else if(getActiveEventParticipationCountForFamilyThatRequireMembership(user.getPrincipal().getFamily()) > 0) {
+                str.append("Du kan ikke melde deg ut av idrettslaget før du har meldt eventuelle familiemedlemmer og deg selv av alle arrangement som krever medlemskap.");
+            }
+            if (str.length() > 0) {
+                return new ServiceResponse(false, str.toString());
             }
         }
 
@@ -136,7 +148,8 @@ public class ClubService {
     }
 
     public boolean isDeletable(Principal principal) {
-        return getActiveTeamMembershipCountForPrincipal(principal) == 0;
+        return getActiveTeamMembershipCountForPrincipal(principal) == 0
+                && getActiveEventParticipationCountForPrincipal(principal) == 0;
     }
 
     public int getActiveTeamMembershipCountForFamily(Family family) {
@@ -171,6 +184,68 @@ public class ClubService {
         return status;
     }
 
+    public int getActiveEventParticipationCountForFamilyThatRequireMembership(Family family) {
+        int count = 0;
+        List<Principal> principalList = family.getMembers();
+        for (Principal principal : principalList) {
+            count += getActiveEventParticipationCountForPrincipalThatRequireMembership(principal);
+        }
+        return count;
+    }
+
+    public int getActiveEventParticipationCountForPrincipalThatRequireMembership(Principal principal) {
+        int count = 0;
+        Map<Event, EventParticipation> status = getEventParticipationStatusForPrincipal(principal);
+        for (EventParticipation participation : status.values()) {
+            if (participation.isEnrolled()
+                    && isActiveEvent(participation.getEvent())
+                    && participation.getEvent().requireMembership()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean isActiveEvent(Event event) {
+        return event.getEndTime().after(new Date());
+    }
+
+    public boolean hasEventStarted(Event event) {
+        return event.getStartTime().before(new Date());
+    }
+
+    public int getActiveEventParticipationCountForFamily(Family family) {
+        int count = 0;
+        List<Principal> principalList = family.getMembers();
+        for (Principal principal : principalList) {
+            count += getActiveEventParticipationCountForPrincipal(principal);
+        }
+        return count;
+    }
+
+    public int getActiveEventParticipationCountForPrincipal(Principal principal) {
+        int count = 0;
+        Map<Event, EventParticipation> status = getEventParticipationStatusForPrincipal(principal);
+        for (EventParticipation participation : status.values()) {
+            if (participation.isEnrolled() && participation.getEvent().getStartTime().after(new Date())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public Map<Event, EventParticipation> getEventParticipationStatusForPrincipal(Principal principal) {
+        Map<Event, EventParticipation> status = new HashMap<>();
+        List<EventParticipation> eventParticipations = principal.getEventParticipations();
+        for (EventParticipation eventParticipation : eventParticipations) {
+            Event event = eventParticipation.getEvent();
+            if (!status.containsKey(event)) {
+                status.put(event, eventParticipation);
+            }
+        }
+        return status;
+    }
+
     public boolean isEnrolledAsClubMember(Family family) {
         List<ClubMembership> list = family.getClubMemberships();
         if (list == null || list.isEmpty()) {
@@ -199,6 +274,39 @@ public class ClubService {
         return query.getResultList();
     }
 
+    public List<Event> getFutureEvents() {
+        TypedQuery<Event> query = storage.createQuery("from Event where startTime > now() order by startTime", Event.class);
+        return query.getResultList();
+    }
+
+    public List<Event> getEvents() {
+        TypedQuery<Event> query = storage.createQuery("from Event order by startTime", Event.class);
+        return query.getResultList();
+    }
+
+    public int getEnrolledCountForEvent(Event event) {
+        int count = 0;
+        Map<Principal, EventParticipation> status = getEventParticipationForEvent(event);
+        for (EventParticipation participation : status.values()) {
+            if (participation.isEnrolled()) {
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    public Map<Principal, EventParticipation> getEventParticipationForEvent(Event event) {
+        // Assume the list is in descending order (newest first)
+        List<EventParticipation> eventParticipations = event.getEventParticipations();
+        Map<Principal, EventParticipation> map = new HashMap<>();
+        for (EventParticipation eventParticipation : eventParticipations) {
+            if(!map.containsKey(eventParticipation.getPrincipal())) {
+                map.put(eventParticipation.getPrincipal(), eventParticipation);
+            }
+        }
+        return map;
+    }
+
     public TeamMembership getTeamMembershipById(Long id) {
         try {
             return storage.createSingleQuery("from TeamMembership where id = " + id, TeamMembership.class);
@@ -207,9 +315,25 @@ public class ClubService {
         }
     }
 
+    public EventParticipation getEventParticipationById(Long id) {
+        try {
+            return storage.createSingleQuery("from EventParticipation where id = " + id, EventParticipation.class);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public Team getTeamById(Long id) {
         try {
             return storage.createSingleQuery("from Team where id = " + id, Team.class);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Event getEventById(Long id) {
+        try {
+            return storage.createSingleQuery("from Event where id = " + id, Event.class);
         } catch (NoResultException e) {
             return null;
         }
@@ -246,6 +370,43 @@ public class ClubService {
             storage.persist(membership);
             storage.commit();
             return new ServiceResponse(true, "Du er nå påmeldt denne aktiviteten.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
+        }
+    }
+
+    public ServiceResponse deleteEventParticipation(EventParticipation eventParticipation) {
+        EventParticipation participation = new EventParticipation();
+        participation.setCreated(new Date());
+        participation.setEnrolled(false);
+        participation.setPrincipal(eventParticipation.getPrincipal());
+        participation.setEvent(eventParticipation.getEvent());
+        storage.begin();
+        try {
+            storage.persist(participation);
+            storage.commit();
+            return new ServiceResponse(true, "Du er nå meldt av dette arrangementet.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Påmeldingen kunne ikke endres på nåværende tidspunkt.");
+        }
+    }
+
+    public ServiceResponse createEventParticipation(Principal principal, Event event) {
+        if (event == null || principal == null) {
+            return new ServiceResponse(false, "Påmelding krever en gyldig person og et gyldig arrangement.");
+        }
+        EventParticipation participation = new EventParticipation();
+        participation.setCreated(new Date());
+        participation.setEnrolled(true);
+        participation.setPrincipal(principal);
+        participation.setEvent(event);
+        storage.begin();
+        try {
+            storage.persist(participation);
+            storage.commit();
+            return new ServiceResponse(true, "Du er nå påmeldt dette arrangementet.");
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
@@ -302,9 +463,21 @@ public class ClubService {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    public EventParticipation getLastEnrollmentToEventForPrincipal(Event event, Principal principal) {
+        List<EventParticipation> list = event.getEventParticipations();
+        for (EventParticipation participation : list) {
+            if (participation.getPrincipal().getId().equals(principal.getId())) {
+                if (participation.isEnrolled()) {
+                    return participation;
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Principal> queryPrincipal(String query) {
-        Query q = storage.createQuery("from Principal where name like '%" + query + "%' order by lastName, firstName", Principal.class);
+        TypedQuery<Principal> q = storage.createQuery("from Principal where name like '%" + query + "%' order by lastName, firstName", Principal.class);
         return q.getResultList();
     }
+
 }

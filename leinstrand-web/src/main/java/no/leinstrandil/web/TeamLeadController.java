@@ -1,16 +1,17 @@
 package no.leinstrandil.web;
 
-import no.leinstrandil.service.UserService;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.club.Event;
+import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.MailService;
+import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
 import spark.Request;
 
@@ -41,6 +42,11 @@ public class TeamLeadController implements Controller {
                 listTeamMembers(request, context);
             }
         }
+        if (tab.equals("deltagerliste")) {
+            if ("list-event-participants".equals(action)) {
+                listEventParticipants(request, context);
+            }
+        }
         if (tab.equals("sok")) {
             if ("search-name".equals(action)) {
                 String query = request.queryParams("query");
@@ -50,6 +56,30 @@ public class TeamLeadController implements Controller {
             }
         }
 
+    }
+
+    private void listEventParticipants(Request request, VelocityContext context) {
+        String eventIdStr = request.queryParams("eventid");
+        if (eventIdStr == null) {
+            context.put("error", "Du må velge et arrangement å vise deltagerlisten for.");
+            return;
+        }
+        Long eventId = null;
+        try {
+            eventId = Long.parseLong(eventIdStr);
+        } catch(RuntimeException e) {
+            context.put("error", "Du må velge et arrangement å vise deltagerlisten for.");
+            return;
+        }
+        Event event = clubService.getEventById(eventId);
+        Map<Principal, EventParticipation> selectedEventParticipationMap = clubService.getEventParticipationForEvent(event);
+        context.put("selectedEvent", event);
+        context.put("selectedEventParticipationMap", selectedEventParticipationMap);
+
+        Boolean showContactInfo = Boolean.parseBoolean(request.queryParams("showcontactinfo"));
+        Boolean showDisenrolled = Boolean.parseBoolean(request.queryParams("showdisenrolled"));
+        context.put("showContactInfo", showContactInfo);
+        context.put("showDisenrolled", showDisenrolled);
     }
 
     private void listTeamMembers(Request request, VelocityContext context) {

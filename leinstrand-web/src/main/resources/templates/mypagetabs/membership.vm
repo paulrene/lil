@@ -94,8 +94,52 @@
         </table>
     </div>
 </div>
+#end
+
+#if($clubService.getActiveEventParticipationCountForFamily($family) > 0)
+<div class="panel panel-orange margin-bottom-20" style="margin-top:20px;">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="icon-ticket"></i> Påmeldte arrangement</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th>Arrangement</th>
+                    <th>Krever medlemskap</th>
+                    <th>Påmeldt</th>
+                </tr>
+            </thead>
+            <tbody>
+#foreach($p in $family.getMembers())
+    #set($status = $clubService.getEventParticipationStatusForPrincipal($p))
+    #foreach($ev in $status.values())
+        #if($ev.isEnrolled() && $clubService.isActiveEvent($ev.getEvent()))
+                <tr>
+                    <td>$p.getName()</td>
+                    <td>
+                        #if($ev.getEvent().getPage())
+                        <a href="/page/$ev.getEvent().getPage().getUrlName()"><i class="icon-link"></i> $ev.getEvent().getName()</a>
+                        #else
+                        $ev.getEvent().getName()
+                        #end
+                    </td>
+                    <td>#if($ev.getEvent().requireMembership())Ja#{else}Nei#end</td>
+                    <td>#if($ev.getEvent().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($ev.getCreated())</td>
+                </tr>
+        #end
+    #end
+#end
+            </tbody>
+        </table>
+    </div>
+</div>
+#end
+
+#if($clubService.getActiveTeamMembershipCountForFamily($family) > 0 || $clubService.getActiveEventParticipationCountForFamilyThatRequireMembership($family) > 0)
 <p class="text-warning">
     <span class="label label-warning"><i class="icon-warning-sign"></i></span> 
-    <strong>Så lenge personer som er inkludert i medlemskapet er påmeldt en eller flere aktiviteter kan man ikke avslutte medlemskapet i idrettslaget.</strong>
+    <strong>Så lenge personer i familien er påmeldt en eller flere aktiviteter eller arrangement som krever medlemskap kan man ikke avslutte medlemskapet i idrettslaget.</strong>
 </p>
 #end

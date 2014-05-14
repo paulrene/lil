@@ -1,11 +1,14 @@
 package no.leinstrandil.web;
 
+import no.leinstrandil.database.model.club.EventParticipation;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.club.ClubMembership;
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Address;
@@ -78,6 +81,9 @@ public class MyPageController implements Controller {
         } else if (tab.equals("aktiviteter")) {
             context.put("family", family);
             context.put("membership", membership);
+        } else if (tab.equals("arrangement")) {
+            context.put("family", family);
+            context.put("membership", membership);
         }
 
     }
@@ -112,9 +118,81 @@ public class MyPageController implements Controller {
             removePrincipalFromTeam(user, request, errorMap, infoList);
         } else if ("add-principal-to-team".equals(action)) {
             addPrincipalToTeam(user, request, errorMap, infoList);
+        } else if ("add-principal-to-event".equals(action)) {
+            addPrincipalToEvent(user, request, errorMap, infoList);
+        } else if ("remove-principal-from-event".equals(action)) {
+            removePrincipalFromEvent(user, request, errorMap, infoList);
         }
 
         return null;
+    }
+
+    private void addPrincipalToEvent(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String principalIdStr = request.queryParams("principalid");
+        String eventIdStr = request.queryParams("eventid");
+        if (principalIdStr == null || eventIdStr == null) {
+            errorMap.put("add", "Mangler identifikatorer.");
+        }
+        Long principalId = null;
+        Long eventId = null;
+        try {
+            principalId = Long.parseLong(principalIdStr);
+            eventId = Long.parseLong(eventIdStr);
+        } catch(NumberFormatException e) {
+            errorMap.put("add", "Tøysekopp, du må velge en person og et arrangement i listen ovenfor for å registrere en påmelding.");
+            return;
+        }
+        Principal principal = userService.getPrincipalById(principalId);
+        Event event = clubService.getEventById(eventId);
+
+        if (!userService.isFamilyMember(user.getPrincipal().getFamily(), principal)) {
+            errorMap.put("add", "Du kan ikke melde på noen som ikke er i din familie.");
+            return;
+        }
+        if (!clubService.isEnrolledAsClubMember(user.getPrincipal().getFamily())) {
+            errorMap.put("add", "Dette arrangementet krever at man er medlem av idrettslaget. Gå til medlemskapssiden og meld deg inn først.");
+        }
+        if (event.isClosed()) {
+            errorMap.put("add", "Påmeldingen kan ikke gjennomføres fordi arrangementet er lukket av administrator.");
+            return;
+        }
+        if (!clubService.isActiveEvent(event)) {
+            errorMap.put("add", "Du kan ikke melde deg på et avsluttet arrangement.");
+            return;
+        }
+
+        int ageThatYear = userService.getAgeThatYearOnTime(principal, event.getStartTime());
+
+        boolean failed = false;
+        StringBuilder str = new StringBuilder();
+        str.append("Påmeldingen kan ikke gjennomføres fordi arrangementet krever at deltagerens alder må være ");
+        if (event.getMinimumAge() != null && event.getMaximumAge() != null
+                && (ageThatYear < event.getMinimumAge() || ageThatYear > event.getMaximumAge())) {
+            str.append("fra ").append(event.getMinimumAge()).append(" t.o.m. ").append(event.getMaximumAge()).append(" år.");
+            failed = true;
+        } else if (event.getMinimumAge() == null && event.getMaximumAge() != null
+                && ageThatYear > event.getMaximumAge()) {
+            str.append(event.getMaximumAge()).append(" år eller yngre,");
+            failed = true;
+        } else if (event.getMinimumAge() != null && event.getMaximumAge() == null
+                && ageThatYear < event.getMinimumAge()) {
+            str.append(event.getMinimumAge()).append(" år eller eldre.");
+            failed = true;
+        }
+        if (failed) {
+            errorMap.put("add", str.toString());
+            return;
+        }
+
+        ServiceResponse response = clubService.createEventParticipation(principal, event);
+        if (response.isSuccess()) {
+            if (clubService.hasEventStarted(event)) {
+                infoList.add("Vær oppmerksom på at arrangementet har staret.");
+            }
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("add", response.getMessage());
+        }
     }
 
     private void addPrincipalToTeam(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
@@ -184,6 +262,52 @@ public class MyPageController implements Controller {
             return;
         }
         ServiceResponse response = clubService.deleteTeamMembership(teamMembership);
+        if (response.isSuccess()) {
+            infoList.add(response.getMessage());
+        } else {
+            errorMap.put("remove", response.getMessage());
+        }
+    }
+
+    private void removePrincipalFromEvent(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        String eventParticipationIdStr = request.queryParams("eventparticipationid");
+        if (eventParticipationIdStr == null) {
+            errorMap.put("remove", "Ingen påmeldingsindikator oppgitt");
+            return;
+        }
+        Long eventParticipationId = null;
+        try {
+            eventParticipationId = Long.parseLong(eventParticipationIdStr);
+        } catch(NumberFormatException e) {
+            errorMap.put("remove", "Påmeldingsindikatoren er ikke gyldig.");
+            return;
+        }
+        EventParticipation eventParticipation = clubService.getEventParticipationById(eventParticipationId);
+        if (eventParticipation == null) {
+            errorMap.put("remove", "Ingen påmelding funnet.");
+            return;
+        }
+        if (!userService.isOfAge(user.getPrincipal())) {
+            errorMap.put("remove", "Du har ikke rettigheter til å slette denne påmeldingen.");
+            return;
+        }
+        if (!userService.isFamilyMember(user.getPrincipal().getFamily(), eventParticipation.getPrincipal())) {
+            errorMap.put("remove", "Du kan ikke slette påmeldingen til noen som ikke er i din familie.");
+            return;
+        }
+        if (eventParticipation.getEvent().isLocked()) {
+            errorMap.put("remove", "Du kan ikke slette denne påmeldingen fordi den er låst av administrator.");
+            return;
+        }
+        if (clubService.hasEventStarted(eventParticipation.getEvent())) {
+            errorMap.put("remove", "Du kan ikke melde deg av et arrangement som er har startet.");
+            return;
+        }
+        if (!clubService.isActiveEvent(eventParticipation.getEvent())) {
+            errorMap.put("remove", "Du kan ikke melde deg av et arrangement som er ferdig.");
+            return;
+        }
+        ServiceResponse response = clubService.deleteEventParticipation(eventParticipation);
         if (response.isSuccess()) {
             infoList.add(response.getMessage());
         } else {
