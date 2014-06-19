@@ -26,6 +26,8 @@
     <class>no.leinstrandil.database.model.club.EventParticipation</class>
     <class>no.leinstrandil.database.model.club.ClubMembership</class>
     <class>no.leinstrandil.database.model.club.TeamMembership</class>
+    <class>no.leinstrandil.database.model.accounting.Invoice</class>
+    <class>no.leinstrandil.database.model.accounting.InvoiceLine</class>
 
 
     <!-- <shared-cache-mode>NONE</shared-cache-mode> -->

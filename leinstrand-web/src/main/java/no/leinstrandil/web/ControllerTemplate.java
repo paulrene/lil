@@ -8,7 +8,8 @@ public enum ControllerTemplate {
     SEARCHRESULTS("searchresults"),
     MYPAGE("mypage"),
     SIGNIN("signin"),
-    TEAMLEAD("teamlead");
+    TEAMLEAD("teamlead"),
+    ACCOUNTING("accounting");
 
     private String id;
 

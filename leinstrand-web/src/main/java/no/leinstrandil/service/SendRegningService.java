@@ -131,6 +131,7 @@ public class SendRegningService {
 
         List<Invoice> deliveredList = sws.sendInvoices(invoiceList, "TESTBATCHID6");
         System.out.println(deliveredList);
+
     }
 
 

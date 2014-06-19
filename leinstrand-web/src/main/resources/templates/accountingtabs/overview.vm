@@ -1,0 +1,36 @@
+
+
+
+
+
+
+
+    <div class="heading">
+        <h2>Velg lag eller aktivitet som skal faktureres</h2>
+    </div>
+
+    <form class="form-inline" role="form" method="post" action="/page/$thisPage.getUrlName()?tab=aktiviteter">
+        <input type="hidden" name="action" value="add-principal-to-team">
+
+        <div class="form-group">
+            <select class="form-control" name="teamid" required>
+                <option>-- Velg lag eller aktivitet --</option>
+    #set($sportList = $clubService.getSports())
+    #foreach($sport in $sportList)
+                <optgroup label="$sport.getName()">
+        #set($teamList = $sport.getTeams())
+        #foreach($team in $teamList)
+            #if($team.isClosed())
+                    <option value="$team.getId()" disabled>$team.getName() (Ikke åpen for påmelding)</option>
+            #else
+                    <option value="$team.getId()">$team.getName()#if($team.getDescription()) -- $team.getDescription()#end</option>
+            #end
+        #end
+                </optgroup>
+    #end
+            </select>
+        </div>
+        <button type="submit" class="btn btn-mini btn-primary">Meld på!</button>
+    </form>
+
+    #fielderror( "add" )

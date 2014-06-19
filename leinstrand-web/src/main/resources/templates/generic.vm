@@ -53,7 +53,7 @@
 #set($half = $favList.size() / 2)
                     <ul class="list-unstyled col-xs-6">
 #foreach($fav in $favList)
-                        <li><a href="/page/$fav.getUrlName()">$fav.getTitle()</a></li>
+                        <li><a target="_blank" href="/page/$fav.getUrlName()">$fav.getTitle()</a></li>
     #if($velocityCount == $half)
                     </ul>
                     <ul class="list-unstyled col-xs-6">
