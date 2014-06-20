@@ -142,6 +142,12 @@ public class MyPageController implements Controller {
             errorMap.put("add", "Tøysekopp, du må velge en person og et arrangement i listen ovenfor for å registrere en påmelding.");
             return;
         }
+
+        if (!userService.isOfAge(user.getPrincipal())) {
+            errorMap.put("add", "Du har ikke rettigheter til å foreta denne påmeldingen.");
+            return;
+        }
+
         Principal principal = userService.getPrincipalById(principalId);
         Event event = clubService.getEventById(eventId);
 
@@ -216,9 +222,15 @@ public class MyPageController implements Controller {
             principalId = Long.parseLong(principalIdStr);
             teamId = Long.parseLong(teamIdStr);
         } catch(NumberFormatException e) {
-            errorMap.put("remove", "Tøysekopp, du må velge en person og en aktivitet i listen ovenfor for å registrere en påmelding.");
+            errorMap.put("add", "Tøysekopp, du må velge en person og en aktivitet i listen ovenfor for å registrere en påmelding.");
             return;
         }
+
+        if (!userService.isOfAge(user.getPrincipal())) {
+            errorMap.put("add", "Du har ikke rettigheter til å foreta denne påmeldingen.");
+            return;
+        }
+
         Principal principal = userService.getPrincipalById(principalId);
         Team team = clubService.getTeamById(teamId);
         if (!userService.isFamilyMember(user.getPrincipal().getFamily(), principal)) {

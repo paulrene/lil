@@ -68,7 +68,7 @@
                                         $member.getName() 
                                         #if($member.getUser())<i class="icon-user"></i> #end
                                     </td>
-                                    <td colspan="3">Invitasjonen utløper $pageService.prettyTimeForInvitationExpiry($invitation.getCreated())</td>
+                                    <td colspan="4">Invitasjonen utløper $pageService.prettyTimeForInvitationExpiry($invitation.getCreated())</td>
                                     <td><span class="label label-default">Invitert til familien</span></td>
                                     <td></td>
                                 </tr>

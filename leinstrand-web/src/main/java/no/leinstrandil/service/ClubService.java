@@ -352,7 +352,7 @@ public class ClubService {
         try {
             storage.persist(membership);
             storage.commit();
-            return new ServiceResponse(true, "Du er nå meldt av denne aktiviteten.");
+            return new ServiceResponse(true, "Personen er nå meldt av denne aktiviteten.");
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke endres på nåværende tidspunkt.");
@@ -372,7 +372,7 @@ public class ClubService {
         try {
             storage.persist(membership);
             storage.commit();
-            return new ServiceResponse(true, "Du er nå påmeldt denne aktiviteten.");
+            return new ServiceResponse(true, "Personen er nå påmeldt denne aktiviteten.");
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
@@ -389,7 +389,7 @@ public class ClubService {
         try {
             storage.persist(participation);
             storage.commit();
-            return new ServiceResponse(true, "Du er nå meldt av dette arrangementet.");
+            return new ServiceResponse(true, "Personen er nå meldt av dette arrangementet.");
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke endres på nåværende tidspunkt.");
@@ -409,7 +409,7 @@ public class ClubService {
         try {
             storage.persist(participation);
             storage.commit();
-            return new ServiceResponse(true, "Du er nå påmeldt dette arrangementet.");
+            return new ServiceResponse(true, "Personen er nå påmeldt dette arrangementet.");
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Påmeldingen kunne ikke opprettes på nåværende tidspunkt.");
