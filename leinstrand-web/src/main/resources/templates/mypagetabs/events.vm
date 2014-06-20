@@ -102,7 +102,7 @@
                     </tr>
                 </thead>
                 <tbody>
-    #if($clubService.getActiveTeamMembershipCountForFamily($family) > 0)
+    #if($clubService.getActiveEventParticipationCountForFamily($family) > 0)
         #foreach($p in $family.getMembers())
             #set($status = $clubService.getEventParticipationStatusForPrincipal($p))
             #foreach($ep in $status.values())
@@ -132,7 +132,7 @@
                                 #end
                             #else
                                 #if($ep.getEvent().getPriceMember())
-                            $ep.getEvent().getPriceNonMember(),-
+                            $ep.getEvent().getPriceNonMember(),- (ikke medlem)
                                 #end
                             #end
                         </td>

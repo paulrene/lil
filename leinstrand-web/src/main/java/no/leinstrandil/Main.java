@@ -354,6 +354,13 @@ public class Main {
             @Override
             public Object handle(Request request, Response response) {
                 response.type("application/json");
+                User user = userService.getLoggedInUserFromSession(request);
+                if (user == null) {
+                    return new JSONObject().put("error", "Not authenticated!").toString();
+                }
+                if (!userService.hasRole(user, "editor")) {
+                    return new JSONObject().put("error", "Not authorized!").toString();
+                }
                 if (!ServletFileUpload.isMultipartContent(request.raw())) {
                     halt(400);
                 }
@@ -371,7 +378,7 @@ public class Main {
                             resource.setContentType(item.getContentType());
                             resource.setOriginalFileName(item.getName());
                             resource.setData(IOUtils.toByteArray(stream));
-                            resource.setUploader(null);
+                            resource.setUploader(user);
                             resource.setFileName(UUID.randomUUID() + "." + getFileEnding(item));
                             resource.setCreated(new Date());
                             storage.begin();
@@ -379,7 +386,6 @@ public class Main {
                             storage.commit();
                             log.info("Received new resource named " + item.getName() + " with content-type "
                                     + item.getContentType());
-                            response.type("application/json");
                             JSONObject o = new JSONObject();
                             o.put("filename", resource.getOriginalFileName());
                             o.put("filelink", "/resources/" + resource.getFileName());

@@ -482,8 +482,8 @@ public class UserService {
 
         StringBuilder text = new StringBuilder();
         text.append("Hei, ").append(emailAddress.getPrincipal().getName()).append("!<br><br>");
-        text.append("Vi mottok en forespørsel om å endre e-postadressen din på nettsiden til Leinstrand IL. ");
-        text.append("Bruk lenken nedenfor for å bekrefte den nye e-postadressen:<br><br>");
+        text.append("Vi mottok en forespørsel om å legge til eller endre din e-postadressen på nettsiden til Leinstrand IL. ");
+        text.append("Klikk lenken nedenfor for å bekrefte den nye e-postadressen:<br><br>");
         text.append("<strong>Bekreft e-postadressen:</strong> ");
         text.append("<a href=\"%baseUrl%page/signin?tab=verifiserepost&code=").append(emailAddress.getVerificationCode());
         text.append("\">%baseUrl%page/signin?tab=verifiserepost&code=").append(emailAddress.getVerificationCode()).append("</a><br><br>");

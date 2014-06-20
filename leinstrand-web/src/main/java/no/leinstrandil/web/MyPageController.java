@@ -149,7 +149,7 @@ public class MyPageController implements Controller {
             errorMap.put("add", "Du kan ikke melde på noen som ikke er i din familie.");
             return;
         }
-        if (!clubService.isEnrolledAsClubMember(user.getPrincipal().getFamily())) {
+        if (event.requireMembership() && !clubService.isEnrolledAsClubMember(user.getPrincipal().getFamily())) {
             errorMap.put("add", "Dette arrangementet krever at man er medlem av idrettslaget. Gå til medlemskapssiden og meld deg inn først.");
         }
         if (event.isClosed()) {
@@ -181,6 +181,12 @@ public class MyPageController implements Controller {
         }
         if (failed) {
             errorMap.put("add", str.toString());
+            return;
+        }
+
+        EventParticipation eventParticipation = clubService.getLastEnrollmentToEventForPrincipal(event, principal);
+        if (eventParticipation != null && eventParticipation.isEnrolled()) {
+            errorMap.put("add", "Personen er allerede påmeldt dette arrangementet.");
             return;
         }
 

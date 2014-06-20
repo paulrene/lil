@@ -207,6 +207,9 @@ public class ClubService {
     }
 
     public boolean isActiveEvent(Event event) {
+        if (event.getEndTime() == null) {
+            return event.getStartTime().after(new Date());
+        }
         return event.getEndTime().after(new Date());
     }
 
