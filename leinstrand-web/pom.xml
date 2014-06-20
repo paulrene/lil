@@ -103,6 +103,17 @@
       <groupId>no.sws.app</groupId>
       <artifactId>sws-client</artifactId>
       <version>1.14-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>1.7.5</version>
     </dependency>
   </dependencies>
 

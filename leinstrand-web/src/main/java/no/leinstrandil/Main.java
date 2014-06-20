@@ -112,7 +112,7 @@ public class Main {
         velocity.setProperty("classpath.resource.loader.modificationCheckInterval", "2");
         velocity.setProperty("velocimacro.library.autoreload", "true");
         velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+                "org.apache.velocity.runtime.log.Log4JLogSystem");
         velocity.setProperty("velocimacro.context.localscope", "true");
         velocity.init();
 
