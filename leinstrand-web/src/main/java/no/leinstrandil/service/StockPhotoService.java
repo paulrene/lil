@@ -37,6 +37,9 @@ public class StockPhotoService {
         photoList.add(new StockPhoto("lil_stock_26.jpg", "kurs", "klubbdommerkurs", "aktivitetslederkurs"));
         photoList.add(new StockPhoto("lil_stock_27.jpg", "granåsen", "olympiatoppen"));
         photoList.add(new StockPhoto("lil_stock_28.jpg", "dalgård", "friidrett"));
+        photoList.add(new StockPhoto("lil_stock_29.jpg", "hestsjøen"));
+        photoList.add(new StockPhoto("lil_stock_30.jpg", "motbakkeløp", "motbakkeløpet"));
+        photoList.add(new StockPhoto("lil_stock_31.jpg", "jøldalshytta"));
 
         defaultPhoto = new StockPhoto("lil_stock_19.jpg");
     }
