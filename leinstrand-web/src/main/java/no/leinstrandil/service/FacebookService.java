@@ -1,5 +1,8 @@
 package no.leinstrandil.service;
 
+import java.net.MalformedURLException;
+
+import java.util.ArrayList;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -11,6 +14,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
@@ -134,13 +139,38 @@ public class FacebookService {
         }
 
         String body = post.getMessage();
-        if (body == null && post.getStory() != null) {
-            return post.getStory();
+        if (body == null) {
+            body = post.getStory();
         }
         if (body == null) {
             body = new String();
         }
-        return body;
+
+        StringBuffer newBody = new StringBuffer();
+        String[] bodyParts = body.split("\\s");
+        for(String bodyPart : bodyParts) {
+            try {
+                URL url = new URL(bodyPart);
+                newBody.append("<a target=\"_blank\" href=\"");
+                newBody.append(url.toString());
+                newBody.append("\">");
+                newBody.append(url.toString());
+                newBody.append("</a>");
+            } catch (MalformedURLException e) {
+                newBody.append(bodyPart);
+            }
+            if (newBody.length() > 400 && post.getLinkUrl() !=null) {
+                newBody.append("... ");
+                newBody.append("<a target=\"_blank\" href=\"");
+                newBody.append(post.getLinkUrl());
+                newBody.append("\"><strong class=\"color-green\">Les Mer</strong></a>");
+                break;
+            } else {
+                newBody.append(" ");
+            }
+        }
+
+        return newBody.toString();
     }
 
     public String getPublished(FacebookPost post) {
@@ -219,7 +249,7 @@ public class FacebookService {
 
     public List<FacebookPost> getFacebookNews(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
-                + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo') "
+                + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo' or p.facebookType = 'video') "
                 + "and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
         query.setMaxResults(maxResults);
         return query.getResultList();
@@ -232,7 +262,7 @@ public class FacebookService {
             reading.since(facebookPage.getLastSync());
         }*/
 
-        facebookPage.setLastSync(new Date());
+//        facebookPage.setLastSync(new Date());
 
         syncPosts(facebookPage, facebook, postReading);
 
@@ -242,6 +272,117 @@ public class FacebookService {
         storage.begin();
         storage.persist(facebookPage);
         storage.commit();
+    }
+
+    public static String getYoutubeVideoId(String youtubeUrl) {
+        String videoId = null;
+        if (youtubeUrl != null && youtubeUrl.trim().length() > 0 && youtubeUrl.startsWith("http")) {
+            String expression = "^.*((youtu.be"+ "\\/)"
+                    + "|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#\\&\\?]*).*";
+            CharSequence input = youtubeUrl;
+            Pattern pattern = Pattern.compile(expression,Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(input);
+            if (matcher.matches()) {
+                String groupIndex1 = matcher.group(7);
+                if (groupIndex1!=null && groupIndex1.length()==11)
+                    videoId = groupIndex1;
+            }
+        }
+        return videoId;
+    }
+
+    public static List<String> getYoutubeUrls(String text) {
+        List<String> list = new ArrayList<String>();
+        if (text == null) {
+            return list;
+        }
+        String pattern = "https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube\\.com\\S*[^\\w\\-\\s])"
+                +"([\\w\\-]{11})(?=[^\\w\\-]|$)(?![?=&+%\\w]*(?:['\"][^<>]*>|<\\/a>))[?=&+%\\w]*";
+        Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = compiledPattern.matcher(text);
+        while(matcher.find()) {
+            list.add(matcher.group());
+        }
+        return list;
+    }
+
+    private void syncPosts(FacebookPage facebookPage, Facebook facebook, Reading reading) throws FacebookException {
+        ResponseList<Post> posts = facebook.getPosts(facebookPage.getFacebookPageIdentifier(), reading);
+
+        for (Post post : posts) {
+            FacebookPost newPost = null;
+            if ("photo".equals(post.getType()) && "added_photos".equals(post.getStatusType())) {
+                newPost = new FacebookPost();
+            } else if ("status".equals(post.getType()) && "mobile_status_update".equals(post.getStatusType())) {
+                newPost = new FacebookPost();
+            } else if ("link".equals(post.getType()) && "shared_story".equals(post.getStatusType())) {
+                newPost = new FacebookPost();
+            } else if ("video".equals(post.getType()) && "shared_story".equals(post.getStatusType())) {
+                newPost = new FacebookPost();
+            }
+
+            if (newPost != null) {
+                FacebookPost existingPost = getFacebookPostByFacebookPostId(post.getId());
+                if (existingPost != null) {
+                    existingPost.setFacebookPage(facebookPage);
+                    existingPost.setFacebookPostId(post.getId());
+                    existingPost.setPictureUrl(urlToString(post.getPicture()));
+                    existingPost.setLinkUrl(urlToString(post.getLink()));
+                    existingPost.setMessage(post.getMessage());
+                    existingPost.setStory(post.getStory());
+                    existingPost.setCaption(post.getCaption());
+                    existingPost.setDescription(post.getDescription());
+                    existingPost.setFacebookUpdated(post.getUpdatedTime());
+                    if ("photo".equals(post.getType())) {
+                        existingPost.setPictureUrl(facebook.getPhotoURL(post.getObjectId()).toString());                    }
+                    if ("video".equals(post.getType())) {
+                        List<String> utUrlList = getYoutubeUrls(post.getMessage());
+                        for(String utUrl : utUrlList) {
+                            String utId = getYoutubeVideoId(utUrl);
+                            if (utId != null) {
+                                StringBuilder picUrl = new StringBuilder("http://i.ytimg.com/vi/");
+                                picUrl.append(utId);
+                                picUrl.append("/maxresdefault.jpg");
+                                existingPost.setPictureUrl(picUrl.toString());
+                            }
+                        }
+                    }
+                    log.info("Detecting existing FB " + post.getType() + " with message: " + post.getMessage());
+                } else {
+                    newPost.setFacebookPage(facebookPage);
+                    newPost.setFacebookPostId(post.getId());
+                    newPost.setPictureUrl(urlToString(post.getPicture()));
+                    newPost.setLinkUrl(urlToString(post.getLink()));
+                    newPost.setMessage(post.getMessage());
+                    newPost.setStory(post.getStory());
+                    newPost.setCaption(post.getCaption());
+                    newPost.setDescription(post.getDescription());
+                    newPost.setFacebookType(post.getType());
+                    newPost.setFacebookCreated(post.getCreatedTime());
+                    newPost.setFacebookUpdated(post.getUpdatedTime());
+                    newPost.setCreated(new Date());
+                    if ("photo".equals(post.getType())) {
+                        newPost.setPictureUrl(facebook.getPhotoURL(post.getObjectId()).toString());
+                    }
+                    if ("video".equals(post.getType())) {
+                        List<String> utUrlList = getYoutubeUrls(post.getMessage());
+                        for(String utUrl : utUrlList) {
+                            String utId = getYoutubeVideoId(utUrl);
+                            if (utId != null) {
+                                StringBuilder picUrl = new StringBuilder("http://i.ytimg.com/vi/");
+                                picUrl.append(utId);
+                                picUrl.append("/maxresdefault.jpg");
+                                newPost.setPictureUrl(picUrl.toString());
+                            }
+                        }
+                    }
+                    storage.begin();
+                    storage.persist(newPost);
+                    storage.commit();
+                    log.info("Detecting new FB " + post.getType() + " with message: " + post.getMessage());
+                }
+            }
+        }
     }
 
     private void syncEvents(FacebookPage facebookPage, Facebook facebook, Reading reading) throws FacebookException {
@@ -264,54 +405,6 @@ public class FacebookService {
                 storage.begin();
                 storage.persist(fe);
                 storage.commit();
-            }
-        }
-    }
-
-    private void syncPosts(FacebookPage facebookPage, Facebook facebook, Reading reading) throws FacebookException {
-        ResponseList<Post> posts = facebook.getPosts(facebookPage.getFacebookPageIdentifier(), reading);
-
-        for (Post post : posts) {
-            FacebookPost newPost = null;
-            if ("photo".equals(post.getType()) && "added_photos".equals(post.getStatusType())) {
-                newPost = new FacebookPost();
-            } else if ("status".equals(post.getType()) && "mobile_status_update".equals(post.getStatusType())) {
-                newPost = new FacebookPost();
-            } else if ("link".equals(post.getType()) && "shared_story".equals(post.getStatusType())) {
-                newPost = new FacebookPost();
-            }
-
-            if (newPost != null) {
-                FacebookPost existingPost = getFacebookPostByFacebookPostId(post.getId());
-                if (existingPost != null) {
-                    existingPost.setFacebookPage(facebookPage);
-                    existingPost.setFacebookPostId(post.getId());
-                    existingPost.setPictureUrl(urlToString(post.getPicture()));
-                    existingPost.setLinkUrl(urlToString(post.getLink()));
-                    existingPost.setMessage(post.getMessage());
-                    existingPost.setStory(post.getStory());
-                    existingPost.setCaption(post.getCaption());
-                    existingPost.setDescription(post.getDescription());
-                    existingPost.setFacebookUpdated(post.getUpdatedTime());
-                    log.info("Detecting existing FB " + post.getType() + " with message: " + post.getMessage());
-                } else {
-                    newPost.setFacebookPage(facebookPage);
-                    newPost.setFacebookPostId(post.getId());
-                    newPost.setPictureUrl(urlToString(post.getPicture()));
-                    newPost.setLinkUrl(urlToString(post.getLink()));
-                    newPost.setMessage(post.getMessage());
-                    newPost.setStory(post.getStory());
-                    newPost.setCaption(post.getCaption());
-                    newPost.setDescription(post.getDescription());
-                    newPost.setFacebookType(post.getType());
-                    newPost.setFacebookCreated(post.getCreatedTime());
-                    newPost.setFacebookUpdated(post.getUpdatedTime());
-                    newPost.setCreated(new Date());
-                    storage.begin();
-                    storage.persist(newPost);
-                    storage.commit();
-                    log.info("Detecting new FB " + post.getType() + " with message: " + post.getMessage());
-                }
             }
         }
     }
