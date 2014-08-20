@@ -10,6 +10,7 @@ import no.leinstrandil.database.model.web.FacebookPage;
 import no.leinstrandil.database.model.web.FacebookPost;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.PageService;
 import org.apache.velocity.VelocityContext;
@@ -21,10 +22,12 @@ public class FacebookController implements Controller {
 
     private FacebookService facebookService;
     private PageService pageService;
+    private ClubService clubService;
 
-    public FacebookController(FacebookService facebookService, PageService pageService) {
+    public FacebookController(FacebookService facebookService, PageService pageService, ClubService clubService) {
         this.facebookService = facebookService;
         this.pageService = pageService;
+        this.clubService = clubService;
    }
 
     @Override
@@ -41,7 +44,9 @@ public class FacebookController implements Controller {
             pageList.add(facebookService.getFacebookPageByPageId(pageIdentifier));
         }
 
-        context.put("events", facebookService.getFBFutureEvents(pageList.get(0)));
+        context.put("facebookEvents", facebookService.getFBFutureEvents(pageList.get(0)));
+
+        context.put("events", clubService.getFutureEvents());
 
         List<FacebookPost> newsList = new ArrayList<>();
         List<FacebookPost> photoList = new ArrayList<>();

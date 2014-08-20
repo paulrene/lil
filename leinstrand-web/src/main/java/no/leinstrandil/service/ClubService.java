@@ -287,6 +287,17 @@ public class ClubService {
         return query.getResultList();
     }
 
+    public boolean isEventEnded(Event event) {
+        Date end = event.getEndTime();
+        if (end == null) {
+            end = event.getStartTime();
+        }
+        if (end == null) {
+            return true;
+        }
+        return end.before(new Date());
+    }
+
     public int getEnrolledCountForEvent(Event event) {
         int count = 0;
         Map<Principal, EventParticipation> status = getEventParticipationForEvent(event);
