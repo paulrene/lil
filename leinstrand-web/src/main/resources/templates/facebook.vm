@@ -116,7 +116,7 @@
                 <div class="blog-twitter-inner">
                     <a target="_blank" href="/page/minside?tab=arrangement">$e.getName()</a>
                     #if($e.getDescription())<span><i class="icon-info-sign"></i> $e.getDescription()</span>#end
-                    #if($e.getDescription())<span><i class="icon-ticket"></i> Deltageravgift: $e.getPriceMember(),-#if($e.getPriceNonMember()) ($e.getPriceNonMember(),-)#end#if($e.requireMembership()) (kun LIL medlemmer)#end</span>#end 
+                    #if($e.getPriceMember())<span><i class="icon-ticket"></i> Deltageravgift: $e.getPriceMember(),-#if($e.getPriceNonMember()) ($e.getPriceNonMember(),-)#end#if($e.requireMembership()) (kun LIL medlemmer)#end</span>#end 
                     <span#if($clubService.isEventEnded($e)) style="text-decoration:line-through"#end><i class="icon-calendar"></i> $pageService.formatDateTimeNoSeconds($e.getStartTime())</span>
                 </div>
 #end
