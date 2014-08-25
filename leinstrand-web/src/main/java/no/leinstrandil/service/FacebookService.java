@@ -187,7 +187,12 @@ public class FacebookService {
 
     public String getEventTime(FacebookEvent event) {
         StringBuilder time = new StringBuilder();
-        time.append(new SimpleDateFormat("EEEE (d.M.yy) HH:mm").format(event.getStartTime()));
+        DateTime startTime = new DateTime(event.getStartTime());
+        if (DateTime.now().getYear() == startTime.getYear()) {
+            time.append(new SimpleDateFormat("EEEE (d. MMM) HH:mm").format(event.getStartTime()));
+        } else {
+            time.append(new SimpleDateFormat("EEEE (d.M.yyyy) HH:mm").format(event.getStartTime()));
+        }
         if (event.getEndTime() != null) {
             time.append(" - ");
             time.append(new SimpleDateFormat("HH:mm").format(event.getEndTime()));

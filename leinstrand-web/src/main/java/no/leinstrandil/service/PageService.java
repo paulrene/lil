@@ -97,8 +97,20 @@ public class PageService {
         return new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(date);
     }
 
+    public String formatDateTimeAdaptedNoSeconds(Date date) {
+        DateTime dateTime = new DateTime(date);
+        if (DateTime.now().getYear() == dateTime.getYear()) {
+            return new SimpleDateFormat("EEEE (d. MMM) HH:mm").format(date);
+        }
+        return new SimpleDateFormat("EEEE (d.M.yyyy) HH:mm").format(date);
+    }
+
     public String formatDateTimeShort(Date date) {
         return new SimpleDateFormat("d. MMM, HH:mm").format(date);
+    }
+
+    public String formatTimeShort(Date date) {
+        return new SimpleDateFormat("HH:mm").format(date);
     }
 
     public String formatYear(Date date) {

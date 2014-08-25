@@ -28,6 +28,7 @@ public class Event {
     private Boolean requireMembership;
     private Boolean closed;
     private Boolean locked;
+    private Date attendanceTime;
     private Date startTime;
     private Date endTime;
     @ManyToOne @JoinColumn(name = "pageId")
@@ -162,6 +163,14 @@ public class Event {
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
+    }
+
+    public Date getAttendanceTime() {
+        return attendanceTime;
+    }
+
+    public void setAttendanceTime(Date attendanceTime) {
+        this.attendanceTime = attendanceTime;
     }
 
 }
