@@ -97,7 +97,7 @@
                         <th>Start</th>
                         <th>Avdeling</th>
                         <th>Påmeldt</th>
-                        <th>Deltageravgift</th>
+                        <th>D.avgift</th>
                         <th>Endre</th>
                     </tr>
                 </thead>
@@ -124,7 +124,10 @@
                             Hovedlaget
                             #end
                         </td>
-                        <td>#if($ep.getEvent().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($ep.getCreated())</td>
+                        <td>
+                            #if($ep.getEvent().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end
+                            $pageService.formatDateTimeShort($ep.getCreated())
+                        </td>
                         <td>
                             #if($membership.isEnrolled())
                                 #if($ep.getEvent().getPriceMember())

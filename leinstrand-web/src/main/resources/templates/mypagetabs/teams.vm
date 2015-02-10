@@ -68,7 +68,7 @@
                             #end
                         </td>
                         <td>$tm.getTeam().getSport().getName()</td>
-                        <td>#if($tm.getTeam().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDate($tm.getCreated())</td>
+                        <td>#if($tm.getTeam().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end$pageService.formatDateTimeShort($tm.getCreated())</td>
                         <td>
                     #if($userService.isOfAge($user.getPrincipal()) && !$tm.getTeam().isLocked())
                             <form class="form-inline" method="post" action="/page/$thisPage.getUrlName()?tab=aktiviteter">
