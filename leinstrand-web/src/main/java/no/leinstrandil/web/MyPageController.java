@@ -1,7 +1,5 @@
 package no.leinstrandil.web;
 
-import no.leinstrandil.database.model.club.EventParticipation;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.Event;
+import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Address;
@@ -393,7 +392,7 @@ public class MyPageController implements Controller {
         Family family = user.getPrincipal().getFamily();
         List<Principal> list = family.getMembers();
         for (Principal principal : list) {
-            if (principal.getId() == principalId) {
+            if (principal.getId().longValue() == principalId.longValue()) {
                 return principal;
             }
         }
@@ -404,7 +403,7 @@ public class MyPageController implements Controller {
             boolean wantToEnroll) {
         Boolean confirm = Boolean.parseBoolean(request.queryParams("confirm"));
         if (!confirm) {
-            errorMap.put("save", "Du må bekrefte handlingen ved å hake av i avkryssningsboksen.");
+            errorMap.put("save", "Du må bekrefte handlingen ved å hake av boksen.");
             return;
         }
         ServiceResponse response = clubService.updateClubMembership(user, wantToEnroll);

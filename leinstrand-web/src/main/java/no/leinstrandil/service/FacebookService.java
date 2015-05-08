@@ -70,7 +70,7 @@ public class FacebookService {
 
     public String getTitle(FacebookPost post) {
         String[] stopWords = new String[] { "i", "på", "mellom", "over", "under", "av", "bak", "før", "etter", "hos",
-                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som", "fra", "da", "når", "opp" };
+                "gjennom", "utenom", "blant", "å", "og", "for", "til", "som", "fra", "da", "når", "opp", "er" };
         String message = getBody(post);
         if (message.length() < 6) {
             return message;
@@ -102,7 +102,9 @@ public class FacebookService {
         }
         index = titleStr.indexOf('.');
         if (index > 4) {
-            titleStr = titleStr.substring(0, index);
+//            if (!Character.isDigit(titleStr.charAt(index - 1))) {
+                titleStr = titleStr.substring(0, index);
+//            }
         }
         index = titleStr.indexOf(',');
         if (index > 0) {
@@ -254,7 +256,7 @@ public class FacebookService {
 
     public List<FacebookPost> getFacebookNews(FacebookPage facebookPage, int maxResults) {
         TypedQuery<FacebookPost> query = storage.createQuery("from FacebookPost p where p.facebookPage.id = "
-                + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo' or p.facebookType = 'video') "
+                + facebookPage.getId() + " and (p.facebookType = 'status' or p.facebookType = 'photo' or p.facebookType = 'video' or p.facebookType='link') "
                 + "and p.message is not null order by p.facebookCreated desc", FacebookPost.class);
         query.setMaxResults(maxResults);
         return query.getResultList();
@@ -315,6 +317,12 @@ public class FacebookService {
         ResponseList<Post> posts = facebook.getPosts(facebookPage.getFacebookPageIdentifier(), reading);
 
         for (Post post : posts) {
+
+/*            System.out.println(post.getMessage());
+            System.out.println(post.getType());
+            System.out.println(post.getStatusType());
+            System.out.println("--------------------------");*/
+
             FacebookPost newPost = null;
             if ("photo".equals(post.getType()) && "added_photos".equals(post.getStatusType())) {
                 newPost = new FacebookPost();

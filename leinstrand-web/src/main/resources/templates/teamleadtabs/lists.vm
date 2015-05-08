@@ -97,6 +97,9 @@
                         #if($gNumber)
                         <i class="icon-mobile-phone"></i> <a href="tel:$gNumber">$gNumber</a> ($guardian.getName())
                         #end
+                        #set($guardian = false)
+                        #set($gNumber = false)
+                        #set($number = false)
                     </td>
                     <td>
                         #if($userService.getAge($member) < 18)
@@ -115,6 +118,9 @@
                         #if($gEmail)
                         <i class="icon-envelope"></i> <a href="mailto:$gEmail">$gEmail</a> ($guardian.getName())
                         #end
+                        #set($guardian = false)
+                        #set($gEmail = false)
+                        #set($email = false)
                     </td>
 #end
 #if(!$showContactInfo)

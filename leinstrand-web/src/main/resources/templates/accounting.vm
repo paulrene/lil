@@ -13,14 +13,15 @@
 
         <div class="tab-v2">
             <ul class="nav nav-tabs">
-                <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-group"></i> Oversikt</a></li>
+                <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-list-ul"></i> Oversikt</a></li>
+                <li class="#if($tab=="medlemmer")active#end"><a href="/page/$thisPage.getUrlName()?tab=medlemmer"><i class="icon-user"></i> Medlemmer</a></li>
             </ul>
             <div class="tab-content">
-
 #if($tab=="oversikt")
     #parse("templates/accountingtabs/overview.vm")
+#elseif($tab=="medlemmer") 
+    #parse("templates/accountingtabs/members.vm")
 #end
-
             </div>
         </div>
 

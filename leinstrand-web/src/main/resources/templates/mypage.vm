@@ -10,10 +10,11 @@
         <div class="col-md-3">
             <div class="headline">
                 <h2>
-#if($user.getPrincipal().getPictureUrl())
-                    <img class="img-circle" style="height:32px;vertical-align:middle;" src="$user.getPrincipal().getPictureUrl()"> $user.getUsername()
+#set($principal = $user.getPrincipal())
+#if($principal.getPictureUrl())
+                    <img class="img-circle" style="height:32px;vertical-align:middle;" src="$principal.getPictureUrl()"> $principal.getFirstName() $!principal.getMiddleName()
 #else
-                    <i class="icon-user"></i>$user.getUsername()
+                    <i class="icon-user"></i>$principal.getFirstName() $!principal.getMiddleName()
 #end
                 </h2>
             </div>
