@@ -10,13 +10,16 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 import no.leinstrandil.Config;
+import no.leinstrandil.incident.Incident;
+import no.leinstrandil.incident.IncidentHub;
+import no.leinstrandil.incident.IncidentListener;
 import org.masukomi.aspirin.Aspirin;
 import org.masukomi.aspirin.listener.AspirinListener;
 import org.masukomi.aspirin.listener.ResultState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MailService implements AspirinListener {
+public class MailService implements AspirinListener, IncidentListener {
     private final static Logger log = LoggerFactory.getLogger(MailService.class);
 
     private Config config;
@@ -29,6 +32,8 @@ public class MailService implements AspirinListener {
         Aspirin.getConfiguration().setEncoding("UTF-8");
 
         Aspirin.addListener(this);
+
+        IncidentHub.addIncidentListener(this);
     }
 
     @Override
@@ -88,5 +93,10 @@ public class MailService implements AspirinListener {
         }
         return false;
 
+    }
+
+    @Override
+    public void incidentOccured(Incident incident) {
+        sendNoReplyHtmlMessage("leder@leinstrandil.no", "[Event] " + incident.getClass().getName(), incident.toReport());
     }
 }

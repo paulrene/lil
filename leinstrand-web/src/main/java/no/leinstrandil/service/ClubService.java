@@ -20,6 +20,8 @@ import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Family;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.incident.ClubIncident;
+import no.leinstrandil.incident.IncidentHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +79,7 @@ public class ClubService {
                 message.append("Du må registrere ");
                 appendList(message, errorList);
                 message.append(" før du kan foreta innmelding.");
+                IncidentHub.report(new ClubIncident(user.getPrincipal(), "could_not_enroll", errorList.toString()));
                 return new ServiceResponse(false, message.toString());
             }
         } else { // Utmelding
@@ -136,9 +139,11 @@ public class ClubService {
                         user.getPrincipal().getFamily().getPrimaryPrincipal().getEmailAddressList().get(0).getEmail(),
                         "Velkommen som medlem i Leinstrand idrettslag!", text.toString());
                 log.info("User " + user.getUsername() + " has been enrolled as club member.");
+                IncidentHub.report(new ClubIncident(user.getPrincipal(), "enrolled_as_member"));
                 return new ServiceResponse(true, "Din medlemsstatus er blitt oppdatert. Velkommen som medlem!");
             } else {
                 log.info("User "+ user.getUsername()+ " has been DISenrolled as club member.");
+                IncidentHub.report(new ClubIncident(user.getPrincipal(), "DISenrolled_as_member"));
                 return new ServiceResponse(true, "Din medlemsstatus er blitt oppdatert. Du er ikke lenger registrert som medlem.");
             }
         } catch (RuntimeException e) {
@@ -363,6 +368,7 @@ public class ClubService {
         try {
             storage.persist(membership);
             storage.commit();
+            IncidentHub.report(new ClubIncident(teamMembership.getPrincipal(), "delete_team_membership", teamMembership.getTeam().getName()));
             return new ServiceResponse(true, "Personen er nå meldt av denne aktiviteten.");
         } catch (RuntimeException e) {
             storage.rollback();
@@ -383,6 +389,7 @@ public class ClubService {
         try {
             storage.persist(membership);
             storage.commit();
+            IncidentHub.report(new ClubIncident(principal, "create_team_membership", team.getName()));
             return new ServiceResponse(true, "Personen er nå påmeldt denne aktiviteten.");
         } catch (RuntimeException e) {
             storage.rollback();
@@ -400,6 +407,7 @@ public class ClubService {
         try {
             storage.persist(participation);
             storage.commit();
+            IncidentHub.report(new ClubIncident(eventParticipation.getPrincipal(), "delete_event_participation", eventParticipation.getEvent().getName()));
             return new ServiceResponse(true, "Personen er nå meldt av dette arrangementet.");
         } catch (RuntimeException e) {
             storage.rollback();
@@ -420,6 +428,7 @@ public class ClubService {
         try {
             storage.persist(participation);
             storage.commit();
+            IncidentHub.report(new ClubIncident(principal, "create_event_participation", event.getName()));
             return new ServiceResponse(true, "Personen er nå påmeldt dette arrangementet.");
         } catch (RuntimeException e) {
             storage.rollback();

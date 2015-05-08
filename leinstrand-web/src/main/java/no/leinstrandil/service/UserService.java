@@ -22,6 +22,9 @@ import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.Role;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.incident.IncidentHub;
+import no.leinstrandil.incident.PrincipalIncident;
+import no.leinstrandil.incident.UserIncident;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.Minutes;
@@ -291,6 +294,7 @@ public class UserService {
         text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
 
         mailService.sendNoReplyHtmlMessage(emailList.get(0).getEmail(), "Passordtilbakestilling for Leinstrand IL", text.toString());
+        IncidentHub.report(new UserIncident(user, "password_reset_initiated"));
     }
 
     public String generateResetPasswordCode(User user) {
@@ -321,6 +325,7 @@ public class UserService {
             storage.persist(user);
             storage.commit();
             log.info("Password reset for user " + user.getId() + " has been authorized with code " + code + " and age " + age + " minutes.");
+            IncidentHub.report(new UserIncident(user, "password_reset_authorized"));
             return user;
         } catch (NoResultException e) {
             log.warn("Could not find any user for ResetPasswordCode " + code);
@@ -335,6 +340,7 @@ public class UserService {
             storage.begin();
             storage.persist(user);
             storage.commit();
+            IncidentHub.report(new UserIncident(user, "password_set"));
             return true;
         } catch (NoSuchAlgorithmException e) {
             log.warn("Could not set password for user " + user.getId() + " due to: " + e.getMessage(), e);
@@ -394,6 +400,7 @@ public class UserService {
         try {
             storage.persist(address);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(user.getPrincipal(), "address_added", address1 + ", " + zip + " " + city));
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
@@ -419,6 +426,7 @@ public class UserService {
         try {
             storage.persist(mobileNumber);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(user.getPrincipal(), "mobile_added", mobile));
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
@@ -464,6 +472,7 @@ public class UserService {
         try {
             storage.persist(emailAddress);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(user.getPrincipal(), "email_address_added", email));
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
@@ -490,6 +499,7 @@ public class UserService {
         text.append("Med vennlig hilsen,<br>Leinstrand idrettslag.");
 
         mailService.sendNoReplyHtmlMessage(emailAddress.getEmail(), "Bekreft ny e-postadresse for Leinstrand IL", text.toString());
+        IncidentHub.report(new PrincipalIncident(emailAddress.getPrincipal(), "email_verification_sent", emailAddress.getEmail()));
     }
 
     public ServiceResponse addFamilyMember(User user, String name, Date birthDate, String gender) {
@@ -507,6 +517,7 @@ public class UserService {
             storage.persist(principal);
             storage.persist(family);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(principal, "principal_added_to_family", family.getPrimaryPrincipal().getName()));
         } catch (RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en feil ved lagring. Vennligst forsøk igjen.");
@@ -542,6 +553,7 @@ public class UserService {
             storage.begin();
             storage.persist(emailAddress);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(emailAddress.getPrincipal(), "email_verified", emailAddress.getEmail()));
         }
         return true;
     }
@@ -563,6 +575,7 @@ public class UserService {
         try {
             storage.delete(principal);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(principal, "principal_destroyed"));
             return new ServiceResponse(true, "Personen ble slettet.");
         } catch(RuntimeException e) {
             storage.rollback();
@@ -573,11 +586,13 @@ public class UserService {
     public ServiceResponse setPrimaryPrincipal(Principal principal, Family family) {
         if (isPrimaryContactCandidate(principal)) {
             if (isFamilyMember(family, principal)) {
+                Principal previousPrimaryPrincipal = family.getPrimaryPrincipal();
                 family.setPrimaryPrincipal(principal);
                 storage.begin();
                 try {
                     storage.persist(family);
                     storage.commit();
+                    IncidentHub.report(new PrincipalIncident(principal, "primary_family_contact_changed", previousPrimaryPrincipal != null ? previousPrimaryPrincipal.getName() : null));
                     return new ServiceResponse(true, "Ny primærkontakt er satt.");
                 } catch(RuntimeException e) {
                     storage.rollback();
@@ -657,6 +672,7 @@ public class UserService {
             mailService.sendNoReplyHtmlMessage(principal.getEmailAddressList().get(0).getEmail(),
                     "Invitasjon til familiemedlemskap i Leinstrand IL", text.toString());
 
+            IncidentHub.report(new PrincipalIncident(principal, "family_invitation_sent", family.getPrimaryPrincipal().getName()));
             return new ServiceResponse(true, "Brukeren er blitt invitert til din familie.");
         } catch(RuntimeException e) {
             storage.rollback();
@@ -696,6 +712,7 @@ public class UserService {
             storage.persist(principal);
             storage.delete(invitation);
             storage.commit();
+            IncidentHub.report(new PrincipalIncident(principal, "family_invitation_accepted", family.getPrimaryPrincipal().getName()));
             return new ServiceResponse(true, "Du har akseptert invitasjonen og er nå medlem av familien til " + family.getPrimaryPrincipal().getName() + ".");
         } catch(RuntimeException e) {
             storage.rollback();

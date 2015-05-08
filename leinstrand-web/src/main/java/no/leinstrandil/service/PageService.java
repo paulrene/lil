@@ -15,6 +15,8 @@ import no.leinstrandil.database.model.web.Node;
 import no.leinstrandil.database.model.web.Page;
 import no.leinstrandil.database.model.web.TextNode;
 import no.leinstrandil.database.model.web.User;
+import no.leinstrandil.incident.IncidentHub;
+import no.leinstrandil.incident.PageIncident;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -171,6 +173,7 @@ public class PageService {
         page.setUpdated(new Date());
         storage.persist(page);
         storage.commit();
+        IncidentHub.report(new PageIncident(author.getPrincipal(), "edit_text_node", identifier));
         log.info("TextNode saved: urlName="+page.getUrlName()+", identifier="+identifier+", author="+author);
         return true;
     }
