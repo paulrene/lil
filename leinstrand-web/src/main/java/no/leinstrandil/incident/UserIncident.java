@@ -15,10 +15,10 @@ public class UserIncident extends Incident {
     @Override
     public String toReport() {
         StringBuffer o = new StringBuffer();
-        o.append("user.id: " + user.getId() + "\n");
-        o.append("user.facebookId: " + user.getFacebookId() + "\n");
-        o.append("user.principal.name: " + user.getPrincipal().getName() + "\n");
-        o.append("action: " + action + "\n");
+        o.append("user.id: " + user.getId() + "<br>\n");
+        o.append("user.facebookId: " + user.getFacebookId() + "<br>\n");
+        o.append("user.principal.name: " + user.getPrincipal().getName() + "<br>\n");
+        o.append("action: " + action + "<br>\n");
         return o.toString();
     }
 

@@ -97,6 +97,6 @@ public class MailService implements AspirinListener, IncidentListener {
 
     @Override
     public void incidentOccured(Incident incident) {
-        sendNoReplyHtmlMessage("leder@leinstrandil.no", "[Event] " + incident.getClass().getName(), incident.toReport());
+        sendNoReplyHtmlMessage("leder@leinstrandil.no", "[Event] " + incident.getClass().getSimpleName(), incident.toReport());
     }
 }

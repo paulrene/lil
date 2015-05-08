@@ -21,11 +21,11 @@ public class PrincipalIncident extends Incident {
     @Override
     public String toReport() {
         StringBuffer o = new StringBuffer();
-        o.append("principal.id: " + principal.getId() + "\n");
-        o.append("principal.name: " + principal.getName() + "\n");
-        o.append("principal.birthDate: " + principal.getBirthDate() + "\n");
-        o.append("action: " + action + "\n");
-        o.append("object: " + object + "\n");
+        o.append("principal.id: " + principal.getId() + "<br>\n");
+        o.append("principal.name: " + principal.getName() + "<br>\n");
+        o.append("principal.birthDate: " + principal.getBirthDate() + "<br>\n");
+        o.append("action: " + action + "<br>\n");
+        o.append("object: " + object + "<br>\n");
         return o.toString();
     }
 
