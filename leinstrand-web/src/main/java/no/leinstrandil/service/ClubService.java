@@ -448,6 +448,11 @@ public class ClubService {
         return map;
     }
 
+    public int getTeamCount() {
+        TypedQuery<Team> teamQuery = storage.createQuery("from Team", Team.class);
+        return teamQuery.getResultList().size();
+    }
+
     public int getEnrolledCountForTeam(Team team) {
         int count = 0;
         Map<Principal, TeamMembership> status = getTeamMembershipsForTeam(team);

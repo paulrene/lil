@@ -122,7 +122,6 @@ public class MyPageController implements Controller {
         } else if ("remove-principal-from-event".equals(action)) {
             removePrincipalFromEvent(user, request, errorMap, infoList);
         }
-
         return null;
     }
 

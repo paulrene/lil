@@ -17,6 +17,8 @@ import no.leinstrandil.database.model.person.Family;
 @Table(name = "invoice")
 public class Invoice {
 
+    public static enum Status { OPEN, CLOSED, SENT, PAID, CREDITED };
+
     @Id @GeneratedValue
     private Long id;
     @ManyToOne @JoinColumn(name = "familyId")
@@ -26,6 +28,7 @@ public class Invoice {
     private String externalInvoiceNumber;
     private Date externalInvoiceDate;
     private Date externalInvoiceDue;
+    private Status status;
     private Date created;
 
     public Invoice() {
@@ -42,6 +45,14 @@ public class Invoice {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Family getFamily() {

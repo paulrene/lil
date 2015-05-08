@@ -1,0 +1,30 @@
+    <div class="heading">
+        <h4>Velg lag og aktiviteter som skal faktureres</h4>
+    </div>
+
+    <form role="form" method="post" action="/page/$thisPage.getUrlName()?tab=fakturer">
+        <input type="hidden" name="action" value="create-invoices">
+
+        <div class="form-group">
+            <select class="form-control" name="teamid" required multiple size="$clubService.getTeamCount()">
+                <optgroup label="Klubben">
+                    <option value="-1">Medlemskontigent for inneværende år</option>
+                </optgroup>
+    #set($sportList = $clubService.getSports())
+    #foreach($sport in $sportList)
+                <optgroup label="$sport.getName()">
+        #set($teamList = $sport.getTeams())
+        #foreach($team in $teamList)
+                    <option value="$team.getId()">$team.getName() - [$clubService.getEnrolledCountForTeam($team) stk] #if($team.isClosed())[LUKKET]#end #if($team.isLocked())[LÅST]#end</option>
+        #end
+                </optgroup>
+    #end
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Opprett fakturaer</button>
+    </form>
+
+    #fielderror( "doinvoice" )
+#if($info)
+    <span class="label label-success"><i class="icon-check"></i> Fakturaer for $info.length() lag opprettet.</span>
+#end

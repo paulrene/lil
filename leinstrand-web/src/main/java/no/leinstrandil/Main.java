@@ -1,7 +1,5 @@
 package no.leinstrandil;
 
-import no.leinstrandil.web.AccoutingController;
-
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
@@ -27,12 +25,15 @@ import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.FacebookService;
 import no.leinstrandil.service.FileService;
+import no.leinstrandil.service.InvoiceService;
 import no.leinstrandil.service.MailService;
 import no.leinstrandil.service.MenuService;
 import no.leinstrandil.service.PageService;
 import no.leinstrandil.service.SearchService;
+import no.leinstrandil.service.SendRegningService;
 import no.leinstrandil.service.StockPhotoService;
 import no.leinstrandil.service.UserService;
+import no.leinstrandil.web.AccoutingController;
 import no.leinstrandil.web.ContactController;
 import no.leinstrandil.web.Controller;
 import no.leinstrandil.web.ControllerTemplate;
@@ -85,11 +86,12 @@ public class Main {
     private final StockPhotoService stockPhotoService;
     private final FacebookService facebookService;
     private final MailService mailService;
+    private final SendRegningService sendRegningService;
+    private final InvoiceService invoiceService;
     private final VelocityEngine velocity;
     private final Config config;
 
     private Map<String, Controller> controllers;
-
 
     public Main(Config config) throws MalformedURLException {
         this.config = config;
@@ -104,6 +106,8 @@ public class Main {
         searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
+        sendRegningService = new SendRegningService(storage, userService);
+        invoiceService = new InvoiceService(storage, userService, sendRegningService);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -123,7 +127,7 @@ public class Main {
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService, clubService));
         controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(mailService, userService, clubService));
         controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
-        controllers.put(ControllerTemplate.ACCOUNTING.getId(), new AccoutingController(mailService, userService, clubService));
+        controllers.put(ControllerTemplate.ACCOUNTING.getId(), new AccoutingController(userService, clubService, invoiceService));
 
         Spark.staticFileLocation("/static");
         Spark.setPort(config.getPort());
