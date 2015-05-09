@@ -53,11 +53,14 @@ public class UserService {
             Principal principal = user.getPrincipal();
             if (!principal.getPictureUrl().equals(fbPictureUrl)) {
                 principal.setPictureUrl(fbPictureUrl);
-                storage.begin();
-                storage.persist(principal);
-                storage.commit();
                 log.info("Found new Facebook profile picture for user: " + user.getUsername());
             }
+            // Update updated date everytime to know when a user last logged in
+            principal.setUpdated(new Date());
+            storage.begin();
+            storage.persist(principal);
+            storage.commit();
+
             // TODO: Update user object?
             log.info("Known user " + user.getId() + ":" + user.getUsername() + " found.");
             return user;
@@ -270,6 +273,9 @@ public class UserService {
     }
 
     public boolean isPrimaryContact(Principal principal) {
+        if (principal.getFamily() == null) {
+            return false;
+        }
         return principal.getId().equals(principal.getFamily().getPrimaryPrincipal().getId());
     }
 
@@ -704,16 +710,36 @@ public class UserService {
             return new ServiceResponse(false, "Beklager, men invitasjonen har utløpt. Den var bare gyldig i " + FAMILY_INVITAION_EXPIRY_DAYS + " dager.");
         }
         Principal principal = invitation.getPrincipal();
-        Family family = invitation.getFamily();
-        principal.setFamily(family);
-        family.getMembers().add(principal);
+        if (isPrimaryContact(principal)) {
+            Family oldFamily = principal.getFamily();
+            if (oldFamily != null && oldFamily.getMembers().size() > 1) {
+                return new ServiceResponse(false, "Du kan ikke forlate en familie der du er primærkontakt og som fortsatt inneholder familiemedlemmer. Du må først slette eksisterende familiemedlemmer slik at du står igjen som eneste familiemedlem eller gjøre noen andre til primærkontakt og forsøk igjen.");
+            }
+        }
+
+        Family oldFamily = principal.getFamily();
+        Family newFamily = invitation.getFamily();
+        principal.setFamily(newFamily);
+        newFamily.getMembers().add(principal);
         storage.begin();
         try {
             storage.persist(principal);
             storage.delete(invitation);
             storage.commit();
-            IncidentHub.report(new PrincipalIncident(principal, "family_invitation_accepted", family.getPrimaryPrincipal().getName()));
-            return new ServiceResponse(true, "Du har akseptert invitasjonen og er nå medlem av familien til " + family.getPrimaryPrincipal().getName() + ".");
+            if (oldFamily != null && oldFamily.getMembers().size() == 1) {
+                storage.begin();
+                try {
+                    storage.delete(oldFamily);
+                    storage.commit();
+                    log.info("Last principal left family with id " + oldFamily.getId() + " and the family was deleted successfully. New family id for principal with id " + principal.getId() + " is " + newFamily.getId());
+                    IncidentHub.report(new PrincipalIncident(principal, "old_family_deleted", newFamily.getPrimaryPrincipal().getName()));
+                } catch(RuntimeException e) {
+                    log.warn("Could not delete old family with id " + oldFamily.getId(), e);
+                    storage.rollback();
+                }
+            }
+            IncidentHub.report(new PrincipalIncident(principal, "family_invitation_accepted", newFamily.getPrimaryPrincipal().getName()));
+            return new ServiceResponse(true, "Du har akseptert invitasjonen og er nå medlem av familien til " + newFamily.getPrimaryPrincipal().getName() + ".");
         } catch(RuntimeException e) {
             storage.rollback();
             return new ServiceResponse(false, "Invitasjonen kunne ikke behandles på nåværende tidspunkt.");
@@ -734,6 +760,12 @@ public class UserService {
         if (!hasValidAddress(user)) errorList.add("<i class=\"icon-home\"></i> postadresse");
         if (!hasValidMobile(user)) errorList.add("<i class=\"icon-mobile-phone\"></i> mobilnummer");
         return errorList;
+    }
+
+    public List<Family> getAllFamilies() {
+        TypedQuery<Family> query = storage.createQuery("from Family", Family.class);
+        List<Family> list = query.getResultList();
+        return list;
     }
 
 }
