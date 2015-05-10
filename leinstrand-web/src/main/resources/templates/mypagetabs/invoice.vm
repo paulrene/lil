@@ -1,0 +1,44 @@
+    <div class="tab-pane#if($tab=="faktura") active#end" id="invoice">
+        <h4>Dine fakturaer</h4>
+        <p>
+            Nedenfor ser du en oversikt over ubetalte og betalte fakturaer fra oss som du har mottatt siste $goBackMonths måneder.
+        </p>
+#if($sentList.size() == 0 && $paidList.size() == 0)
+        <p><i>Ingen fakturaer registrert.</i></p>
+#else
+        <table class="table table-striped">
+            <thead>
+                <tr> <!-- class="hidden-sm" -->
+                    <th>#</th>
+                    <th>Dato</th>
+                    <th>Forfall</th>
+                    <th>Betalt</th>
+                    <th>Beløp</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+#foreach($invoice in $sentList)
+                <tr>
+                    <td>$!invoice.getExternalInvoiceNumber()</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDate())</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDue())</td>
+                    <td> </td>
+                    <td>$invoiceService.getInvoiceDueAmount($invoice),-</td>
+                    <td><span class="label label-warning">Ubetalt</span></td>
+                </tr>
+#end
+#foreach($invoice in $paidList)
+                <tr>
+                    <td>$!invoice.getExternalInvoiceNumber()</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDate())</td>
+                    <td> </td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoicePaid())</td>
+                    <td>$invoiceService.getInvoiceDueAmount($invoice),-</td>
+                    <td><span class="label label-success">Betalt</span></td>
+                </tr>
+#end
+            </tbody>
+        </table>
+#end
+    </div>

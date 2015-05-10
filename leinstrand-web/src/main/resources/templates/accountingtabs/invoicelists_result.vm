@@ -25,7 +25,7 @@
                     <td>$invoiceService.getInvoiceDueAmount($invoice) NOK</td>
                     <td>
                         <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
-                            <input type="hidden" name="tab" value="fakturaliste">
+                            <input type="hidden" name="tab" value="behandling">
                             <input type="hidden" name="action" value="list-invoice-of-type">
                             <input type="hidden" name="invoice-status" value="$selectedStatus">
                             <input type="hidden" name="invoiceid" value="$invoice.getId()">
@@ -50,7 +50,7 @@
                     <th>$sum NOK</th>
                     <th>
                         <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
-                            <input type="hidden" name="tab" value="fakturaliste">
+                            <input type="hidden" name="tab" value="behandling">
                             <input type="hidden" name="invoice-status" value="$selectedStatus">
                         #if($invoiceService.isStatusDeletable($selectedStatus))
                             <button class="btn btn-danger btn-xs" name="action" value="delete-all-invoices" title="Slett alle fakturaer"><i class="icon-trash"></i> Slett alle</button>

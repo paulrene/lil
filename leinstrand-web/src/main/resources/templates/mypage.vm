@@ -27,6 +27,7 @@
                 <li#if($tab=="medlemskap") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=medlemskap"><i class="icon-list-alt"></i> Medlemskap</a></li>
                 <li#if($tab=="aktiviteter") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=aktiviteter"><i class="icon-trophy"></i> Aktiviteter</a></li>
                 <li#if($tab=="arrangement") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=arrangement"><i class="icon-ticket"></i> Arrangement</a></li>
+                <li#if($tab=="faktura") class="active"#end><a href="/page/$thisPage.getUrlName()?tab=faktura"><i class="icon-money"></i> Fakturaer#if($invoiceCount>0) ($invoiceCount)#end</a></li>
             </ul>
         </div>
         <!--End Sidebar Menu-->
@@ -54,6 +55,8 @@
     #parse("templates/mypagetabs/events.vm")
 #elseif($tab=="aktiviteter")
     #parse("templates/mypagetabs/teams.vm")
+#elseif($tab=="faktura")
+    #parse("templates/mypagetabs/invoice.vm")
 #end
 
                 </div>

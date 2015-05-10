@@ -15,14 +15,14 @@
             <ul class="nav nav-tabs">
                 <li class="#if($tab=="oversikt")active#end"><a href="/page/$thisPage.getUrlName()?tab=oversikt"><i class="icon-bar-chart"></i> Oversikt</a></li>
                 <li class="#if($tab=="fakturer")active#end"><a href="/page/$thisPage.getUrlName()?tab=fakturer"><i class="icon-money"></i> Opprett fakturaer</a></li>
-                <li class="#if($tab=="fakturaliste")active#end"><a href="/page/$thisPage.getUrlName()?tab=fakturaliste"><i class="icon-list-ul"></i> Fakturalister</a></li>
+                <li class="#if($tab=="behandling")active#end"><a href="/page/$thisPage.getUrlName()?tab=behandling"><i class="icon-list-ul"></i> Fakturabehandling</a></li>
             </ul>
             <div class="tab-content">
 #if($tab=="oversikt")
     #parse("templates/accountingtabs/overview.vm")
 #elseif($tab=="fakturer") 
     #parse("templates/accountingtabs/createinvoices.vm")
-#elseif($tab=="fakturaliste") 
+#elseif($tab=="behandling") 
     #parse("templates/accountingtabs/invoicelists.vm")
 #end
             </div>

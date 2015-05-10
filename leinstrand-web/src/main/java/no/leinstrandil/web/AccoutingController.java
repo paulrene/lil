@@ -37,7 +37,7 @@ public class AccoutingController implements Controller {
 
         if (tab.equals("oversikt")) {
             context.put("invoiceCountReport", invoiceService.getInvoiceCountPerStatusReport());
-        } else if (tab.equals("fakturaliste")) {
+        } else if (tab.equals("behandling")) {
             context.put("statusList", Invoice.Status.values());
             if ("list-invoice-of-type".equals(action)) {
                 String subAction = request.queryParams("sub-action");
@@ -45,15 +45,15 @@ public class AccoutingController implements Controller {
                 String invoiceIdStr = request.queryParams("invoiceid");
                 if ("delete-invoice".equals(subAction)) {
                     ServiceResponse response = invoiceService.deleteInvoice(Long.parseLong(invoiceIdStr));
-                    if (response.isSuccess()) {
-                        context.put("info", response.getMessage());
-                    } else {
-                        context.put("error", response.getMessage());
-                    }
+                    populateServiceResponse(context, response);
                 }
-                if ("edit-invoice".equals(subAction) || "view-invoice".equals(subAction)) {
+                if ("view-invoice".equals(subAction)) {
                     Invoice invoice = invoiceService.getInvoiceById(Long.parseLong(invoiceIdStr));
                     context.put("invoice", invoice);
+                }
+                if ("send-invoice".equals(subAction)) {
+                    ServiceResponse response = invoiceService.sendInvoice(Long.parseLong(invoiceIdStr));
+                    populateServiceResponse(context, response);
                 }
                 String statusStr = request.queryParams("invoice-status");
                 Invoice.Status status = Invoice.Status.valueOf(statusStr);
@@ -64,15 +64,27 @@ public class AccoutingController implements Controller {
                 String statusStr = request.queryParams("invoice-status");
                 Invoice.Status status = Invoice.Status.valueOf(statusStr);
                 ServiceResponse response = invoiceService.deleteAllInvoicesWithStatus(status);
-                if (response.isSuccess()) {
-                    context.put("info", response.getMessage());
-                } else {
-                    context.put("error", response.getMessage());
-                }
+                populateServiceResponse(context, response);
+                context.put("selectedStatus", status);
+                context.put("invoiceService", invoiceService);
+                context.put("invoiceList", invoiceService.getInvoicesWithStatus(status));
+            } else if ("send-all-invoices".equals(action)) {
+                String statusStr = request.queryParams("invoice-status");
+                Invoice.Status status = Invoice.Status.valueOf(statusStr);
+                ServiceResponse response = invoiceService.sendAllInvoicesWithStatus(status);
+                populateServiceResponse(context, response);
                 context.put("selectedStatus", status);
                 context.put("invoiceService", invoiceService);
                 context.put("invoiceList", invoiceService.getInvoicesWithStatus(status));
             }
+        }
+    }
+
+    private void populateServiceResponse(VelocityContext context, ServiceResponse response) {
+        if (response.isSuccess()) {
+            context.put("info", response.getMessage());
+        } else {
+            context.put("error", response.getMessage());
         }
     }
 

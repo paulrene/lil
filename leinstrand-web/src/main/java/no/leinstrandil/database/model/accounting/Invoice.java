@@ -1,6 +1,5 @@
 package no.leinstrandil.database.model.accounting;
 
-import org.hibernate.annotations.CascadeType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +13,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.person.Family;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Table(name = "invoice")
@@ -31,6 +31,7 @@ public class Invoice {
     private String externalInvoiceNumber;
     private Date externalInvoiceDate;
     private Date externalInvoiceDue;
+    private Date externalInvoicePaid;
     private Status status;
     private Date created;
 
@@ -96,6 +97,14 @@ public class Invoice {
 
     public void setExternalInvoiceDue(Date externalInvoiceDue) {
         this.externalInvoiceDue = externalInvoiceDue;
+    }
+
+    public Date getExternalInvoicePaid() {
+        return externalInvoicePaid;
+    }
+
+    public void setExternalInvoicePaid(Date externalInvoicePaid) {
+        this.externalInvoicePaid = externalInvoicePaid;
     }
 
 }

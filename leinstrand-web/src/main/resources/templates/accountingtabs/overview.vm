@@ -14,7 +14,7 @@
 #set($keys = $invoiceCountReport.keySet())
 #foreach($status in $keys)
             <tr>
-                <td><a href="/page/$thisPage.getUrlName()?tab=fakturaliste&action=list-invoice-of-type&invoice-status=$status"><i class="icon-link"></i> $status</a></td>
+                <td><a href="/page/$thisPage.getUrlName()?tab=behandling&action=list-invoice-of-type&invoice-status=$status"><i class="icon-link"></i> $status</a></td>
                 <td>$invoiceCountReport.get($status)</td>
             </tr>
 #end

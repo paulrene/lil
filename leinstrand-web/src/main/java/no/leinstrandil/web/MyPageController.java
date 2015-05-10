@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.accounting.Invoice;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.EventParticipation;
@@ -17,6 +18,7 @@ import no.leinstrandil.database.model.person.MobileNumber;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
+import no.leinstrandil.service.InvoiceService;
 import no.leinstrandil.service.ServiceResponse;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
@@ -24,13 +26,16 @@ import org.json.JSONObject;
 import spark.Request;
 
 public class MyPageController implements Controller {
+    private static final int GO_BACK_MONTHS = 12;
 
     private UserService userService;
     private ClubService clubService;
+    private InvoiceService invoiceService;
 
-    public MyPageController(UserService userService, ClubService clubService) {
+    public MyPageController(UserService userService, ClubService clubService, InvoiceService invoiceService) {
         this.userService = userService;
         this.clubService = clubService;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -43,6 +48,7 @@ public class MyPageController implements Controller {
 
         Family family = userService.ensureFamilyForUser(user);
         ClubMembership membership = clubService.ensureClubMembership(user, false);
+        context.put("invoiceCount", invoiceService.getInvoiceCountForFamilyWithStatus(family, Invoice.Status.SENT, GO_BACK_MONTHS));
 
         if (tab.equals("adresse")) {
             List<Address> addressList = user.getPrincipal().getAddressList();
@@ -88,6 +94,11 @@ public class MyPageController implements Controller {
         } else if (tab.equals("arrangement")) {
             context.put("family", family);
             context.put("membership", membership);
+        } else if (tab.equals("faktura")) {
+            context.put("invoiceService", invoiceService);
+            context.put("goBackMonths", GO_BACK_MONTHS);
+            context.put("sentList", invoiceService.getInvoicesForFamilyWithStatus(family, Invoice.Status.SENT, GO_BACK_MONTHS));
+            context.put("paidList", invoiceService.getInvoicesForFamilyWithStatus(family, Invoice.Status.PAID, GO_BACK_MONTHS));
         }
 
     }

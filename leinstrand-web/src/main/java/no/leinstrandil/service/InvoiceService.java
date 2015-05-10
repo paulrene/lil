@@ -1,6 +1,7 @@
 package no.leinstrandil.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -182,6 +183,9 @@ public class InvoiceService {
     }
 
     public String formatDate(Date date) {
+        if (date == null) {
+            return new String();
+        }
         return new SimpleDateFormat("dd.MM.yyyy").format(date);
     }
 
@@ -234,6 +238,9 @@ public class InvoiceService {
     }
 
     public ServiceResponse deleteAllInvoicesWithStatus(Status status) {
+        if (!isStatusDeletable(status)) {
+            return new ServiceResponse(false, "Fakturaer med status " + status + " kan ikke slettes.");
+        }
         List<Invoice> list = getInvoicesWithStatus(status);
         storage.begin();
         try {
@@ -246,6 +253,56 @@ public class InvoiceService {
             storage.rollback();
             return new ServiceResponse(false, "Det oppstod en fail under sletting av alle fakturaer med status " + status + ".");
         }
+    }
+
+    public ServiceResponse sendInvoice(long invoiceId) {
+        Invoice invoice = getInvoiceById(invoiceId);
+        if (invoice == null) {
+            return new ServiceResponse(false, "Finner ingen faktura med id " + invoiceId);
+        }
+        if (!isStatusSendable(invoice.getStatus())) {
+            return new ServiceResponse(false, "Faktura med id " + invoiceId + " er ikke i en sendbar tilstand.");
+        }
+        storage.begin();
+        try {
+            // TODO
+            invoice.setStatus(Status.SENT);
+            storage.commit();
+            return new ServiceResponse(true, "Faktura med id " + invoiceId + " ble sendt.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Det oppstod en feil under sending av faktura med id " + invoiceId);
+        }
+    }
+
+    public ServiceResponse sendAllInvoicesWithStatus(Status status) {
+        if (!isStatusSendable(status)) {
+            return new ServiceResponse(false, "Fakturaer med status " + status + " kan ikke sendes.");
+        }
+        // TODO
+        return new ServiceResponse(false, "Ikke implementert");
+    }
+
+    public int getInvoiceCountForFamilyWithStatus(Family family, Status status, int goBackMonths) {
+        return getInvoicesForFamilyWithStatus(family, status, goBackMonths).size();
+    }
+
+    public List<Invoice> getInvoicesForFamilyWithStatus(Family family, Status status, int goBackMonths) {
+        List<Invoice> resultList = new ArrayList<>();
+        List<Invoice> invoiceList = family.getInvoices();
+        for (Invoice invoice : invoiceList) {
+            if (invoice.getStatus() == status) {
+                Date date = invoice.getExternalInvoiceDate();
+                if (date == null) {
+                    date = invoice.getCreated();
+                }
+                DateTime dateTime = new DateTime(date);
+                if (dateTime.isAfter(DateTime.now().minusMonths(goBackMonths))) {
+                    resultList.add(invoice);
+                }
+            }
+        }
+        return resultList;
     }
 
 }
