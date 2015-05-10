@@ -6,7 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.person.Family;
 
 @Entity
@@ -19,13 +21,22 @@ public class ClubMembership {
     private Boolean enrolled;
     @ManyToOne @JoinColumn(name = "familyId")
     private Family family;
-
+    @OneToOne(mappedBy = "clubMembership")
+    private InvoiceLine invoiceLine;
 
     public ClubMembership() {
     }
 
     public Long getId() {
         return id;
+    }
+
+    public InvoiceLine getInvoiceLine() {
+        return invoiceLine;
+    }
+
+    public void setInvoiceLine(InvoiceLine invoiceLine) {
+        this.invoiceLine = invoiceLine;
     }
 
     public Date getCreated() {

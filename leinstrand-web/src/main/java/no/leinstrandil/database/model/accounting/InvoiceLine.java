@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.EventParticipation;
@@ -15,7 +16,7 @@ import no.leinstrandil.database.model.person.Principal;
 
 @Entity
 @Table(name = "invoiceline")
-public abstract class InvoiceLine {
+public class InvoiceLine {
 
     @Id @GeneratedValue
     private Long id;
@@ -26,18 +27,19 @@ public abstract class InvoiceLine {
     private Integer unitPrice;
     private Integer taxPercent;
     private String productCode; // 9 chars
+    private Integer discountInPercent;
     private Date created;
 
     @ManyToOne @JoinColumn(name = "familyId")
     private Family family;
-    @ManyToOne @JoinColumn(name = "clubMembershipId")
-    private ClubMembership membership;
+    @OneToOne @JoinColumn(name = "clubMembershipId")
+    private ClubMembership clubMembership;
 
     @ManyToOne @JoinColumn(name = "principalId")
     private Principal principal;
-    @ManyToOne @JoinColumn(name = "eventParticipationId")
+    @OneToOne @JoinColumn(name = "eventParticipationId")
     private EventParticipation eventParticipation;
-    @ManyToOne @JoinColumn(name = "teamMembershipId")
+    @OneToOne @JoinColumn(name = "teamMembershipId")
     private TeamMembership teamMembership;
 
     public InvoiceLine() {
@@ -119,12 +121,12 @@ public abstract class InvoiceLine {
         this.principal = principal;
     }
 
-    public ClubMembership getMembership() {
-        return membership;
+    public ClubMembership getClubMembership() {
+        return clubMembership;
     }
 
-    public void setMembership(ClubMembership membership) {
-        this.membership = membership;
+    public void setClubMembership(ClubMembership clubMembership) {
+        this.clubMembership = clubMembership;
     }
 
     public EventParticipation getEventParticipation() {
@@ -141,6 +143,14 @@ public abstract class InvoiceLine {
 
     public void setTeamMembership(TeamMembership teamMembership) {
         this.teamMembership = teamMembership;
+    }
+
+    public void setDiscountInPercent(int discountInPercent) {
+        this.discountInPercent = discountInPercent;
+    }
+
+    public Integer getDiscountInPercent() {
+        return discountInPercent;
     }
 
 }

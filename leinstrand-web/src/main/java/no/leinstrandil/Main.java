@@ -107,7 +107,7 @@ public class Main {
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
         sendRegningService = new SendRegningService(storage, userService);
-        invoiceService = new InvoiceService(storage, userService, sendRegningService);
+        invoiceService = new InvoiceService(storage, userService, clubService, sendRegningService);
 
         velocity = new VelocityEngine();
         velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");

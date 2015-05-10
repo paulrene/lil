@@ -1,0 +1,42 @@
+
+    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()?tab=fakturaliste">
+        <input type="hidden" name="action" value="list-invoice-of-type">
+        <input type="hidden" name="tab" value="fakturaliste">
+        <div class="form-group">
+            <select class="form-control" name="invoice-status" required>
+                <option value="">-- Velg fakturastatus --</option>
+    #foreach($status in $statusList)
+                <option#if($selectedStatus==$status) selected#end value="$status">$status</option>
+    #end
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-mini btn-primary">Vis fakturaliste</button>
+    </form>
+#if($info)
+    <div class="margin-bottom-10"></div>
+    <span class="label label-success"><i class="icon-check"></i> $info</span>
+    <div class="margin-bottom-10"></div>
+#end
+#if($error)
+    <div class="margin-bottom-10"></div>
+    <span class="label label-danger"><i class="icon-warning-sign"></i> $error</span>
+    <div class="margin-bottom-10"></div>
+#end
+
+#if($invoiceList && !$subAction.equals("edit-invoice") && !$subAction.equals("view-invoice"))
+    <div class="margin-bottom-20"></div>
+    #if($invoiceList.isEmpty())
+        <i>Fant ingen fakturaer med status $selectedStatus.</i>
+    #else
+        #parse("templates/accountingtabs/invoicelists_result.vm")
+    #end
+#end
+
+#if($invoice)
+    <div class="margin-bottom-20"></div>
+    <div>
+        <p><a href="/page/$thisPage.getUrlName()?tab=fakturaliste&action=list-invoice-of-type&invoice-status=$selectedStatus"><i class="icon-angle-left"></i> Tilbake</a></p>
+    #parse("templates/accountingtabs/invoicelists_invoice.vm")
+    </div>
+#end

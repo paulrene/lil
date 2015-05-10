@@ -3,10 +3,12 @@ package no.leinstrandil.web;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import no.leinstrandil.database.model.accounting.Invoice;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.InvoiceService;
+import no.leinstrandil.service.ServiceResponse;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
 import spark.QueryParamsMap;
@@ -32,6 +34,46 @@ public class AccoutingController implements Controller {
             tab = "oversikt";
         }
         context.put("tab", tab);
+
+        if (tab.equals("oversikt")) {
+            context.put("invoiceCountReport", invoiceService.getInvoiceCountPerStatusReport());
+        } else if (tab.equals("fakturaliste")) {
+            context.put("statusList", Invoice.Status.values());
+            if ("list-invoice-of-type".equals(action)) {
+                String subAction = request.queryParams("sub-action");
+                context.put("subAction", subAction);
+                String invoiceIdStr = request.queryParams("invoiceid");
+                if ("delete-invoice".equals(subAction)) {
+                    ServiceResponse response = invoiceService.deleteInvoice(Long.parseLong(invoiceIdStr));
+                    if (response.isSuccess()) {
+                        context.put("info", response.getMessage());
+                    } else {
+                        context.put("error", response.getMessage());
+                    }
+                }
+                if ("edit-invoice".equals(subAction) || "view-invoice".equals(subAction)) {
+                    Invoice invoice = invoiceService.getInvoiceById(Long.parseLong(invoiceIdStr));
+                    context.put("invoice", invoice);
+                }
+                String statusStr = request.queryParams("invoice-status");
+                Invoice.Status status = Invoice.Status.valueOf(statusStr);
+                context.put("selectedStatus", status);
+                context.put("invoiceService", invoiceService);
+                context.put("invoiceList", invoiceService.getInvoicesWithStatus(status));
+            } else if ("delete-all-invoices".equals(action)) {
+                String statusStr = request.queryParams("invoice-status");
+                Invoice.Status status = Invoice.Status.valueOf(statusStr);
+                ServiceResponse response = invoiceService.deleteAllInvoicesWithStatus(status);
+                if (response.isSuccess()) {
+                    context.put("info", response.getMessage());
+                } else {
+                    context.put("error", response.getMessage());
+                }
+                context.put("selectedStatus", status);
+                context.put("invoiceService", invoiceService);
+                context.put("invoiceList", invoiceService.getInvoicesWithStatus(status));
+            }
+        }
     }
 
     @Override
@@ -70,16 +112,24 @@ public class AccoutingController implements Controller {
 
         for (Long teamId : teamIdList) {
             if (teamId == -1) {
-                invoiceService.createClubMembershipInvoice();
-                infoList.add("Faktura for klubbavgift opprettet.");
+                ServiceResponse response = invoiceService.createClubMembershipInvoice();
+                if (response.isSuccess()) {
+                    infoList.add(response.getMessage());
+                } else {
+                    errorMap.put("doinvoice", response.getMessage());
+                    return;
+                }
                 continue;
             }
             Team team = clubService.getTeamById(teamId);
             if (team != null) {
-                invoiceService.createInvoiceForTeam(team);
-                infoList.add("Faktura for " + team.getName() + " opprettet.");
-            } else {
-                errorMap.put("doinvoice", "Kunne ikke finne lag med id = " + teamId);
+                ServiceResponse response = invoiceService.createInvoiceForTeam(team);
+                if (response.isSuccess()) {
+                    infoList.add(response.getMessage());
+                } else {
+                    errorMap.put("doinvoice", response.getMessage());
+                    return;
+                }
             }
         }
     }

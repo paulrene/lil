@@ -1,0 +1,93 @@
+    <!--Invoice Header-->
+    <div class="row invoice-header">
+        <div class="col-xs-6">
+            <h1 class="pull-left">Forhåndsvisning</h1>
+        </div>
+        <div class="col-xs-6 invoice-numb">
+            # #if($invoice.getExternalInvoiceNumber())$invoice.getExternalInvoiceNumber()#{else}000000000#end / $invoiceService.formatDate($invoice.getCreated())
+            <span>Faktura status: $invoice.getStatus()</span>
+        </div>
+    </div>
+    <!--End Invoice Header-->
+
+#set($principal = $invoice.getFamily().getPrimaryPrincipal())
+#set($address = $principal.getAddress())
+
+    <!--Invoice Detials-->
+    <div class="row invoice-info">
+        <div class="col-sm-6">
+            <div class="tag-box tag-box-v4">
+                <h2>Mottaker:</h2>
+                <ul class="list-unstyled">
+                    <li><strong>Navn:</strong> $principal.getName()</li>
+                    <li><strong>Adresse:</strong> $address.getAddress1()</li>
+                    <li><strong>Poststed:</strong> $address.getZip() $address.getCity()</li>
+#if (!$address.getCountry().equals("Norge"))
+                    <li><strong>Land:</strong> $address.getCountry()</li>
+#end
+                    <li><strong>Epostadresse:</strong> $principal.getEmail()</li>
+                    <li><strong>Mobiltelefon:</strong> $principal.getMobile()</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="tag-box tag-box-v4">
+                <h2>Betalingsopplysninger:</h2> 
+                <ul class="list-unstyled">
+                    <li><strong>Kontonummer:</strong> ***********</li>
+                    <li><strong>KID:</strong> ***************</li>
+                    <li><strong>Organisasjonsnummer:</strong> NO 983847455 MVA</li>
+                    <li><strong>Betalingsfrist:</strong> DD.MM.YYYY</li>
+                    <li><strong>Sendingsdato:</strong> DD.MM.YYYY</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--End Invoice Detials-->
+
+    <!--Invoice Table-->
+    <div class="panel panel-grey margin-bottom-40">
+        <div class="panel-heading">
+            <h3 class="panel-title">Fakturadetaljer</h3>
+        </div>
+        <table class="table table-striped invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Produkt</th>
+                    <th class="hidden-sm">Beskrivelse</th>
+                    <th>Antall</th>
+                    <th>Pris</th>
+                    <th>Rabatt</th>
+                    <th>Sum</th>
+                </tr>
+            </thead>
+            <tbody>
+#set($lines = $invoice.getInvoiceLines())
+#foreach($line in $lines)
+                <tr>
+                    <td>$velocityCount</td>
+                    <td>$line.getProductCode()</td>
+                    <td class="hidden-sm">$line.getDescription()</td>
+                    <td>$line.getQuantity()</td>
+                    <td>$line.getUnitPrice(),-</td>
+                    <td>#if($line.getDiscountInPercent() > 0)$line.getDiscountInPercent(),0 %#end</td>
+                    <td>$invoiceService.getInvoiceLineSum($line),-</td>
+                </tr>
+#end
+            </tbody>
+        </table>
+    </div>
+    <!--End Invoice Table-->
+
+    <!--Invoice Footer-->
+    <div class="row">
+        <div class="col-sm-6">
+        </div>
+        <div class="col-sm-6 text-right">
+            <ul class="list-unstyled invoice-total-info">
+                <li><strong>Totalt å betale:</strong> $invoiceService.getInvoiceDueAmount($invoice),-</li>
+            </ul>
+        </div>
+    </div>
+    <!--End Invoice Footer-->

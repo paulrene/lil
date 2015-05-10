@@ -36,7 +36,6 @@ public class TeamLeadController implements Controller {
         }
         context.put("tab", tab);
 
-
         if (tab.equals("lagliste")) {
             if ("list-team-members".equals(action)) {
                 listTeamMembers(request, context);

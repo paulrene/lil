@@ -73,6 +73,11 @@ public class MyPageController implements Controller {
                 context.put("data", data);
             }
         } else if (tab.equals("familie")) {
+            List<Address> addressList = user.getPrincipal().getAddressList();
+            if (addressList.size() > 0) {
+                Address address = addressList.get(0);
+                context.put("showNoCombinedMembershipOption", !"7083".equals(address.getZip()));
+            }
             context.put("family", family);
         } else if (tab.equals("medlemskap")) {
             context.put("family", family);
@@ -121,8 +126,15 @@ public class MyPageController implements Controller {
             addPrincipalToEvent(user, request, errorMap, infoList);
         } else if ("remove-principal-from-event".equals(action)) {
             removePrincipalFromEvent(user, request, errorMap, infoList);
+        } else if ("save-only-active-members".equals(action)) {
+            saveNoCombinedMembership(user, request, errorMap, infoList);
         }
         return null;
+    }
+
+    private void saveNoCombinedMembership(User user, Request request, Map<String, String> errorMap, List<String> infoList) {
+        Boolean activeMembers = Boolean.parseBoolean(request.queryParams("active-members"));
+        popuplateResponse(errorMap, infoList, userService.updateNoCombinedMembership(user, activeMembers));
     }
 
     private void addPrincipalToEvent(User user, Request request, Map<String, String> errorMap, List<String> infoList) {

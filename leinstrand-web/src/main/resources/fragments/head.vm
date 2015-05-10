@@ -59,6 +59,8 @@
     <link rel="stylesheet" href="assets/plugins/jquery-ui-1.10.4.css">
 #elseif($thisPage.getTemplate() == "mypage")
     <link rel="stylesheet" href="assets/plugins/jquery-ui-1.10.4.css">
+#elseif($thisPage.getTemplate() == "accounting")
+    <link rel="stylesheet" href="assets/css/pages/page_invoice.css">
 #end
     <!-- CSS Theme -->
     <link rel="stylesheet" href="assets/css/themes/red.css" id="style_color">

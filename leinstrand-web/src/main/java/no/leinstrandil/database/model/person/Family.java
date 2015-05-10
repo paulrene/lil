@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.accounting.Invoice;
+import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.ClubMembership;
 
 @Entity
@@ -24,13 +26,37 @@ public class Family {
     private List<Principal> members;
     @OneToMany(mappedBy = "family") @OrderBy("created DESC")
     private List<ClubMembership> clubMemberships;
+    @OneToMany(mappedBy = "family") @OrderBy("created DESC")
+    private List<Invoice> invoices;
+    @OneToMany(mappedBy = "family") @OrderBy("created DESC")
+    private List<InvoiceLine> invoiceLines;
+    private Boolean noCombinedMembership;
 
     public Family() {
         members = new ArrayList<>();
+        invoices = new ArrayList<>();
+        invoiceLines = new ArrayList<>();
+        clubMemberships = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(List<Invoice> invoices) {
+        this.invoices = invoices;
+    }
+
+    public List<InvoiceLine> getInvoiceLines() {
+        return invoiceLines;
+    }
+
+    public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
+        this.invoiceLines = invoiceLines;
     }
 
     public Principal getPrimaryPrincipal() {
@@ -55,6 +81,14 @@ public class Family {
 
     public void setClubMemberships(List<ClubMembership> clubMemberships) {
         this.clubMemberships = clubMemberships;
+    }
+
+    public void setNoCombinedMembership(Boolean noCombinedMembership) {
+        this.noCombinedMembership = noCombinedMembership;
+    }
+
+    public Boolean isNoCombinedMembership() {
+        return noCombinedMembership;
     }
 
 }

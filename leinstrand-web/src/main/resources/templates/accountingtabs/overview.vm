@@ -1,0 +1,24 @@
+
+<div class="panel panel-blue margin-bottom-40">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="icon-money"></i> Faktureringsstatus</h3>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Antall</th>
+            </tr>
+        </thead>
+        <tbody>
+#set($keys = $invoiceCountReport.keySet())
+#foreach($status in $keys)
+            <tr>
+                <td><a href="/page/$thisPage.getUrlName()?tab=fakturaliste&action=list-invoice-of-type&invoice-status=$status"><i class="icon-link"></i> $status</a></td>
+                <td>$invoiceCountReport.get($status)</td>
+            </tr>
+#end
+        </tbody>
+    </table>
+</div>
+

@@ -112,10 +112,16 @@ public class PageService {
     }
 
     public String formatTimeShort(Date date) {
+        if (date == null) {
+            return new String();
+        }
         return new SimpleDateFormat("HH:mm").format(date);
     }
 
     public String formatYear(Date date) {
+        if (date == null) {
+            return new String();
+        }
         return new SimpleDateFormat("yyyy").format(date);
     }
 

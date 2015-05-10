@@ -1,0 +1,66 @@
+    <div class="panel panel-red margin-bottom-40">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="icon-list-ul"></i> Fakturaer med status $selectedStatus</h3>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="hidden-sm">Opprettet</th>
+                    <th>Mottaker</th>
+                    <th class="hidden-sm">Linjer</th>
+                    <th>Beløp</th>
+                    <th>Handling</th>
+                </tr>
+            </thead>
+            <tbody>
+        #set($sum = 0)
+        #foreach($invoice in $invoiceList)
+            #set($sum = $sum + $invoiceService.getInvoiceDueAmount($invoice))
+                <tr>
+                    <td>$!invoice.getExternalInvoiceNumber()</td>
+                    <td class="hidden-sm">$invoiceService.formatDate($invoice.getCreated())</td>
+                    <td>$invoice.getFamily().getPrimaryPrincipal().getName()</td>
+                    <td class="hidden-sm">$invoice.getInvoiceLines().size()</td>
+                    <td>$invoiceService.getInvoiceDueAmount($invoice) NOK</td>
+                    <td>
+                        <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
+                            <input type="hidden" name="tab" value="fakturaliste">
+                            <input type="hidden" name="action" value="list-invoice-of-type">
+                            <input type="hidden" name="invoice-status" value="$selectedStatus">
+                            <input type="hidden" name="invoiceid" value="$invoice.getId()">
+                        #if($invoiceService.isStatusDeletable($invoice.getStatus()))
+                            <button class="btn btn-danger btn-xs" name="sub-action" value="delete-invoice" title="Slett faktura"><i class="icon-trash"></i> Slett</button>
+                        #end
+                        #if($invoiceService.isStatusSendable($invoice.getStatus()))
+                            <button class="btn btn-info btn-xs" name="sub-action" value="send-invoice" title="Send faktura"><i class="icon-share"></i> Send</button>
+                        #end
+                            <button class="btn btn-success btn-xs" name="sub-action" value="view-invoice" title="Vis fakturadetaljer"><i class="icon-list-ul"></i> Vis</button>
+                        </form>
+                    </td>
+                </tr>
+        #end
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>$invoiceList.size()</th>
+                    <th class="hidden-sm"></th>
+                    <th></th>
+                    <th class="hidden-sm"></th>
+                    <th>$sum NOK</th>
+                    <th>
+                        <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
+                            <input type="hidden" name="tab" value="fakturaliste">
+                            <input type="hidden" name="invoice-status" value="$selectedStatus">
+                        #if($invoiceService.isStatusDeletable($selectedStatus))
+                            <button class="btn btn-danger btn-xs" name="action" value="delete-all-invoices" title="Slett alle fakturaer"><i class="icon-trash"></i> Slett alle</button>
+                        #end
+                        #if($invoiceService.isStatusSendable($selectedStatus))
+                            <button class="btn btn-info btn-xs" name="action" value="send-all-invoices" title="Send alle fakturaer"><i class="icon-share"></i> Send alle</button>
+                        #end
+                        </form>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>

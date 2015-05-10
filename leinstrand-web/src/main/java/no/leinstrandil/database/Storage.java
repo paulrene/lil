@@ -3,6 +3,7 @@ package no.leinstrandil.database;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 public class Storage {
@@ -64,6 +65,10 @@ public class Storage {
     public <T> T createSingleQuery(String qlString, Class<T> resultClass) {
         TypedQuery<T> query = getManager().createQuery(qlString, resultClass);
         return query.getSingleResult();
+    }
+
+    public Query createQuery(String qlString) {
+        return getManager().createQuery(qlString);
     }
 
 }

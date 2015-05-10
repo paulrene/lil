@@ -1,5 +1,6 @@
 package no.leinstrandil.database.model.accounting;
 
+import org.hibernate.annotations.CascadeType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,19 +13,21 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.person.Family;
+import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name = "invoice")
 public class Invoice {
 
-    public static enum Status { OPEN, CLOSED, SENT, PAID, CREDITED };
+    public static enum Status { OPEN, SENT, PAID, CREDITED };
 
     @Id @GeneratedValue
     private Long id;
     @ManyToOne @JoinColumn(name = "familyId")
     private Family family;
     @OneToMany(mappedBy = "invoice") @OrderBy("created")
-    private List<InvoiceLine> invoiceLineList;
+    @Cascade({CascadeType.REMOVE})
+    private List<InvoiceLine> invoiceLines;
     private String externalInvoiceNumber;
     private Date externalInvoiceDate;
     private Date externalInvoiceDue;
@@ -32,7 +35,7 @@ public class Invoice {
     private Date created;
 
     public Invoice() {
-        this.invoiceLineList = new ArrayList<>();
+        this.invoiceLines = new ArrayList<>();
     }
 
     public Long getId() {
@@ -71,12 +74,12 @@ public class Invoice {
         this.externalInvoiceNumber = externalInvoiceNumber;
     }
 
-    public List<InvoiceLine> getInvoiceLineList() {
-        return invoiceLineList;
+    public List<InvoiceLine> getInvoiceLines() {
+        return invoiceLines;
     }
 
-    public void setInvoiceLineList(List<InvoiceLine> invoiceLineList) {
-        this.invoiceLineList = invoiceLineList;
+    public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
+        this.invoiceLines = invoiceLines;
     }
 
     public Date getExternalInvoiceDate() {

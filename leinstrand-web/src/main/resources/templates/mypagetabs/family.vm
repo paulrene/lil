@@ -2,8 +2,9 @@
                         <h4>Din familie</h4>
                         <p>
                             Her kan du registrere barn og ektefelle slik at dere kan dekkes av et familiemedlemskap.
-                            Om du står oppført alene vil du bli registrert som enkeltmedlem. Den som står oppført som primærkontakt vil motta
-                            faktura for medlemskapet og treningsavgiften for de av medlemmene som er under 18 år.
+                            Om du står oppført alene vil du bli registrert som enkeltmedlem. Den som står oppført som
+                            primærkontakt vil motta faktura for medlemskap og treningsavgift for alle medlemmene i
+                            familien.
                         </p>
                         <table class="table">
                             <thead>
@@ -33,7 +34,15 @@
                                             <span class="label label-info"><i class="icon-trophy"></i> 
                                                 Primærkontakt#if(!$clubService.isEnrolledAsClubMember($family)) (ikke medlem)#end</span>
                                         #elseif($clubService.isEnrolledAsClubMember($family))
+                                            #if($family.isNoCombinedMembership())
+                                                #if(!$clubService.isDeletable($member))
+                                            <span class="label label-success">Enkeltmedlem</span>
+                                                #else
+                                            <span class="label label-warning">Ikke medlem</span>
+                                                #end
+                                            #else
                                             <span class="label label-success">Familiemedlem</span>
+                                            #end
                                         #else
                                             <span class="label label-warning">Ikke medlem</span>
                                         #end
@@ -95,6 +104,7 @@
 
 #if($info)
     <span class="label label-success"><i class="icon-check"></i> $info.opt(0)</span>
+    <div class="margin-bottom-10"></div>
 #end
 #if($errors.opt("save"))
     <span class="label label-danger"><i class="icon-warning-sign"></i> $errors.opt("save")</span>
@@ -139,5 +149,25 @@
                             <button type="submit" class="btn-u btn-u-default">Inviter</button>
                         </form>
                         #inputerror( "email" )
+
+    #if($showNoCombinedMembershipOption)
+                        <div class="margin-bottom-20"></div>
+                        <h4>Behandle kun aktive som medlemmer i idrettslaget</h4>
+                        <form class="form-inline" role="form" method="POST" action="/page/$thisPage.getUrlName()?tab=familie">
+                            <input type="hidden" name="action" value="save-only-active-members">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="true" name="active-members"#if($family.isNoCombinedMembership()) checked#end> Kun aktive medlemmer
+                                </label>
+                            </div>
+                            <button type="submit" class="btn-u btn-u-default">Lagre</button>
+                        </form>
+
+                        <div class="margin-bottom-10"></div>
+
+                        <i>Dersom dere ikke ønsker å tegne familiemedlemskap kan du krysse av ovenfor.
+                        Da vil kun de familiemedlemmene som er aktive på et lag bli regnet som klubbmedlemmer.</i>
+    #end
 #end
+
                     </div>

@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -240,15 +241,21 @@ public class UserService {
         return new SimpleDateFormat("dd. MMMM, yyyy").format(date);
     }
 
-    public int getAge(Principal principal) {
+    public static int getAge(Principal principal) {
         LocalDate birthDate = new LocalDate(principal.getBirthDate());
         LocalDate now = new LocalDate();
         return Years.yearsBetween(birthDate, now).getYears();
     }
 
-    public int getAgeThatYearOnTime(Principal principal, Date startTime) {
+    public static int getAgeThatYearOnTime(Principal principal, Date startTime) {
         LocalDate birthDate = new LocalDate(principal.getBirthDate());
         return new LocalDate(startTime).getYear() - birthDate.getYear();
+    }
+
+    public static int getAgeAtEndOfCurrentYear(Principal principal) {
+        Calendar newYearsEve = Calendar.getInstance();
+        newYearsEve.set(2012, 11, 31, 23, 59, 0);
+        return getAgeThatYearOnTime(principal, newYearsEve.getTime());
     }
 
     public boolean isPrimaryContactCandidate(Principal principal) {
@@ -766,6 +773,21 @@ public class UserService {
         TypedQuery<Family> query = storage.createQuery("from Family", Family.class);
         List<Family> list = query.getResultList();
         return list;
+    }
+
+    public ServiceResponse updateNoCombinedMembership(User user, Boolean activeMembers) {
+        Family family = user.getPrincipal().getFamily();
+        family.setNoCombinedMembership(activeMembers);
+        storage.begin();
+        try {
+            storage.persist(family);
+            storage.commit();
+            IncidentHub.report(new PrincipalIncident(user.getPrincipal(), "update-no-combined-membership", String.valueOf(activeMembers)));
+            return new ServiceResponse(true, "Ny status lagret.");
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Klarte ikke å lagre ny status.");
+        }
     }
 
 }

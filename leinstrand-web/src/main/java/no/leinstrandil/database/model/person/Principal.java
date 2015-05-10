@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.web.User;
@@ -43,6 +44,8 @@ public class Principal {
     private List<TeamMembership> teamMemberships;
     @OneToMany(mappedBy = "principal") @OrderBy("created DESC")
     private List<EventParticipation> eventParticipations;
+    @OneToMany(mappedBy = "principal") @OrderBy("created DESC")
+    private List<InvoiceLine> invoiceLines;
     private Date created;
     private Date updated;
 
@@ -54,10 +57,19 @@ public class Principal {
         mobileNumberList = new ArrayList<>();
         teamMemberships = new ArrayList<>();
         eventParticipations = new ArrayList<>();
+        invoiceLines = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public List<InvoiceLine> getInvoiceLines() {
+        return invoiceLines;
+    }
+
+    public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
+        this.invoiceLines = invoiceLines;
     }
 
     public List<Address> getAddressList() {
@@ -186,6 +198,19 @@ public class Principal {
 
     public void setTeamMemberships(List<TeamMembership> teamMemberships) {
         this.teamMemberships = teamMemberships;
+    }
+
+    // Helper method
+    public Address getAddress() {
+        return addressList.get(0);
+    }
+
+    public String getEmail() {
+        return emailAddressList.get(0).getEmail();
+    }
+
+    public String getMobile() {
+        return mobileNumberList.get(0).getNumber();
     }
 
 }
