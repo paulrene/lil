@@ -7,6 +7,7 @@ import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
+import no.leinstrandil.database.model.person.Family;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
@@ -49,9 +50,17 @@ public class TeamLeadController implements Controller {
         if (tab.equals("sok")) {
             if ("search-name".equals(action)) {
                 String query = request.queryParams("query");
-                List<Principal> results = clubService.queryPrincipal(query);
-                context.put("results", results);
+                String scope = request.queryParams("scope");
+                if ("family".equals(scope)) {
+                    List<Family> results = clubService.queryFamily(query);
+                    context.put("familyResults", results);
+                } else {
+                    List<Principal> results = clubService.queryPrincipal(query);
+                    context.put("principalResults", results);
+                }
                 context.put("query", query);
+                context.put("selectedScope", scope);
+                context.put("clubService", clubService);
             }
         }
 

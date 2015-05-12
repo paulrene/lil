@@ -1,0 +1,62 @@
+#if($familyResults.isEmpty())
+<div class="tag-box tag-box-v4">
+    <h4>Beklager, ingen treff!</h4>
+    <p>Endre søkeuttrykket og prøv igjen! ;)</p>
+</div>
+#else
+    <h4 class="margin-bottom-20">Fant $familyResults.size() familier:</h4>
+    #foreach($family in $familyResults)
+        #set($membership = $clubService.getClubMembership($family))
+    <div class="panel panel-#if($membership.isEnrolled())red#{else}blue#end margin-bottom-40">
+        <div class="panel-heading">
+            <h3 class="panel-title">Familie ID:$family.getId() #if($membership.isEnrolled()) - medlem siden $pageService.formatDate($membership.getCreated())#else - ikke medlem#end</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Navn</th>
+                        <th><i class="icon-trophy"></i></th>
+                        <th><i class="icon-ticket"></i></th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+            #foreach($member in $family.getMembers())
+                    <tr>
+                        <td>$member.getId()</td>
+                        <td>
+                            <i class="icon-$member.getGender()"></i>
+                            <a href="/page/$thisPage.getUrlName()?action=search-name&tab=sok&query=$pageService.urlEncode($member.getName())&scope=principal">$member.getName()</a> (${userService.getAge($member)} år) 
+                            #if(!$userService.isOnlyPrincipal($member))<i class="icon-user"></i> #end
+                            #if($userService.isFacebookUser($member))<i class="icon-facebook"></i> #end
+                        </td>
+                        <td>$clubService.getActiveTeamMembershipCountForPrincipal($member)</td>
+                        <td>$clubService.getActiveEventParticipationCountForPrincipal($member)</td>
+                        <td>
+                            #if($userService.isPrimaryContact($member))
+                                <span class="label label-info"><i class="icon-trophy"></i> 
+                                    Primærkontakt#if(!$clubService.isEnrolledAsClubMember($family)) (ikke medlem)#end</span>
+                            #elseif($clubService.isEnrolledAsClubMember($family))
+                                #if($family.isNoCombinedMembership())
+                                    #if(!$clubService.isDeletable($member))
+                                <span class="label label-success">Enkeltmedlem</span>
+                                    #else
+                                <span class="label label-warning">Ikke medlem</span>
+                                    #end
+                                #else
+                                <span class="label label-success">Familiemedlem</span>
+                                #end
+                            #else
+                                <span class="label label-warning">Ikke medlem</span>
+                            #end
+                        </td>
+                    </tr>
+            #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+    #end
+#end

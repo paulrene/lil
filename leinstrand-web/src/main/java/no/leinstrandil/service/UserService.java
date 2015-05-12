@@ -252,9 +252,9 @@ public class UserService {
         return new LocalDate(startTime).getYear() - birthDate.getYear();
     }
 
-    public static int getAgeAtEndOfCurrentYear(Principal principal) {
+    public static int getAgeAtEndOfYear(Principal principal, int year) {
         Calendar newYearsEve = Calendar.getInstance();
-        newYearsEve.set(2012, 11, 31, 23, 59, 0);
+        newYearsEve.set(year, 11, 31, 23, 59, 0);
         return getAgeThatYearOnTime(principal, newYearsEve.getTime());
     }
 
@@ -277,6 +277,13 @@ public class UserService {
 
     public boolean isOnlyPrincipal(Principal principal) {
         return principal.getUser() == null;
+    }
+
+    public boolean isFacebookUser(Principal principal) {
+        if (principal.getUser() == null) {
+            return false;
+        }
+        return principal.getUser().getFacebookId() != null;
     }
 
     public boolean isPrimaryContact(Principal principal) {
@@ -546,6 +553,7 @@ public class UserService {
         family = new Family();
         family.getMembers().add(user.getPrincipal());
         family.setPrimaryPrincipal(user.getPrincipal());
+        family.setNoCombinedMembership(false);
         user.getPrincipal().setFamily(family);
         storage.begin();
         storage.persist(family);

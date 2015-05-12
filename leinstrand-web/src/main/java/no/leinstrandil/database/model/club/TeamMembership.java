@@ -1,12 +1,14 @@
 package no.leinstrandil.database.model.club;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.person.Principal;
@@ -23,22 +25,23 @@ public class TeamMembership {
     private Principal principal;
     @ManyToOne @JoinColumn(name = "teamId")
     private Team team;
-    @OneToOne(mappedBy = "teamMembership")
-    private InvoiceLine invoiceLine;
+    @OneToMany(mappedBy = "teamMembership")
+    private List<InvoiceLine> invoiceLines;
 
     public TeamMembership() {
+        invoiceLines = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
     }
 
-    public InvoiceLine getInvoiceLine() {
-        return invoiceLine;
+    public List<InvoiceLine> getInvoiceLines() {
+        return invoiceLines;
     }
 
-    public void setInvoiceLine(InvoiceLine invoiceLine) {
-        this.invoiceLine = invoiceLine;
+    public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
+        this.invoiceLines = invoiceLines;
     }
 
     public Date getCreated() {

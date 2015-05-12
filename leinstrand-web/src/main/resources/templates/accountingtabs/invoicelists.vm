@@ -1,7 +1,7 @@
 
-    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()?tab=fakturaliste">
+    <form class="form-inline" role="form" method="get" action="/page/$thisPage.getUrlName()">
         <input type="hidden" name="action" value="list-invoice-of-type">
-        <input type="hidden" name="tab" value="fakturaliste">
+        <input type="hidden" name="tab" value="behandling">
         <div class="form-group">
             <select class="form-control" name="invoice-status" required>
                 <option value="">-- Velg fakturastatus --</option>
@@ -36,7 +36,7 @@
 #if($invoice)
     <div class="margin-bottom-20"></div>
     <div>
-        <p><a href="/page/$thisPage.getUrlName()?tab=fakturaliste&action=list-invoice-of-type&invoice-status=$selectedStatus"><i class="icon-angle-left"></i> Tilbake</a></p>
+        <p><a href="/page/$thisPage.getUrlName()?tab=behandling&action=list-invoice-of-type&invoice-status=$selectedStatus"><i class="icon-angle-left"></i> Tilbake</a></p>
     #parse("templates/accountingtabs/invoicelists_invoice.vm")
     </div>
 #end

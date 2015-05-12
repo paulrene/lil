@@ -15,9 +15,13 @@ import no.leinstrandil.database.model.accounting.Invoice.Status;
 import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.Team;
+import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Family;
+import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.product.Product;
+import no.leinstrandil.product.ProductCode;
 import no.leinstrandil.product.ProductResolver;
+import no.leinstrandil.product.ProductType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.slf4j.Logger;
@@ -39,24 +43,98 @@ public class InvoiceService {
         this.sendRegningService = sendRegningService;
     }
 
-    public ServiceResponse createInvoiceForTeam(Team team) {
+    public ServiceResponse createInvoiceForTeam(Team team, int year) {
+        Map<Principal, TeamMembership> memberships = clubService.getTeamMembershipsForTeam(team);
+        for (Principal principal : memberships.keySet()) {
+            TeamMembership membership = memberships.get(principal);
+            if (!membership.isEnrolled()) {
+                continue;
+            }
+            if (isPrincipalAlreadyInvoicedTeamParticipation(principal, team, year)) {
+                return new ServiceResponse(true, "Allerede fakturert.");
+            }
+            int feeCount = getTeamFeeInvoicedCountForPrincipal(principal, year);
+            Family family = principal.getFamily();
+            Invoice invoice = ensureOpenInvoiceForFamily(family);
+            InvoiceLine line = new InvoiceLine();
+            Product product = ProductResolver.getTeamParticipationProduct(principal, team, feeCount, year);
+            line.setCreated(new Date());
+            line.setTeamMembership(membership);
+            membership.getInvoiceLines().add(line);
+            line.setUnitPrice(product.getUnitPrice());
+            line.setDescription(product.getDescription());
+            line.setProductCode(product.getProductCode());
+            line.setDiscountInPercent(product.getDiscountInPercent());
+            line.setPrincipal(principal);
+            principal.getInvoiceLines().add(line);
+            line.setValidYear(year);
+            line.setTaxPercent(0);
+            line.setQuantity(1);
+            line.setInvoice(invoice);
+            invoice.getInvoiceLines().add(line);
 
-
-
-
-        return null;
-
-
-
-
-
-
+            storage.begin();
+            try {
+                storage.persist(line);
+                storage.commit();
+            } catch (RuntimeException e) {
+                storage.rollback();
+                log.warn("Error during invoicing of team participation", e);
+                return new ServiceResponse(false, "Det oppstod en feil under fakturering.");
+            }
+        }
+        return new ServiceResponse(true, "Aktivitetsavgift for " + team.getName() + " fakturert.");
     }
 
-    public ServiceResponse createClubMembershipInvoice() {
+    private int getTeamFeeInvoicedCountForPrincipal(Principal principal, int year) {
+        storage.refresh(principal);
+        int count = 0;
+        List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLineList) {
+            if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
+                continue;
+            }
+            if (invoiceLine.getValidYear() != year) {
+                continue;
+            }
+            if (ProductCode.isCodeBelongingToProductOfType(
+                    invoiceLine.getProductCode(),
+                    ProductType.TEAM_FEE)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean isPrincipalAlreadyInvoicedTeamParticipation(Principal principal, Team team, int year) {
+        List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLineList) {
+            if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
+                continue;
+            }
+            if (invoiceLine.getValidYear() != year) {
+                continue;
+            }
+            if (!ProductCode.isCodeBelongingToProductOfType(
+                    invoiceLine.getProductCode(),
+                    ProductType.TEAM_FEE)) {
+                continue;
+            }
+            if (!principal.getId().equals(invoiceLine.getTeamMembership().getPrincipal().getId())) {
+                continue;
+            }
+            if (!team.getId().equals(invoiceLine.getTeamMembership().getTeam().getId())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public ServiceResponse createClubMembershipInvoice(int year) {
         List<Family> familyList = userService.getAllFamilies();
         for (Family family : familyList) {
-            ServiceResponse response = createClubMembershipInvoiceForFamily(family);
+            ServiceResponse response = createClubMembershipInvoiceForFamily(family, year);
             if (!response.isSuccess()) {
                 return response;
             }
@@ -64,7 +142,159 @@ public class InvoiceService {
         return new ServiceResponse(true, "Fakturaer for klubbavgift ble opprettet uten feil.");
     }
 
-    private ServiceResponse createClubMembershipInvoiceForFamily(Family family) {
+    public ServiceResponse createClubMembershipInvoiceForFamily(Family family, int year) {
+        if (!clubService.isEnrolledAsClubMember(family)) {
+            new ServiceResponse(true, "Ingen faktura opprettet da familien ikke er klubbmedlemmer.");
+        }
+        if (family.isNoCombinedMembership() != null && family.isNoCombinedMembership()) {
+            return createNoCombinedClubMembershipInvoiceForFamily(family, year);
+        } else {
+            return createCombinedClubMembershipInvoiceForFamily(family, year);
+        }
+    }
+
+    private ServiceResponse createCombinedClubMembershipInvoiceForFamily(Family family, int year) {
+        storage.refresh(family);
+        if (!clubService.isEnrolledAsClubMember(family)) {
+            return new ServiceResponse(true, "Ingenting å fakturere siden familien ikke er medlem.");
+        }
+        if (family.getMembers().isEmpty()) {
+            return new ServiceResponse(true, "Ingen faktura å lage siden familien ikke har noen familiemedlemmer.");
+        }
+        if (isAlreadyInvoicedFamilyClubMembership(family, year)) {
+            return new ServiceResponse(true, "Klubbmedlemskap allerede fakturert for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+        }
+
+        Invoice invoice = ensureOpenInvoiceForFamily(family);
+        InvoiceLine line = new InvoiceLine();
+        Product product;
+        if (family.getMembers().size() == 1) {
+            Principal principal = family.getPrimaryPrincipal();
+            product = ProductResolver.getPrincipalClubMembershipProductByAge(principal, year);
+            line.setPrincipal(principal);
+            principal.getInvoiceLines().add(line);
+        } else {
+            product = ProductResolver.getFamilyClubMembershipProduct(year);
+            line.setFamily(family);
+            family.getInvoiceLines().add(line);
+        }
+        ClubMembership membership = clubService.getClubMembership(family);
+        line.setClubMembership(membership);
+        membership.getInvoiceLines().add(line);
+        line.setCreated(new Date());
+        line.setUnitPrice(product.getUnitPrice());
+        line.setDescription(product.getDescription());
+        line.setProductCode(product.getProductCode());
+        line.setDiscountInPercent(product.getDiscountInPercent());
+        line.setValidYear(year);
+        line.setTaxPercent(0);
+        line.setQuantity(1);
+        line.setInvoice(invoice);
+        invoice.getInvoiceLines().add(line);
+
+        storage.begin();
+        try {
+            storage.persist(line);
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Kunne ikke opprette faktura for klubbmedlemskap for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+        }
+        log.info("ClubMembership invoice created for family with primary principal " + family.getPrimaryPrincipal().getName());
+        return new ServiceResponse(true, "Klubbmedlemskap fakturert for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+    }
+
+    private ServiceResponse createNoCombinedClubMembershipInvoiceForFamily(Family family, int year) {
+        storage.refresh(family);
+        List<InvoiceLine> invoiceLinesToBeAdded = new ArrayList<>();
+        List<Principal> principalList = family.getMembers();
+        for (Principal principal : principalList) {
+            if (clubService.getActiveTeamMembershipCountForPrincipal(principal) == 0) {
+                continue;
+            }
+            if (isAlreadyInvoicedFamilyClubMembership(family, year)) {
+                continue;
+            }
+            if (isAlreadyInvoicedPrincipalClubMembership(principal, year)) {
+                continue;
+            }
+            Product product = ProductResolver.getPrincipalClubMembershipProductByAge(principal, year);
+            InvoiceLine line = new InvoiceLine();
+            ClubMembership membership = clubService.getClubMembership(family);
+            line.setClubMembership(membership);
+            membership.getInvoiceLines().add(line);
+            line.setCreated(new Date());
+            line.setPrincipal(principal);
+            principal.getInvoiceLines().add(line);
+            line.setUnitPrice(product.getUnitPrice());
+            line.setDescription(product.getDescription());
+            line.setProductCode(product.getProductCode());
+            line.setDiscountInPercent(product.getDiscountInPercent());
+            line.setValidYear(year);
+            line.setTaxPercent(0);
+            line.setQuantity(1);
+            invoiceLinesToBeAdded.add(line);
+        }
+        if (invoiceLinesToBeAdded.isEmpty()) {
+            return new ServiceResponse(true, "Klubbmedlemskap allerede fakturert for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+        }
+        Invoice invoice = ensureOpenInvoiceForFamily(family);
+        storage.begin();
+        try {
+            for(InvoiceLine line : invoiceLinesToBeAdded) {
+                line.setInvoice(invoice);
+                invoice.getInvoiceLines().add(line);
+                storage.persist(line);
+            }
+            storage.commit();
+        } catch (RuntimeException e) {
+            storage.rollback();
+            return new ServiceResponse(false, "Kunne ikke opprette faktura for klubbmedlemskap for kun aktive medlemmer for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+        }
+        log.info("ClubMembership invoice with no combined memberships created for family with primary principal " + family.getPrimaryPrincipal().getName());
+        return new ServiceResponse(true, "Klubbmedlemskap for kun aktive medlemmer laget for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
+    }
+
+    private boolean isAlreadyInvoicedPrincipalClubMembership(Principal principal, int year) {
+        List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLineList) {
+            if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
+                continue;
+            }
+            if (invoiceLine.getValidYear() != year) {
+                continue;
+            }
+            if (ProductCode.isCodeBelongingToProductOfType(
+                    invoiceLine.getProductCode(),
+                    ProductType.CLUB_MEMBERSHIP)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isAlreadyInvoicedFamilyClubMembership(Family family, int year) {
+        List<Invoice> invoiceList = family.getInvoices();
+        for (Invoice invoice : invoiceList) {
+            if (invoice.getStatus() == Status.CREDITED) {
+                continue;
+            }
+            List<InvoiceLine> lineList = invoice.getInvoiceLines();
+            for (InvoiceLine invoiceLine : lineList) {
+                if (invoiceLine.getValidYear() != year) {
+                    continue;
+                }
+                if (ProductCode.isCodeBelongingToProductOfType(
+                        invoiceLine.getProductCode(),
+                        ProductType.CLUB_MEMBERSHIP)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+/*  private ServiceResponse createCombinedClubMembershipInvoiceForFamily(Family family, int year) {
         // Check if Family has been invoiced the club membership this year
         if (!clubService.isEnrolledAsClubMember(family)) {
             if (family.getPrimaryPrincipal() != null) {
@@ -76,22 +306,6 @@ public class InvoiceService {
                 return new ServiceResponse(false, "Familie med id " + family.getId() + " har ingen primærkontakt!");
             }
         }
-
-/*
-        log.info("Considering family with primary principal " + family.getPrimaryPrincipal().getName()
-                + " for club member invoicing.");
-        List<ClubMembership> clubMembershipList = family.getClubMemberships();
-        for (ClubMembership clubMembership : clubMembershipList) {
-            if (clubMembership.isEnrolled()
-                    && clubMembership.getInvoiceLine() != null
-                    && isThisYear(clubMembership.getInvoiceLine().getCreated())) {
-                log.info("Family with primary principal " + family.getPrimaryPrincipal().getName()
-                        + " has already been inviced for the club membership on invoice dated "
-                        + clubMembership.getInvoiceLine().getInvoice().getCreated());
-                return new ServiceResponse(true, "Klubbmedlemskap er allerede fakturert dette år for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
-            }
-        }
-*/
 
         ClubMembership clubMembership = family.getClubMemberships().get(0);
         Product product = ProductResolver.getClubMembershipProduct(clubMembership, getCurrentYear());
@@ -128,7 +342,7 @@ public class InvoiceService {
         }
 
         return new ServiceResponse(true, "Faktura for klubbmedlemskap er opprettet for familie med primærkontakt " + family.getPrimaryPrincipal().getName());
-    }
+    } */
 
     private Invoice ensureOpenInvoiceForFamily(Family family) {
         List<Invoice> invoiceList = family.getInvoices();

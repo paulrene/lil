@@ -1,5 +1,7 @@
 package no.leinstrandil.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -219,6 +221,14 @@ public class PageService {
         }
         Collections.reverse(list);
         return list;
+    }
+
+    public String urlEncode(String str) {
+        try {
+            return URLEncoder.encode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return str;
+        }
     }
 
 }

@@ -1,12 +1,7 @@
 package no.leinstrandil.product;
 
-import no.leinstrandil.service.InvoiceService;
-import java.util.List;
-import no.leinstrandil.database.model.accounting.Invoice;
-import no.leinstrandil.database.model.accounting.Invoice.Status;
-import no.leinstrandil.database.model.accounting.InvoiceLine;
-import no.leinstrandil.database.model.club.ClubMembership;
-import no.leinstrandil.database.model.person.Family;
+import no.leinstrandil.database.model.club.Sport;
+import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.service.UserService;
 
@@ -15,7 +10,7 @@ public class ProductResolver {
     private ProductResolver() {
     }
 
-    public static Product getClubMembershipProduct(ClubMembership clubMembership, int year) {
+/*    public static Product getClubMembershipProduct(ClubMembership clubMembership, int productYear) {
         Family family = clubMembership.getFamily();
         List<Principal> members = family.getMembers();
         if (members.isEmpty()) {
@@ -42,16 +37,51 @@ public class ProductResolver {
         }
 
         if (members.size() > 1) {
-            return new Product(ProductCode.FAMILY_MEMBERSHIP.getCode(), "Familiemedlemskap Leinstrand IL " + year, 200, 0);
+            return getFamilyClubMembershipProduct(productYear);
         } else {
             Principal principal = members.get(0);
-            int age = UserService.getAgeAtEndOfCurrentYear(principal);
-            if (age >= 18) {
-                return new Product(ProductCode.ADULT_MEMBERSHIP.getCode(), "Klubbmedlemskap voksen Leinstrand IL " + year, 150, 0);
-            } else {
-                return new Product(ProductCode.YOUTH_MEMBERSHIP.getCode(), "Klubbmedlemskap barn/ungdom Leinstrand IL " + year, 50, 0);
-            }
+            return getPrincipalClubMembershipProductByAge(principal, productYear);
         }
+    }*/
+
+    public static Product getPrincipalClubMembershipProductByAge(Principal principal, int productYear) {
+        int age = UserService.getAgeAtEndOfYear(principal, productYear);
+        if (age >= 18) {
+            return new Product(ProductCode.ADULT_MEMBERSHIP.getCode(), "Klubbmedlemskap voksen " + productYear + " for " + principal.getName(), 150, 0);
+        } else {
+            return new Product(ProductCode.YOUTH_MEMBERSHIP.getCode(), "Klubbmedlemskap barn/ungdom " + productYear + " for " + principal.getName(), 50, 0);
+        }
+    }
+
+    public static Product getFamilyClubMembershipProduct(int productYear) {
+        return new Product(ProductCode.FAMILY_MEMBERSHIP.getCode(), "Familiemedlemskap " + productYear, 200, 0);
+    }
+
+    public static Product getTeamParticipationProduct(Principal principal, Team team, int feeCount, int productYear) {
+        int age = UserService.getAgeAtEndOfYear(principal, productYear);
+        int price = 0;
+        int discount = 0;
+        if (age <= 7) {
+            if (feeCount >= 1) {
+                discount = 100;
+            }
+            price = 300;
+        } else if (age >= 8 && age <= 12 ) {
+            if (feeCount >= 2) {
+                discount = 100;
+            }
+            price = 300;
+        } else if (age >= 13 && age <= 17) {
+            if (feeCount >= 2) {
+                discount = 100;
+            }
+            price = 950;
+        } else { // age >= 18
+            price = 2200;
+        }
+        Sport sport = team.getSport();
+        String description = sport.getName() + " " + team.getName() + " trenings-/aktivitetsavgift " + productYear + " for " + principal.getName();
+        return new Product(ProductCode.TEAM_FEE.getCode(), description, price, discount);
     }
 
 }

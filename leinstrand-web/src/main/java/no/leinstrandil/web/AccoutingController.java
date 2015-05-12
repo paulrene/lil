@@ -124,7 +124,7 @@ public class AccoutingController implements Controller {
 
         for (Long teamId : teamIdList) {
             if (teamId == -1) {
-                ServiceResponse response = invoiceService.createClubMembershipInvoice();
+                ServiceResponse response = invoiceService.createClubMembershipInvoice(InvoiceService.getCurrentYear());
                 if (response.isSuccess()) {
                     infoList.add(response.getMessage());
                 } else {
@@ -135,7 +135,7 @@ public class AccoutingController implements Controller {
             }
             Team team = clubService.getTeamById(teamId);
             if (team != null) {
-                ServiceResponse response = invoiceService.createInvoiceForTeam(team);
+                ServiceResponse response = invoiceService.createInvoiceForTeam(team, InvoiceService.getCurrentYear());
                 if (response.isSuccess()) {
                     infoList.add(response.getMessage());
                 } else {

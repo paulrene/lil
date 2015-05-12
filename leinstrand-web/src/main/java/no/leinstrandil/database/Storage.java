@@ -71,4 +71,8 @@ public class Storage {
         return getManager().createQuery(qlString);
     }
 
+    public void refresh(Object obj) {
+        getManager().refresh(obj);
+    }
+
 }

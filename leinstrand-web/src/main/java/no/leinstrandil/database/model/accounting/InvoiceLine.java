@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.EventParticipation;
@@ -28,18 +27,18 @@ public class InvoiceLine {
     private Integer taxPercent;
     private String productCode; // 9 chars
     private Integer discountInPercent;
+    private Integer validYear;
     private Date created;
 
     @ManyToOne @JoinColumn(name = "familyId")
     private Family family;
-    @OneToOne @JoinColumn(name = "clubMembershipId")
+    @ManyToOne @JoinColumn(name = "clubMembershipId")
     private ClubMembership clubMembership;
-
     @ManyToOne @JoinColumn(name = "principalId")
     private Principal principal;
-    @OneToOne @JoinColumn(name = "eventParticipationId")
+    @ManyToOne @JoinColumn(name = "eventParticipationId")
     private EventParticipation eventParticipation;
-    @OneToOne @JoinColumn(name = "teamMembershipId")
+    @ManyToOne @JoinColumn(name = "teamMembershipId")
     private TeamMembership teamMembership;
 
     public InvoiceLine() {
@@ -151,6 +150,14 @@ public class InvoiceLine {
 
     public Integer getDiscountInPercent() {
         return discountInPercent;
+    }
+
+    public Integer getValidYear() {
+        return validYear;
+    }
+
+    public void setValidYear(Integer validYear) {
+        this.validYear = validYear;
     }
 
 }

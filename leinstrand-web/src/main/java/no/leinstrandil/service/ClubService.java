@@ -54,6 +54,12 @@ public class ClubService {
         return membership;
     }
 
+    public ClubMembership getClubMembership(Family family) {
+        Principal principal = family.getPrimaryPrincipal();
+        User user = principal.getUser();
+        return ensureClubMembership(user, false);
+    }
+
     public boolean hasChangeClubMembershipRights(User user) {
         return userService.isPrimaryContact(user.getPrincipal());
     }
@@ -505,6 +511,11 @@ public class ClubService {
 
     public List<Principal> queryPrincipal(String query) {
         TypedQuery<Principal> q = storage.createQuery("from Principal where name like '%" + query + "%' order by lastName, firstName", Principal.class);
+        return q.getResultList();
+    }
+
+    public List<Family> queryFamily(String query) {
+        TypedQuery<Family> q = storage.createQuery("from Family f where f.primaryPrincipal.name like '%" + query + "%' order by f.primaryPrincipal.lastName, f.primaryPrincipal.firstName", Family.class);
         return q.getResultList();
     }
 

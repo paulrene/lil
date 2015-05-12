@@ -421,8 +421,11 @@ public class MyPageController implements Controller {
         return null;
     }
 
-    private void updateClubMembership(User user, Request request, Map<String, String> errorMap, List<String> infoList,
-            boolean wantToEnroll) {
+    private void updateClubMembership(User user, Request request, Map<String, String> errorMap, List<String> infoList, boolean wantToEnroll) {
+        if (!userService.isOfAge(user.getPrincipal())) {
+            errorMap.put("save", "Du har ikke rettigheter til å foreta denne endringen.");
+            return;
+        }
         Boolean confirm = Boolean.parseBoolean(request.queryParams("confirm"));
         if (!confirm) {
             errorMap.put("save", "Du må bekrefte handlingen ved å hake av boksen.");
