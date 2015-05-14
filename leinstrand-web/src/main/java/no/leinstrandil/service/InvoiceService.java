@@ -14,6 +14,7 @@ import no.leinstrandil.database.model.accounting.Invoice;
 import no.leinstrandil.database.model.accounting.Invoice.Status;
 import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.ClubMembership;
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Family;
@@ -517,6 +518,47 @@ public class InvoiceService {
             }
         }
         return resultList;
+    }
+
+    private boolean isPrincipalAlreadyInvoicedEventParticipation(Principal principal, Event event) {
+        List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLineList) {
+            if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
+                continue;
+            }
+            if (!ProductCode.isCodeBelongingToProductOfType(
+                    invoiceLine.getProductCode(),
+                    ProductType.EVENT_FEE)) {
+                continue;
+            }
+            if (!principal.getId().equals(invoiceLine.getEventParticipation().getPrincipal().getId())) {
+                continue;
+            }
+            if (!event.getId().equals(invoiceLine.getEventParticipation().getEvent().getId())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Status getPrincipalEventParticipationInvoiceStatus(Principal principal, Event event) {
+        List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLineList) {
+            if (!ProductCode.isCodeBelongingToProductOfType(
+                    invoiceLine.getProductCode(),
+                    ProductType.EVENT_FEE)) {
+                continue;
+            }
+            if (!principal.getId().equals(invoiceLine.getEventParticipation().getPrincipal().getId())) {
+                continue;
+            }
+            if (!event.getId().equals(invoiceLine.getEventParticipation().getEvent().getId())) {
+                continue;
+            }
+            return invoiceLine.getInvoice().getStatus();
+        }
+        return null;
     }
 
 }

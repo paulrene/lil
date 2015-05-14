@@ -19,7 +19,16 @@ import org.hibernate.annotations.CascadeType;
 @Table(name = "invoice")
 public class Invoice {
 
-    public static enum Status { OPEN, SENT, PAID, CREDITED };
+    public static enum Status {
+        OPEN("Utarbeides"), SENT("Ikke betalt"), PAID("Betalt"), CREDITED("Kreditert");
+        private String description;
+        private Status(String description) {
+            this.description = description;
+        }
+        public String getDescription() {
+            return description;
+        }
+    };
 
     @Id @GeneratedValue
     private Long id;

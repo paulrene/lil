@@ -5,13 +5,16 @@
         <div class="form-group">
             <select class="form-control" name="eventid" required>
                 <option value="">-- Velg arrangement --</option>
-    #set($eventList = $clubService.getEvents())
+    #set($eventList = $clubService.getRecentAndFutureEvents())
         #foreach($event in $eventList)
-            #if($event.isClosed())
-                <option#if($selectedEvent.getId()==$event.getId()) selected#end value="$event.getId()">$event.getName() (Ikke åpen for påmelding)</option>
-            #else
-                <option#if($selectedEvent.getId()==$event.getId()) selected#end value="$event.getId()">$event.getName()#if($event.getDescription()) -- $event.getDescription()#end</option>
-            #end
+            <option#if($selectedEvent.getId()==$event.getId()) selected#end value="$event.getId()">
+                $event.getName()
+                - $pageService.formatDateTimeNoSeconds($event.getStartTime())
+                - [$clubService.getEnrolledCountForEvent($event)#if($event.getVacancies())/$event.getVacancies()#end]
+            #if($clubService.isEventEnded($event)) - Avsluttet#end
+            #if($$event.isClosed()) - Påmelding stengt#end
+            #if($$event.isLocked()) - Påmelding låst#end
+            </option>
         #end
             </select>
         </div>
@@ -37,18 +40,25 @@
 #if($selectedEvent)
 
     #set($participants = $clubService.sortSetOfPrincipalsByLastName($selectedEventParticipationMap.keySet()))
+    #set($spotsLeft = $clubService.getSpotsLeft($selectedEvent))
 
     #if(!$showDisenrolled)
 
     <div class="margin-bottom-40"></div>
-    <div class="panel panel-green margin-bottom-20">
+    <div class="panel panel-#if($clubService.isClosed())yellow#elseif($clubService.isEventEnded($selectedEvent))red#{else}green#end margin-bottom-20">
         <div class="panel-heading">
-            <h3 class="panel-title"><i class="icon-group"></i> $selectedEvent.getName()</h3>
+            <h3 class="panel-title"><i class="icon-group"></i> $selectedEvent.getName()
+#if($selectedEvent.isClosed()) - <i class="icon-ban-circle"></i>Påmelding stengt#end
+#if($selectedEvent.isLocked()) - <i class="icon-lock"></i>Påmelding låst#end
+#if($spotsLeft>=0) - <i class="icon-ticket"></i>$clubService.getEnrolledCountForEvent($selectedEvent) / $selectedEvent.getVacancies() plasser#end
+#if($clubService.isEventEnded($selectedEvent)) - <i class="icon-stop"></i>Avsluttet#end
+ - <i class="icon-calendar"></i>$pageService.formatDateTimeNoSeconds($selectedEvent.getStartTime())#if($selectedEvent.getEndTime()) <i class="icon-long-arrow-right"></i>$pageService.formatDateTimeNoSeconds($selectedEvent.getEndTime())#end
+            </h3>
         </div>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th></th>
+                    <th>#</th>
                     <th>Navn</th>
                     <th class="hidden-sm">Alder</th>
                     <th>Fødselsår</th>
@@ -58,6 +68,7 @@
 #end
 #if(!$showContactInfo)
                     <th class="hidden-sm">Påmeldt</th>
+                    <th>Betaling</th>
 #end
                 </tr>
             </thead>
@@ -66,8 +77,9 @@
         #set($participation = $selectedEventParticipationMap.get($participant))
         #if($participation.isEnrolled())
                 <tr>
-                    <td><i class="icon-$participant.getGender()"></i></td>
+                    <td>$velocityCount</td>
                     <td>
+                        <i class="icon-$participant.getGender()"></i>
                         $participant.getName()
                         #if(!$userService.isOnlyPrincipal($participant))<i class="icon-user"></i> #end
                     </td>
@@ -113,6 +125,10 @@
 #end
 #if(!$showContactInfo)
                     <td class="hidden-sm">$pageService.formatDateTime($participation.getCreated())</td>
+                    <td>
+                        #set($invoiceStatus = $invoiceService.getPrincipalEventParticipationInvoiceStatus($participation.getPrincipal(), $participation.getEvent()))
+                        #if($invoiceStatus) $invoiceStatus.getDescription()#{else}Ikke fakturert#end
+                    </td>
 #end
                 </tr>
         #end

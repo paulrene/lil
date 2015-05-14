@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
 import no.leinstrandil.database.model.club.ClubMembership;
@@ -22,6 +24,7 @@ import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.incident.ClubIncident;
 import no.leinstrandil.incident.IncidentHub;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,6 +263,23 @@ public class ClubService {
         return status;
     }
 
+    public Map<Event, EventParticipation> getRecentAndFutureEventParticipationStatusForPrincipal(Principal principal) {
+        Date cutOffDate = new DateTime().minusMonths(3).toDate();
+        Map<Event, EventParticipation> status = new HashMap<>();
+        List<EventParticipation> eventParticipations = principal.getEventParticipations();
+        for (EventParticipation eventParticipation : eventParticipations) {
+            Event event = eventParticipation.getEvent();
+            if (event.getStartTime().before(cutOffDate)) {
+                continue;
+            }
+            if (status.containsKey(event)) {
+                continue;
+            }
+            status.put(event, eventParticipation);
+        }
+        return status;
+    }
+
     public boolean isEnrolledAsClubMember(Family family) {
         List<ClubMembership> list = family.getClubMemberships();
         if (list == null || list.isEmpty()) {
@@ -294,7 +314,15 @@ public class ClubService {
     }
 
     public List<Event> getEvents() {
-        TypedQuery<Event> query = storage.createQuery("from Event order by startTime", Event.class);
+        TypedQuery<Event> query = storage.createQuery("from Event order by startTime desc", Event.class);
+        return query.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Event> getRecentAndFutureEvents() {
+        DateTime cutOffDate = new DateTime().minusMonths(3);
+        Query query = storage.createQuery("from Event where startTime > :cutOffDate order by startTime desc");
+        query.setParameter("cutOffDate", cutOffDate.toDate(), TemporalType.DATE);
         return query.getResultList();
     }
 
@@ -318,6 +346,17 @@ public class ClubService {
             }
         }
         return count;
+    }
+
+    public Integer getSpotsLeft(Event event) {
+        if (event == null) {
+            return null;
+        }
+        Integer vacancies = event.getVacancies();
+        if (vacancies == null) {
+            return -1;
+        }
+        return vacancies - getEnrolledCountForEvent(event);
     }
 
     public Map<Principal, EventParticipation> getEventParticipationForEvent(Event event) {

@@ -25,10 +25,10 @@
         #if($event.isClosed())
             <option value="$event.getId()" disabled>$event.getName() (Ikke åpen for påmelding)</option>
         #else
-            #if($event.getVacancies())
-                #set($left = $event.getVacancies() - $clubService.getEnrolledCountForEvent($event))
-            <option value="$event.getId()"#if($left<=0) disabled#end>$event.getName()
-                #if($left<=0)
+            #set($left = $clubService.getSpotsLeft($event))
+            #if($left>=0)
+            <option value="$event.getId()"#if($left==0) disabled#end>$event.getName()
+                #if($left==0)
             (Arrangementet er fulltegnet)
                 #else
              -- $left pl. igjen
@@ -96,15 +96,15 @@
                         <th>Arrangement</th>
                         <th>Start</th>
                         <th>Avdeling</th>
-                        <th>Påmeldt</th>
                         <th>D.avgift</th>
+                        <th>Betaling</th>
                         <th>Endre</th>
                     </tr>
                 </thead>
                 <tbody>
     #if($clubService.getActiveEventParticipationCountForFamily($family) > 0)
         #foreach($p in $family.getMembers())
-            #set($status = $clubService.getEventParticipationStatusForPrincipal($p))
+            #set($status = $clubService.getRecentAndFutureEventParticipationStatusForPrincipal($p))
             #foreach($ep in $status.values())
                 #if($ep.isEnrolled())
                     <tr>
@@ -126,9 +126,6 @@
                         </td>
                         <td>
                             #if($ep.getEvent().isLocked())<i title="Påmeldingen er låst!" class="icon-lock"></i> #end
-                            $pageService.formatDateTimeShort($ep.getCreated())
-                        </td>
-                        <td>
                             #if($membership.isEnrolled())
                                 #if($ep.getEvent().getPriceMember())
                             $ep.getEvent().getPriceMember(),-
@@ -138,6 +135,10 @@
                             $ep.getEvent().getPriceNonMember(),- (ikke medlem)
                                 #end
                             #end
+                        </td>
+                        <td>
+                            #set($invoiceStatus = $invoiceService.getPrincipalEventParticipationInvoiceStatus($ep.getPrincipal(), $ep.getEvent()))
+                            #if($invoiceStatus) $invoiceStatus.getDescription()#{else}Ikke fakturert#end
                         </td>
                         <td>
                     #if($userService.isOfAge($user.getPrincipal()) && !$ep.getEvent().isLocked() && !$clubService.hasEventStarted($ep.getEvent()))
@@ -160,8 +161,8 @@
 
     <p class="text-warning" style="margin-top:10px;">
         <span class="label label-warning"><i class="icon-warning-sign"></i></span> 
-        Melder du noen av et arrangement som har begrenset antall plasser vil plassen øyeblikkelig bli tildelt første person på ventelisten.
-        Om du så melder deg på igjen vil du stå sist på ventelisten.
+        Melder du noen av et arrangement som har begrenset antall plasser vil plassen øyeblikkelig bli fristilt.
+        Om du i ettertid skulle ombestemme deg kan plassen allerede være tatt av noen andre.
     </p>
 
     #if($info)

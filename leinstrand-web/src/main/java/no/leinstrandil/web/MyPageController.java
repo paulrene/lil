@@ -95,6 +95,7 @@ public class MyPageController implements Controller {
         } else if (tab.equals("arrangement")) {
             context.put("family", family);
             context.put("membership", membership);
+            context.put("invoiceService", invoiceService);
         } else if (tab.equals("faktura")) {
             context.put("invoiceService", invoiceService);
             context.put("goBackMonths", GO_BACK_MONTHS);
