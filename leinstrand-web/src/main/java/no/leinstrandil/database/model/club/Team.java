@@ -91,4 +91,9 @@ public class Team {
         this.teamMemberships = teamMemberships;
     }
 
+    @Override
+    public String toString() {
+        return "{" + getId() + ":" + getName() + "}";
+    }
+
 }

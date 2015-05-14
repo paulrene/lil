@@ -443,6 +443,7 @@ public class ClubService {
     }
 
     public Map<Principal, TeamMembership> getTeamMembershipsForTeam(Team team) {
+        storage.refresh(team);
         // Assume the list is in descending order (newest first)
         List<TeamMembership> teamMemberships = team.getTeamMemberships();
         Map<Principal, TeamMembership> map = new HashMap<>();

@@ -213,4 +213,8 @@ public class Principal {
         return mobileNumberList.get(0).getNumber();
     }
 
+    @Override
+    public String toString() {
+        return "{" + getId() + ":" + getName() + "}";
+    }
 }

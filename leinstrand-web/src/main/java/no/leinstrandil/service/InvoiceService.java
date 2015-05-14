@@ -51,7 +51,7 @@ public class InvoiceService {
                 continue;
             }
             if (isPrincipalAlreadyInvoicedTeamParticipation(principal, team, year)) {
-                return new ServiceResponse(true, "Allerede fakturert.");
+                continue;
             }
             int feeCount = getTeamFeeInvoicedCountForPrincipal(principal, year);
             Family family = principal.getFamily();
