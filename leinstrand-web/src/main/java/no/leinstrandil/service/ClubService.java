@@ -280,7 +280,7 @@ public class ClubService {
         return status;
     }
 
-    public boolean isEnrolledAsClubMember(Family family) {
+    public static boolean isEnrolledAsClubMember(Family family) {
         List<ClubMembership> list = family.getClubMemberships();
         if (list == null || list.isEmpty()) {
             return false;

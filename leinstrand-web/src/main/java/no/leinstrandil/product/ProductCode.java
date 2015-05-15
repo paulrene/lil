@@ -5,7 +5,8 @@ public enum ProductCode {
     FAMILY_MEMBERSHIP("FAMMEM", ProductType.CLUB_MEMBERSHIP),
     ADULT_MEMBERSHIP("ADUMEM", ProductType.CLUB_MEMBERSHIP),
     YOUTH_MEMBERSHIP("YOUMEM", ProductType.CLUB_MEMBERSHIP),
-    TEAM_FEE("TEAMFEE", ProductType.TEAM_FEE);
+    TEAM_FEE("TEAMFEE", ProductType.TEAM_FEE),
+    EVENT_FEE("EVENTFEE", ProductType.EVENT_FEE);
 
     private String code;
     private ProductType type;

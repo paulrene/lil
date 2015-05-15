@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import no.leinstrandil.database.model.accounting.Invoice;
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
@@ -106,18 +107,24 @@ public class AccoutingController implements Controller {
             return;
         }
 
-        QueryParamsMap map = request.queryMap("teamid");
-        String[] teamIdStrArray = map.values();
-        if (teamIdStrArray == null) {
+        QueryParamsMap map = request.queryMap("idlist");
+        String[] idStrArray = map.values();
+        if (idStrArray == null) {
             errorMap.put("doinvoice", "Ingen lag eller aktiviteter ble valgt.");
             return;
         }
         List<Long> teamIdList = new ArrayList<>();
-        for(String teamIdStr : teamIdStrArray) {
+        List<Long> eventIdList = new ArrayList<>();
+        for(String idStr : idStrArray) {
             try {
-                teamIdList.add(Long.parseLong(teamIdStr));
+                String[] idValue = idStr.split(":");
+                if (idValue[0].equals("team")) {
+                    teamIdList.add(Long.parseLong(idValue[1]));
+                } else {
+                    eventIdList.add(Long.parseLong(idValue[1]));
+                }
             } catch (NumberFormatException e) {
-                errorMap.put("doinvoice", "Tøysekopp, du må velge aktiviteter og lag i listen ovenfor.");
+                errorMap.put("doinvoice", "Tøysekopp, du må velge noe i listen ovenfor.");
                 return;
             }
         }
@@ -143,6 +150,17 @@ public class AccoutingController implements Controller {
                     return;
                 }
             }
+        }
+        for (Long eventId : eventIdList) {
+            Event event = clubService.getEventById(eventId);
+            ServiceResponse response = invoiceService.createInvoiceForEvent(event);
+            if (response.isSuccess()) {
+                infoList.add(response.getMessage());
+            } else {
+                errorMap.put("doinvoice", response.getMessage());
+                return;
+            }
+
         }
     }
 

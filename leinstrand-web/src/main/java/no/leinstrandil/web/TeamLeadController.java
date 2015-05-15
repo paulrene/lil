@@ -11,6 +11,7 @@ import no.leinstrandil.database.model.person.Family;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.database.model.web.User;
 import no.leinstrandil.service.ClubService;
+import no.leinstrandil.service.InvoiceService;
 import no.leinstrandil.service.MailService;
 import no.leinstrandil.service.UserService;
 import org.apache.velocity.VelocityContext;
@@ -21,11 +22,13 @@ public class TeamLeadController implements Controller {
     private ClubService clubService;
     private MailService mailService;
     private UserService userService;
+    private InvoiceService invoiceService;
 
-    public TeamLeadController(MailService mailService, UserService userService, ClubService clubService) {
+    public TeamLeadController(MailService mailService, UserService userService, ClubService clubService, InvoiceService invoiceService) {
         this.mailService = mailService;
         this.userService = userService;
         this.clubService = clubService;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -88,6 +91,7 @@ public class TeamLeadController implements Controller {
         Boolean showDisenrolled = Boolean.parseBoolean(request.queryParams("showdisenrolled"));
         context.put("showContactInfo", showContactInfo);
         context.put("showDisenrolled", showDisenrolled);
+        context.put("invoiceService", invoiceService);
     }
 
     private void listTeamMembers(Request request, VelocityContext context) {

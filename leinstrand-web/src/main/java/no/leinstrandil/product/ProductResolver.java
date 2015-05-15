@@ -1,48 +1,16 @@
 package no.leinstrandil.product;
 
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Sport;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.person.Principal;
+import no.leinstrandil.service.ClubService;
 import no.leinstrandil.service.UserService;
 
 public class ProductResolver {
 
     private ProductResolver() {
     }
-
-/*    public static Product getClubMembershipProduct(ClubMembership clubMembership, int productYear) {
-        Family family = clubMembership.getFamily();
-        List<Principal> members = family.getMembers();
-        if (members.isEmpty()) {
-            return null;
-        }
-
-        // Already invoiced club membership this year?
-        List<Invoice> invoiceList = family.getInvoices();
-        for (Invoice invoice : invoiceList) {
-            if (invoice.getStatus() == Status.CREDITED) {
-                continue;
-            }
-            if (!InvoiceService.isThisYear(invoice.getCreated())) {
-                continue;
-            }
-            List<InvoiceLine> lineList = invoice.getInvoiceLines();
-            for (InvoiceLine invoiceLine : lineList) {
-                if (ProductCode.isCodeBelongingToProductOfType(
-                        invoiceLine.getProductCode(),
-                        ProductType.CLUB_MEMBERSHIP)) {
-                    return null;
-                }
-            }
-        }
-
-        if (members.size() > 1) {
-            return getFamilyClubMembershipProduct(productYear);
-        } else {
-            Principal principal = members.get(0);
-            return getPrincipalClubMembershipProductByAge(principal, productYear);
-        }
-    }*/
 
     public static Product getPrincipalClubMembershipProductByAge(Principal principal, int productYear) {
         int age = UserService.getAgeAtEndOfYear(principal, productYear);
@@ -57,7 +25,7 @@ public class ProductResolver {
         return new Product(ProductCode.FAMILY_MEMBERSHIP.getCode(), "Familiemedlemskap " + productYear, 200, 0);
     }
 
-    public static Product getTeamParticipationProduct(Principal principal, Team team, int feeCount, int productYear) {
+    public static Product getTeamMembershipProduct(Principal principal, Team team, int feeCount, int productYear) {
         int age = UserService.getAgeAtEndOfYear(principal, productYear);
         int price = 0;
         int discount = 0;
@@ -82,6 +50,19 @@ public class ProductResolver {
         Sport sport = team.getSport();
         String description = sport.getName() + " " + team.getName() + " trenings-/aktivitetsavgift " + productYear + " for " + principal.getName();
         return new Product(ProductCode.TEAM_FEE.getCode(), description, price, discount);
+    }
+
+    public static Product getEventParticipationProduct(Principal principal, Event event) {
+        Integer price = event.getPriceMember();
+        String priceStatus = "medlem";
+        if (!event.requireMembership()) {
+            if (!ClubService.isEnrolledAsClubMember(principal.getFamily())) {
+                price = event.getPriceNonMember();
+                priceStatus = "ikke medlem";
+            }
+        }
+        String description = "Deltageravgift " + event.getName() + " for " + priceStatus + " "  + principal.getName();
+        return new Product(ProductCode.EVENT_FEE.getCode(), description, price, 0);
     }
 
 }

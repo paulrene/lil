@@ -125,7 +125,7 @@ public class Main {
         controllers.put(ControllerTemplate.FACEBOOK.getId(), new FacebookController(facebookService, pageService, clubService));
         controllers.put(ControllerTemplate.SEARCHRESULTS.getId(), new SearchResultsController(searchService));
         controllers.put(ControllerTemplate.MYPAGE.getId(), new MyPageController(userService, clubService, invoiceService));
-        controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(mailService, userService, clubService));
+        controllers.put(ControllerTemplate.TEAMLEAD.getId(), new TeamLeadController(mailService, userService, clubService, invoiceService));
         controllers.put(ControllerTemplate.SIGNIN.getId(), new SignInController(userService));
         controllers.put(ControllerTemplate.ACCOUNTING.getId(), new AccoutingController(userService, clubService, invoiceService));
 

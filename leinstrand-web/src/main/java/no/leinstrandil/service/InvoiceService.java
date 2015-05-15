@@ -15,6 +15,7 @@ import no.leinstrandil.database.model.accounting.Invoice.Status;
 import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.Event;
+import no.leinstrandil.database.model.club.EventParticipation;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.club.TeamMembership;
 import no.leinstrandil.database.model.person.Family;
@@ -58,7 +59,7 @@ public class InvoiceService {
             Family family = principal.getFamily();
             Invoice invoice = ensureOpenInvoiceForFamily(family);
             InvoiceLine line = new InvoiceLine();
-            Product product = ProductResolver.getTeamParticipationProduct(principal, team, feeCount, year);
+            Product product = ProductResolver.getTeamMembershipProduct(principal, team, feeCount, year);
             line.setCreated(new Date());
             line.setTeamMembership(membership);
             membership.getInvoiceLines().add(line);
@@ -80,7 +81,7 @@ public class InvoiceService {
                 storage.commit();
             } catch (RuntimeException e) {
                 storage.rollback();
-                log.warn("Error during invoicing of team participation", e);
+                log.warn("Error during invoicing of team membership", e);
                 return new ServiceResponse(false, "Det oppstod en feil under fakturering.");
             }
         }
@@ -144,7 +145,7 @@ public class InvoiceService {
     }
 
     public ServiceResponse createClubMembershipInvoiceForFamily(Family family, int year) {
-        if (!clubService.isEnrolledAsClubMember(family)) {
+        if (!ClubService.isEnrolledAsClubMember(family)) {
             new ServiceResponse(true, "Ingen faktura opprettet da familien ikke er klubbmedlemmer.");
         }
         if (family.isNoCombinedMembership() != null && family.isNoCombinedMembership()) {
@@ -156,7 +157,7 @@ public class InvoiceService {
 
     private ServiceResponse createCombinedClubMembershipInvoiceForFamily(Family family, int year) {
         storage.refresh(family);
-        if (!clubService.isEnrolledAsClubMember(family)) {
+        if (!ClubService.isEnrolledAsClubMember(family)) {
             return new ServiceResponse(true, "Ingenting å fakturere siden familien ikke er medlem.");
         }
         if (family.getMembers().isEmpty()) {
@@ -520,7 +521,7 @@ public class InvoiceService {
         return resultList;
     }
 
-    private boolean isPrincipalAlreadyInvoicedEventParticipation(Principal principal, Event event) {
+    public boolean isPrincipalAlreadyInvoicedEventParticipation(Principal principal, Event event) {
         List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
         for (InvoiceLine invoiceLine : invoiceLineList) {
             if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
@@ -542,7 +543,7 @@ public class InvoiceService {
         return false;
     }
 
-    private Status getPrincipalEventParticipationInvoiceStatus(Principal principal, Event event) {
+    public Status getPrincipalEventParticipationInvoiceStatus(Principal principal, Event event) {
         List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
         for (InvoiceLine invoiceLine : invoiceLineList) {
             if (!ProductCode.isCodeBelongingToProductOfType(
@@ -559,6 +560,52 @@ public class InvoiceService {
             return invoiceLine.getInvoice().getStatus();
         }
         return null;
+    }
+
+    public ServiceResponse createInvoiceForEvent(Event event) {
+        Map<Principal, EventParticipation> participations = clubService.getEventParticipationForEvent(event);
+        for (Principal principal : participations.keySet()) {
+            EventParticipation participation = participations.get(principal);
+            if (!participation.isEnrolled()) {
+                continue;
+            }
+            if (isPrincipalAlreadyInvoicedEventParticipation(principal, event)) {
+                continue;
+            }
+            Family family = principal.getFamily();
+            if (event.requireMembership()) {
+                if (!ClubService.isEnrolledAsClubMember(family)) {
+                    continue;
+                }
+            }
+            Invoice invoice= ensureOpenInvoiceForFamily(family);
+            InvoiceLine line = new InvoiceLine();
+            Product product = ProductResolver.getEventParticipationProduct(principal, event);
+            line.setCreated(new Date());
+            line.setEventParticipation(participation);
+            participation.getInvoiceLines().add(line);
+            line.setUnitPrice(product.getUnitPrice());
+            line.setDescription(product.getDescription());
+            line.setProductCode(product.getProductCode());
+            line.setDiscountInPercent(product.getDiscountInPercent());
+            line.setPrincipal(principal);
+            principal.getInvoiceLines().add(line);
+            line.setTaxPercent(0);
+            line.setQuantity(1);
+            line.setInvoice(invoice);
+            invoice.getInvoiceLines().add(line);
+
+            storage.begin();
+            try {
+                storage.persist(line);
+                storage.commit();
+            } catch (RuntimeException e) {
+                storage.rollback();
+                log.warn("Error during invoicing of event participation", e);
+                return new ServiceResponse(false, "Det oppstod en feil under fakturering.");
+            }
+        }
+        return new ServiceResponse(true, "Deltageravgift for " + event.getName() + " fakturert.");
     }
 
 }

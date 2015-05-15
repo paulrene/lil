@@ -1,24 +1,40 @@
     <div class="heading">
-        <h4>Velg lag og aktiviteter som skal faktureres</h4>
+        <h4>Velg kontigent, lag/aktiviteter og arrangementer som skal faktureres</h4>
     </div>
 
-    <form role="form" method="post" action="/page/$thisPage.getUrlName()?tab=fakturer">
+    <form role="form" method="post" action="/page/$thisPage.getUrlName()">
+        <input type="hidden" name="tab" value="fakturer">
         <input type="hidden" name="action" value="create-invoices">
 
         <div class="form-group">
-            <select class="form-control" name="teamid" required multiple size="$clubService.getTeamCount()">
+            <select class="form-control" name="idlist" required multiple size="20">
                 <optgroup label="Klubben">
-                    <option value="-1">Medlemskontigent for inneværende år</option>
+                    <option value="team:-1">Medlemskontigent for inneværende år</option>
                 </optgroup>
     #set($sportList = $clubService.getSports())
     #foreach($sport in $sportList)
                 <optgroup label="$sport.getName()">
         #set($teamList = $sport.getTeams())
         #foreach($team in $teamList)
-                    <option value="$team.getId()">$team.getName() - [$clubService.getEnrolledCountForTeam($team) stk] #if($team.isClosed())[LUKKET]#end #if($team.isLocked())[LÅST]#end</option>
+                    <option value="team:$team.getId()">$team.getName()
+                        - [$clubService.getEnrolledCountForTeam($team)]
+                    #if($team.isClosed())- LUKKET#end
+                    #if($team.isLocked())- LÅST#end</option>
         #end
                 </optgroup>
     #end
+                <optgroup label="Arrangementer">
+    #set(#$eventList = $clubService.getRecentAndFutureEvents())
+        #foreach($event in $eventList)
+                    <option value="event:$event.getId()">$event.getName() 
+                        - $pageService.formatDateTimeNoSeconds($event.getStartTime())
+                        - [$clubService.getEnrolledCountForEvent($event)#if($event.getVacancies())/$event.getVacancies()#end]
+                    #if($clubService.isEventEnded($event)) - Avsluttet#end
+                    #if($$event.isClosed()) - LUKKET#end
+                    #if($$event.isLocked()) - LÅST#end
+                    </option>
+        #end
+                </optgroup>
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Opprett fakturaer</button>

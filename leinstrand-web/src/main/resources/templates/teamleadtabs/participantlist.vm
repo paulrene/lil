@@ -126,8 +126,9 @@
 #if(!$showContactInfo)
                     <td class="hidden-sm">$pageService.formatDateTime($participation.getCreated())</td>
                     <td>
-                        #set($invoiceStatus = $invoiceService.getPrincipalEventParticipationInvoiceStatus($participation.getPrincipal(), $participation.getEvent()))
+                        #set($invoiceStatus = $invoiceService.getPrincipalEventParticipationInvoiceStatus($participant, $selectedEvent))
                         #if($invoiceStatus) $invoiceStatus.getDescription()#{else}Ikke fakturert#end
+                        #set($invoiceStatus = false)
                     </td>
 #end
                 </tr>

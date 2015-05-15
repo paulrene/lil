@@ -139,6 +139,7 @@
                         <td>
                             #set($invoiceStatus = $invoiceService.getPrincipalEventParticipationInvoiceStatus($ep.getPrincipal(), $ep.getEvent()))
                             #if($invoiceStatus) $invoiceStatus.getDescription()#{else}Ikke fakturert#end
+                            #set($invoiceStatus = false)
                         </td>
                         <td>
                     #if($userService.isOfAge($user.getPrincipal()) && !$ep.getEvent().isLocked() && !$clubService.hasEventStarted($ep.getEvent()))
