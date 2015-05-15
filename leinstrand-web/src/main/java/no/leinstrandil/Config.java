@@ -8,6 +8,10 @@ public class Config {
     private String appId;
     @Option(name = "-appsecret", usage = "Sets the Facebook app secret", required = true)
     private String appSecret;
+    @Option(name = "-sendregninguser", usage = "Sets the Sendregning API username", required = true)
+    private String srsUsername;
+    @Option(name = "-sendregningpassword", usage = "Sets the Sendregning API password", required = true)
+    private String srsPassword;
     @Option(name = "-baseurl", usage = "Sets the webapp base url", required = false)
     private String baseUrl = "http://localhost:8080/";
     @Option(name = "-port", usage = "Sets the webapp base url", required = false)
@@ -22,6 +26,14 @@ public class Config {
 
     public String getAppSecret() {
         return appSecret;
+    }
+
+    public String getSrsPassword() {
+        return srsPassword;
+    }
+
+    public String getSrsUsername() {
+        return srsUsername;
     }
 
     public String getBaseUrl() {

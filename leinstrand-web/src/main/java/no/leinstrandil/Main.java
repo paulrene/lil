@@ -3,11 +3,11 @@ package no.leinstrandil;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -47,6 +47,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -93,7 +94,7 @@ public class Main {
 
     private Map<String, Controller> controllers;
 
-    public Main(Config config) throws MalformedURLException {
+    public Main(Config config) throws HttpException, IOException {
         this.config = config;
 
         storage = new Storage();
@@ -106,7 +107,7 @@ public class Main {
         searchService = new SearchService(storage);
         stockPhotoService = new StockPhotoService();
         facebookService = new FacebookService(storage, stockPhotoService);
-        sendRegningService = new SendRegningService(storage, userService);
+        sendRegningService = new SendRegningService(storage, config);
         invoiceService = new InvoiceService(storage, userService, clubService, sendRegningService);
 
         velocity = new VelocityEngine();
@@ -612,7 +613,7 @@ public class Main {
         return null;
     }
 
-    public static void main(String[] args) throws MalformedURLException {
+    public static void main(String[] args) throws HttpException, IOException {
         Locale.setDefault(new Locale("nb", "no"));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

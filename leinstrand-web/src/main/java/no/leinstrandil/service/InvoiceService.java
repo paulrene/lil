@@ -479,16 +479,7 @@ public class InvoiceService {
         if (!isStatusSendable(invoice.getStatus())) {
             return new ServiceResponse(false, "Faktura med id " + invoiceId + " er ikke i en sendbar tilstand.");
         }
-        storage.begin();
-        try {
-            // TODO
-            invoice.setStatus(Status.SENT);
-            storage.commit();
-            return new ServiceResponse(true, "Faktura med id " + invoiceId + " ble sendt.");
-        } catch (RuntimeException e) {
-            storage.rollback();
-            return new ServiceResponse(false, "Det oppstod en feil under sending av faktura med id " + invoiceId);
-        }
+        return sendRegningService.sendInvoice(invoice);
     }
 
     public ServiceResponse sendAllInvoicesWithStatus(Status status) {

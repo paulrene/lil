@@ -20,7 +20,7 @@ import org.hibernate.annotations.CascadeType;
 public class Invoice {
 
     public static enum Status {
-        OPEN("Utarbeides"), SENT("Ikke betalt"), PAID("Betalt"), CREDITED("Kreditert");
+        OPEN("Utarbeides"), SENT("Ikke betalt"), PAID("Betalt"), CREDITED("Kreditert"), SEND_FAILED("Utsending feilet");
         private String description;
         private Status(String description) {
             this.description = description;
@@ -41,6 +41,7 @@ public class Invoice {
     private Date externalInvoiceDate;
     private Date externalInvoiceDue;
     private Date externalInvoicePaid;
+    private String externalBatchId;
     private Status status;
     private Date created;
 
@@ -114,6 +115,14 @@ public class Invoice {
 
     public void setExternalInvoicePaid(Date externalInvoicePaid) {
         this.externalInvoicePaid = externalInvoicePaid;
+    }
+
+    public String getExternalBatchId() {
+        return externalBatchId;
+    }
+
+    public void setExternalBatchId(String externalBatchId) {
+        this.externalBatchId = externalBatchId;
     }
 
 }
