@@ -3,7 +3,7 @@
         <p>
             Nedenfor ser du en oversikt over ubetalte og betalte fakturaer fra oss som du har mottatt siste $goBackMonths måneder.
         </p>
-#if($sentList.size() == 0 && $paidList.size() == 0)
+#if($sentList.size() == 0 && $paidList.size() == 0 && $creditedList.size() == 0)
         <p><i>Ingen fakturaer registrert.</i></p>
 #else
         <table class="table table-striped">
@@ -36,6 +36,16 @@
                     <td>$invoiceService.formatDate($invoice.getExternalInvoicePaid())</td>
                     <td>$invoiceService.getInvoiceDueAmount($invoice),-</td>
                     <td><span class="label label-success">Betalt</span></td>
+                </tr>
+#end
+#foreach($invoice in $creditedList)
+                <tr>
+                    <td>$!invoice.getExternalInvoiceNumber()</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDate())</td>
+                    <td> </td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoicePaid())</td>
+                    <td>$invoiceService.getInvoiceDueAmount($invoice),-</td>
+                    <td><span class="label label-success">Kreditert</span></td>
                 </tr>
 #end
             </tbody>

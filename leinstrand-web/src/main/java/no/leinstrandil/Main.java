@@ -355,6 +355,14 @@ public class Main {
             }
         });
 
+        Spark.get(new Route("/api/sws/sync") {
+            @Override
+            public Object handle(Request requsest, Response response) {
+                invoiceService.syncInvoiceStatus();
+                return new String();
+            }
+        });
+
         Spark.post(new Route("/api/upload") {
             @Override
             public Object handle(Request request, Response response) {

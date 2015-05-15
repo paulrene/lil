@@ -101,6 +101,7 @@ public class MyPageController implements Controller {
             context.put("goBackMonths", GO_BACK_MONTHS);
             context.put("sentList", invoiceService.getInvoicesForFamilyWithStatus(family, Invoice.Status.SENT, GO_BACK_MONTHS));
             context.put("paidList", invoiceService.getInvoicesForFamilyWithStatus(family, Invoice.Status.PAID, GO_BACK_MONTHS));
+            context.put("creditedList", invoiceService.getInvoicesForFamilyWithStatus(family, Invoice.Status.CREDITED, GO_BACK_MONTHS));
         }
 
     }
@@ -213,7 +214,8 @@ public class MyPageController implements Controller {
             return;
         }
 
-        EventParticipation eventParticipation = clubService.getLastEnrollmentToEventForPrincipal(event, principal);
+        Map<Event, EventParticipation> eventMap = clubService.getEventParticipationStatusForPrincipal(principal);
+        EventParticipation eventParticipation = eventMap.get(event);
         if (eventParticipation != null && eventParticipation.isEnrolled()) {
             errorMap.put("add", "Personen er allerede påmeldt dette arrangementet.");
             return;
@@ -264,6 +266,12 @@ public class MyPageController implements Controller {
             errorMap.put("add", "Påmeldingen kan ikke opprettes fordi aktiviteten er lukket av administrator.");
             return;
         }
+        Map<Team, TeamMembership> memMap = clubService.getTeamMembershipStatusForPrincipal(principal);
+        TeamMembership mem = memMap.get(team);
+        if (mem != null && mem.isEnrolled()) {
+            errorMap.put("add", "Personen er allerede påmeldt denne aktiviteten.");
+        }
+
         ServiceResponse response = clubService.createTeamMembership(principal, team);
         if (response.isSuccess()) {
             infoList.add(response.getMessage());

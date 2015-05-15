@@ -479,15 +479,19 @@ public class InvoiceService {
         if (!isStatusSendable(invoice.getStatus())) {
             return new ServiceResponse(false, "Faktura med id " + invoiceId + " er ikke i en sendbar tilstand.");
         }
-        return sendRegningService.sendInvoice(invoice);
+        List<Invoice> invoiceList = new ArrayList<>();
+        invoiceList.add(invoice);
+        return sendRegningService.sendInvoices(invoiceList);
     }
 
     public ServiceResponse sendAllInvoicesWithStatus(Status status) {
         if (!isStatusSendable(status)) {
             return new ServiceResponse(false, "Fakturaer med status " + status + " kan ikke sendes.");
         }
-        // TODO
-        return new ServiceResponse(false, "Ikke implementert");
+        if (true) {
+            throw new RuntimeException("Not yet implemented!");
+        }
+        return sendRegningService.sendInvoices(getInvoicesWithStatus(status));
     }
 
     public int getInvoiceCountForFamilyWithStatus(Family family, Status status, int goBackMonths) {
@@ -597,6 +601,14 @@ public class InvoiceService {
             }
         }
         return new ServiceResponse(true, "Deltageravgift for " + event.getName() + " fakturert.");
+    }
+
+    public void syncInvoiceStatus() {
+        List<Invoice> invoiceList = getInvoicesWithStatus(Status.SENT);
+        if (invoiceList.isEmpty()) {
+            return;
+        }
+        sendRegningService.syncInvoiceStatus(invoiceList);
     }
 
 }

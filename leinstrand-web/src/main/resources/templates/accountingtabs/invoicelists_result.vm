@@ -10,6 +10,9 @@
                     <th>Mottaker</th>
                     <th class="hidden-sm">Linjer</th>
                     <th>Beløp</th>
+                    <th>Faktura</th>
+                    <th>Sendt</th>
+                    <th>Betalingsfrist</th>
                     <th>Handling</th>
                 </tr>
             </thead>
@@ -23,6 +26,9 @@
                     <td>$invoice.getFamily().getPrimaryPrincipal().getName()</td>
                     <td class="hidden-sm">$invoice.getInvoiceLines().size()</td>
                     <td>$invoiceService.getInvoiceDueAmount($invoice) NOK</td>
+                    <td>#$!invoice.getExternalInvoiceNumber()</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDate())</td>
+                    <td>$invoiceService.formatDate($invoice.getExternalInvoiceDue())</td>
                     <td>
                         <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
                             <input type="hidden" name="tab" value="behandling">
@@ -48,6 +54,9 @@
                     <th></th>
                     <th class="hidden-sm"></th>
                     <th>$sum NOK</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                     <th>
                         <form class="form-inline" method="get" action="/page/$thisPage.getUrlName()">
                             <input type="hidden" name="tab" value="behandling">
