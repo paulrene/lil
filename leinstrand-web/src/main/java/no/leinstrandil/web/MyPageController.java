@@ -179,7 +179,7 @@ public class MyPageController implements Controller {
             errorMap.put("add", "Du kan ikke melde på noen som ikke er i din familie.");
             return;
         }
-        if (event.requireMembership() && !clubService.isEnrolledAsClubMember(user.getPrincipal().getFamily())) {
+        if (event.requireMembership() && !ClubService.isEnrolledAsClubMember(user.getPrincipal().getFamily())) {
             errorMap.put("add", "Dette arrangementet krever at man er medlem av idrettslaget. Gå til medlemskapssiden og meld deg inn først.");
         }
         if (event.isClosed()) {
@@ -191,7 +191,7 @@ public class MyPageController implements Controller {
             return;
         }
 
-        int ageThatYear = userService.getAgeThatYearOnTime(principal, event.getStartTime());
+        int ageThatYear = UserService.getAgeThatYearOnTime(principal, event.getStartTime());
 
         boolean failed = false;
         StringBuilder str = new StringBuilder();
