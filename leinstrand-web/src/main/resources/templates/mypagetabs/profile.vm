@@ -12,7 +12,7 @@
                             <div class="form-group#if($errors.opt("birthdate")) has-error#end">
                                 <label for="inputBirthdate" class="col-lg-2 control-label">Fødselsdag</label>
                                 <div class="col-lg-10">
-                                    <input type="date" name="birthdate" class="form-control" id="inputBirthdate" placeholder="Fødselsdag" value="$userService.toDatePickerValue($principal.getBirthDate())">
+                                    <input type="text" id="datepicker" name="birthdate" class="form-control" placeholder="Fødselsdag (dd.mm.yyyy)" value="$userService.toDatePickerValue($principal.getBirthDate())">
                                     #inputerror( "birthdate" )
                                 </div>
                             </div>

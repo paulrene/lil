@@ -231,7 +231,7 @@ public class UserService {
         if (date == null) {
             return "";
         }
-        return new SimpleDateFormat("yyyy-MM-dd").format(date);
+        return new SimpleDateFormat("dd.MM.yyyy").format(date);
     }
 
     public String formatBirthDate(Date date) {
