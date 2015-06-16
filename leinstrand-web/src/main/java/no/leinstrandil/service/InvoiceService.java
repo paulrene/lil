@@ -96,6 +96,9 @@ public class InvoiceService {
             if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
                 continue;
             }
+            if (invoiceLine.getValidYear() == null) {
+                continue;
+            }
             if (invoiceLine.getValidYear() != year) {
                 continue;
             }
@@ -112,6 +115,9 @@ public class InvoiceService {
         List<InvoiceLine> invoiceLineList = principal.getInvoiceLines();
         for (InvoiceLine invoiceLine : invoiceLineList) {
             if (invoiceLine.getInvoice().getStatus() == Status.CREDITED) {
+                continue;
+            }
+            if (invoiceLine.getValidYear() == null) {
                 continue;
             }
             if (invoiceLine.getValidYear() != year) {
@@ -283,6 +289,9 @@ public class InvoiceService {
             }
             List<InvoiceLine> lineList = invoice.getInvoiceLines();
             for (InvoiceLine invoiceLine : lineList) {
+                if (invoiceLine.getValidYear() == null) {
+                    continue;
+                }
                 if (invoiceLine.getValidYear() != year) {
                     continue;
                 }
