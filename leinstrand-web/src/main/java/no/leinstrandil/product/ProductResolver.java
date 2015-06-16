@@ -1,7 +1,7 @@
 package no.leinstrandil.product;
 
-import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Sport;
+import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.Team;
 import no.leinstrandil.database.model.person.Principal;
 import no.leinstrandil.service.ClubService;
@@ -15,9 +15,9 @@ public class ProductResolver {
     public static Product getPrincipalClubMembershipProductByAge(Principal principal, int productYear) {
         int age = UserService.getAgeAtEndOfYear(principal, productYear);
         if (age >= 18) {
-            return new Product(ProductCode.ADULT_MEMBERSHIP.getCode(), "Klubbmedlemskap voksen " + productYear + " for " + principal.getName(), 150, 0);
+            return new Product(ProductCode.ADULT_MEMBERSHIP.getCode(), "Klubbmedlemskap voksen " + productYear + " for " + principal.getFirstName(), 150, 0);
         } else {
-            return new Product(ProductCode.YOUTH_MEMBERSHIP.getCode(), "Klubbmedlemskap barn/ungdom " + productYear + " for " + principal.getName(), 50, 0);
+            return new Product(ProductCode.YOUTH_MEMBERSHIP.getCode(), "Klubbmedlemskap barn/ungdom " + productYear + " for " + principal.getFirstName(), 50, 0);
         }
     }
 
@@ -48,7 +48,7 @@ public class ProductResolver {
             price = 2200;
         }
         Sport sport = team.getSport();
-        String description = sport.getName() + " " + team.getName() + " trenings-/aktivitetsavgift " + productYear + " for " + principal.getName();
+        String description = sport.getName() + " " + team.getName() + " trenings-/aktivitetsavgift " + productYear + " for " + principal.getFirstName();
         return new Product(ProductCode.TEAM_FEE.getCode(), description, price, discount);
     }
 
@@ -61,7 +61,7 @@ public class ProductResolver {
                 priceStatus = "ikke medlem";
             }
         }
-        String description = "Deltageravgift " + event.getName() + " for " + priceStatus + " "  + principal.getName();
+        String description = "Deltageravgift " + event.getName() + " for " + priceStatus + " "  + principal.getFirstName();
         return new Product(ProductCode.EVENT_FEE.getCode(), description, price, 0);
     }
 
