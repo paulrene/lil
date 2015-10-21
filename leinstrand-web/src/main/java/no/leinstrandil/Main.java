@@ -205,6 +205,7 @@ public class Main {
                 context.put("pageService", pageService);
                 context.put("userService", userService);
                 context.put("clubService", clubService);
+                context.put("invoiceService", invoiceService);
                 context.put("facebookService", facebookService);
                 context.put("redactorIdList", new ArrayList<String>());
                 context.put("redactorAirIdList", new ArrayList<String>());

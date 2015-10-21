@@ -20,7 +20,12 @@ import org.hibernate.annotations.CascadeType;
 public class Invoice {
 
     public static enum Status {
-        OPEN("Utarbeides"), SENT("Ikke betalt"), PAID("Betalt"), CREDITED("Kreditert"), SEND_FAILED("Utsending feilet");
+        OPEN("Utarbeides"),
+        SENT("Ikke betalt"),
+        PAID("Betalt"),
+        CREDITED("Kreditert"),
+        SEND_FAILED("Utsending feilet");
+
         private String description;
         private Status(String description) {
             this.description = description;

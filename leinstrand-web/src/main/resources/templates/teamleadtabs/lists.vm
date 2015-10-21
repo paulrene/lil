@@ -64,6 +64,7 @@
 #if(!$showContactInfo)
                     <th class="hidden-sm">Påmeldt</th>
                     <th class="hidden-sm">Varighet</th>
+                    <th>Status</th>
 #end
                 </tr>
             </thead>
@@ -126,6 +127,26 @@
 #if(!$showContactInfo)
                     <td class="hidden-sm">$pageService.formatDateTime($membership.getCreated())</td>
                     <td class="hidden-sm">$pageService.prettyTime($membership.getCreated())</td>
+    #set($status = $clubService.getTeamMembershipPaymentStatusCurrentYear($membership))
+    #set($label = "default")
+    #if($status == "OK")
+        #set($label = "success")
+    #elseif($status == "INVOICED_NOT_PAID")
+        #set($label = "info")
+    #elseif($status == "INVOICED_OVERDUE")
+        #set($label = "danger")
+    #elseif($status == "REFUNDED")
+        #set($label = "success")
+    #elseif($status == "PROCESSING")
+        #set($label = "info")
+    #elseif($status == "NOT_INVOICED")
+        #set($label = "warning")
+    #elseif($status == "NOT_ABLE_TO_SEND")
+        #set($label = "danger")
+    #end
+    <td>
+        <span class="label label-$label">$status.getDescription()</span>
+    </td>
 #end
                 </tr>
         #end
@@ -156,6 +177,7 @@
                     <th class="hidden-sm">Påmeldt</th>
                     <th>Utmeldt</th>
                     <th class="hidden-sm">Varighet</th>
+                    <th>Status</th>
 #end
                 </tr>
             </thead>
@@ -213,6 +235,7 @@
                     <td class="hidden-sm">$pageService.formatDateTime($enrollment.getCreated())</td>
                     <td>$pageService.formatDateTime($membership.getCreated())</td>
                     <td class="hidden-sm">$pageService.prettyTime($membership.getCreated(), $enrollment.getCreated())</td>
+                    <td>Ukjent</td>
 #end
                 </tr>
         #end

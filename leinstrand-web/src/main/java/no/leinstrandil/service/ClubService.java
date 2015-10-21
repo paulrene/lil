@@ -13,6 +13,8 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import no.leinstrandil.database.Storage;
+import no.leinstrandil.database.model.accounting.Invoice.Status;
+import no.leinstrandil.database.model.accounting.InvoiceLine;
 import no.leinstrandil.database.model.club.ClubMembership;
 import no.leinstrandil.database.model.club.Event;
 import no.leinstrandil.database.model.club.EventParticipation;
@@ -557,6 +559,52 @@ public class ClubService {
     public List<Family> queryFamily(String query) {
         TypedQuery<Family> q = storage.createQuery("from Family f where f.primaryPrincipal.name like '%" + query + "%' order by f.primaryPrincipal.lastName, f.primaryPrincipal.firstName", Family.class);
         return q.getResultList();
+    }
+
+    public static enum PaymentStatus {
+        OK("Betalt"),
+        INVOICED_NOT_PAID("Venter på betaling"),
+        INVOICED_OVERDUE("Betalingsfrist utløpt"),
+        REFUNDED("Refundert"),
+        PROCESSING("Faktura under utarbeidelse"),
+        NOT_INVOICED("Ikke fakturert"),
+        NOT_ABLE_TO_SEND("Mangler gyldig mottaker");
+
+        private String description;
+
+        private PaymentStatus(String description) {
+            this.description = description;
+        }
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public PaymentStatus getTeamMembershipPaymentStatusCurrentYear(TeamMembership teamMembership) {
+        if (teamMembership == null) {
+            return null;
+        }
+
+        int currentYear = InvoiceService.getCurrentYear();
+        List<InvoiceLine> invoiceLines = teamMembership.getInvoiceLines();
+        for (InvoiceLine invoiceLine : invoiceLines) {
+            if (invoiceLine.getValidYear() == currentYear) {
+                Status status = invoiceLine.getInvoice().getStatus();
+                switch (status) {
+                case CREDITED: return PaymentStatus.REFUNDED;
+                case OPEN: return PaymentStatus.PROCESSING;
+                case PAID: return PaymentStatus.OK;
+                case SEND_FAILED: return PaymentStatus.NOT_ABLE_TO_SEND;
+                case SENT:
+                    if (new Date().after(invoiceLine.getInvoice().getExternalInvoiceDue())) {
+                        return PaymentStatus.INVOICED_OVERDUE;
+                    } else {
+                        return PaymentStatus.INVOICED_NOT_PAID;
+                    }
+                }
+            }
+        }
+        return PaymentStatus.NOT_INVOICED;
     }
 
 }
