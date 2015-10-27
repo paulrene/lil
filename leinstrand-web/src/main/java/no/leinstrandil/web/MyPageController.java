@@ -81,8 +81,8 @@ public class MyPageController implements Controller {
         } else if (tab.equals("familie")) {
             List<Address> addressList = user.getPrincipal().getAddressList();
             if (addressList.size() > 0) {
-                Address address = addressList.get(0);
-                boolean displayNoCombined = !"7083".equals(address.getZip()) && !"7089".equals(address.getZip());
+                // Address address = addressList.get(0);
+                boolean displayNoCombined = true; // !"7083".equals(address.getZip()) && !"7089".equals(address.getZip());
                 context.put("showNoCombinedMembershipOption", displayNoCombined);
             }
             context.put("family", family);
