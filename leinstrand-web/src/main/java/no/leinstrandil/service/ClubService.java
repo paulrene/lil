@@ -580,27 +580,44 @@ public class ClubService {
         }
     }
 
-    public PaymentStatus getTeamMembershipPaymentStatusCurrentYear(TeamMembership teamMembership) {
-        if (teamMembership == null) {
+    public PaymentStatus getTeamMembershipPaymentStatusCurrentYear(TeamMembership currentTeamMembership) {
+        if (currentTeamMembership == null) {
             return null;
         }
+        PaymentStatus paymentStatus = PaymentStatus.NOT_INVOICED;
+        Principal principal = currentTeamMembership.getPrincipal();
+        List<TeamMembership> teamMemberships = principal.getTeamMemberships();
+        for (TeamMembership teamMembership : teamMemberships) {
+            if (currentTeamMembership.getTeam().getId() == teamMembership.getTeam().getId()) {
+                PaymentStatus temp = getPaymentStatusFromTeamMembership(teamMembership, InvoiceService.getCurrentYear());
+                if (temp != null) {
+                    paymentStatus = temp;
+                }
+                if (paymentStatus == PaymentStatus.OK) {
+                    break;
+                }
+            }
+        }
+        return paymentStatus;
+    }
 
-        int currentYear = InvoiceService.getCurrentYear();
+    public PaymentStatus getPaymentStatusFromTeamMembership(TeamMembership teamMembership, int yearToConsider) {
         List<InvoiceLine> invoiceLines = teamMembership.getInvoiceLines();
         for (InvoiceLine invoiceLine : invoiceLines) {
-            if (invoiceLine.getValidYear() == currentYear) {
-                Status status = invoiceLine.getInvoice().getStatus();
-                switch (status) {
-                case CREDITED: return PaymentStatus.REFUNDED;
-                case OPEN: return PaymentStatus.PROCESSING;
-                case PAID: return PaymentStatus.OK;
-                case SEND_FAILED: return PaymentStatus.NOT_ABLE_TO_SEND;
-                case SENT:
-                    if (new Date().after(invoiceLine.getInvoice().getExternalInvoiceDue())) {
-                        return PaymentStatus.INVOICED_OVERDUE;
-                    } else {
-                        return PaymentStatus.INVOICED_NOT_PAID;
-                    }
+            if (invoiceLine.getValidYear() != yearToConsider) {
+                continue;
+            }
+            Status status = invoiceLine.getInvoice().getStatus();
+            switch (status) {
+            case CREDITED: return PaymentStatus.REFUNDED;
+            case OPEN: return PaymentStatus.PROCESSING;
+            case PAID: return PaymentStatus.OK;
+            case SEND_FAILED: return PaymentStatus.NOT_ABLE_TO_SEND;
+            case SENT:
+                if (new Date().after(invoiceLine.getInvoice().getExternalInvoiceDue())) {
+                    return PaymentStatus.INVOICED_OVERDUE;
+                } else {
+                    return PaymentStatus.INVOICED_NOT_PAID;
                 }
             }
         }
